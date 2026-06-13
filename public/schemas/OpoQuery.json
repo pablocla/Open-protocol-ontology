@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://openprotocol.dev/schemas/OpoQuery.json",
+  "$id": "https://openontology.vercel.app/schemas/OpoQuery.json",
   "title": "OpoQuery",
   "description": "Standardized OPO Query Language (OPO-QL) for deterministic AI fetching with strict boundaries",
   "type": "object",
@@ -91,3 +91,4 @@
     }
   }
 }
+

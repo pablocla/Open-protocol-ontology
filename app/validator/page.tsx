@@ -59,7 +59,7 @@ export default function ValidatorPage() {
       monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
         validate: true,
         schemas: [{
-          uri: `https://openprotocol.dev/schemas/${selectedSchema}.json`, // Fake absolute URI needed by Monaco
+          uri: `https://openontology.vercel.app/schemas/${selectedSchema}.json`, // Fake absolute URI needed by Monaco
           fileMatch: ['*'], // Match all files in this editor instance
           schema: schemaData // Pass the actual downloaded schema object
         }]
@@ -74,7 +74,7 @@ export default function ValidatorPage() {
       monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
         validate: true,
         schemas: [{
-          uri: `https://openprotocol.dev/schemas/${selectedSchema}.json`,
+          uri: `https://openontology.vercel.app/schemas/${selectedSchema}.json`,
           fileMatch: ['*'],
           schema: schemaData
         }]
@@ -211,3 +211,4 @@ export default function ValidatorPage() {
     </div>
   );
 }
+

@@ -152,7 +152,7 @@ export default function FeedbackWidget({
       confidence,
       notes,
       contact: contact.trim() || null,
-      source_url: typeof window !== 'undefined' ? window.location.href : 'https://openprotocol.dev',
+      source_url: typeof window !== 'undefined' ? window.location.href : 'https://openontology.vercel.app',
       timestamp: new Date().toISOString()
     };
 
@@ -389,3 +389,4 @@ export default function FeedbackWidget({
     </div>
   );
 }
+

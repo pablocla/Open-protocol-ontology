@@ -37,7 +37,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
 
   const handleCopyPrompt = async () => {
     try {
-      await navigator.clipboard.writeText('https://openprotocol.dev/ontology/opo-ai-primer.md');
+      await navigator.clipboard.writeText('https://openontology.vercel.app/ontology/opo-ai-primer.md');
       setCopiedPrompt(true);
       setTimeout(() => setCopiedPrompt(false), 2000);
     } catch (err) {
@@ -204,7 +204,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
             </button>
             
             <span className="text-[11px] font-mono text-slate-500 truncate hidden sm:inline max-w-xs md:max-w-none">
-              IRI: https://openprotocol.dev/ontology/
+              IRI: https://openontology.vercel.app/ontology/
             </span>
           </div>
 
@@ -290,3 +290,4 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     </div>
   );
 }
+

@@ -63,7 +63,7 @@ Expose QBO supported entities inside your standard `/.well-known/opo.json` file 
 
 ```json
 {
-  "$schema": "https://openprotocol.dev/ontology/schemas/opo-manifest.json",
+  "$schema": "https://openontology.vercel.app/ontology/schemas/opo-manifest.json",
   "opo_version": "0.1.0",
   "system_identifier": "QUICKBOOKS-ONLINE-GLB",
   "jurisdiction": "Global",
@@ -132,3 +132,4 @@ curl -X GET "https://qb-opo.myenterprise.com/api/v1/entities/Customer/12" \
 ### Error: `Intuit API Error: 401 Unauthorized`
 - **Cause**: Inaccurate authorization headers or mismatched Company ID (Realm ID).
 - **Fix**: Verify your Realm ID configuration matches the credentials set in `opo-adapter.config.json` exactly.
+

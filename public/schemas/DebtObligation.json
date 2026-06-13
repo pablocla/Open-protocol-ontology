@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/DebtObligation.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/DebtObligation.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "DebtObligation",
   "description": "Debt obligations, financial loans, or security liabilities held by the enterprise or counterparties.",
@@ -51,3 +51,4 @@
     }
   }
 }
+

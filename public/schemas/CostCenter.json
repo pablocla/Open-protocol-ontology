@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/CostCenter.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/CostCenter.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "CostCenter",
   "description": "An organizational unit or segment that collects, tracks, and audits operational costs, budgets, and departmental expenses.",
@@ -50,3 +50,4 @@
     }
   }
 }
+

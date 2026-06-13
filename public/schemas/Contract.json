@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Contract.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Contract.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Contract",
   "description": "A binding legal agreement between the organization and a counterparty specifying operational conditions, timelines, and financial clauses.",
@@ -51,3 +51,4 @@
     }
   }
 }
+

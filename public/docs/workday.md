@@ -62,7 +62,7 @@ Provide directory structures for workers and cost centers inside `/.well-known/o
 
 ```json
 {
-  "$schema": "https://openprotocol.dev/ontology/schemas/opo-manifest.json",
+  "$schema": "https://openontology.vercel.app/ontology/schemas/opo-manifest.json",
   "opo_version": "0.1.0",
   "system_identifier": "WORKDAY-CLOUD-ENT",
   "jurisdiction": "Global",
@@ -126,3 +126,4 @@ curl -X GET "https://workday-opo.myenterprise.com/api/v1/entities/Employee/EMP44
 ### Error: `RaaS Access Denied: 403 Forbidden`
 - **Cause**: The report has not been shared with the specific Integration System User (ISU) profile.
 - **Fix**: Open Custom Report settings, head to **Share** and add your OPO system integration user.
+

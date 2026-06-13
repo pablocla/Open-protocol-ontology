@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Customer.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Customer.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Customer",
   "description": "An entity representing a buyer, client, or consumer that purchases goods, services, or contracts from the business.",
@@ -51,3 +51,4 @@
     }
   }
 }
+

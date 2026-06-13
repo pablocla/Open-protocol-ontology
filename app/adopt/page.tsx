@@ -18,7 +18,7 @@ const discoveryDeclarationCode = `{
     "opo:Customer": {
       "path": "/api/opo/v1/customers",
       "methods": ["GET"],
-      "schema": "https://openprotocol.dev/ontology/schemas/Customer.json"
+      "schema": "https://openontology.vercel.app/ontology/schemas/Customer.json"
     }
   }
 }`;
@@ -41,7 +41,7 @@ app.get('/.well-known/opo.json', (req, res) => {
       "opo:Invoice": {
         "path": "/api/opo/invoices",
         "methods": ["GET"],
-        "schema": "https://openprotocol.dev/ontology/schemas/Invoice.json"
+        "schema": "https://openontology.vercel.app/ontology/schemas/Invoice.json"
       }
     }
   });
@@ -245,3 +245,4 @@ export default function AdoptPage() {
     </div>
   );
 }
+

@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/CreditAccount.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/CreditAccount.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "CreditAccount",
   "description": "An administrative ledger tracking credit lines, current utilization, and credit availability for customers and counterparties.",
@@ -50,3 +50,4 @@
     }
   }
 }
+

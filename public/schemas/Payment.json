@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Payment.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Payment.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Payment",
   "description": "An execution of a monetary transaction, representing funds cleared for an invoice or external account balance.",
@@ -51,3 +51,4 @@
     }
   }
 }
+

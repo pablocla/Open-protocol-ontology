@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Warehouse.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Warehouse.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Warehouse",
   "description": "Stock warehouse or storage depot housing inventory, physical assets, and shipment routes.",
@@ -52,3 +52,4 @@
     }
   }
 }
+

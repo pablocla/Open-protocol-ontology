@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/PriceList.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/PriceList.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "PriceList",
   "description": "Standard list or matrix of product prices, applicable client groups, discount factors, and activation dates.",
@@ -62,3 +62,4 @@
     }
   }
 }
+

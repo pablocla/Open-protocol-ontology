@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Product.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Product.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Product",
   "description": "A physical or digital tangible item produced, stocked, transacted, or sold by the organization.",
@@ -42,3 +42,4 @@
   },
   "required": ["id", "sku", "name", "unitOfMeasure"]
 }
+

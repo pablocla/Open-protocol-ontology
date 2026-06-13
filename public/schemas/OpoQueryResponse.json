@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://openprotocol.dev/schemas/OpoQueryResponse.json",
+  "$id": "https://openontology.vercel.app/schemas/OpoQueryResponse.json",
   "title": "OpoQueryResponse",
   "description": "Standardized enveloped response for OPO queries with cursor pagination metadata",
   "type": "object",
@@ -29,3 +29,4 @@
   "required": ["data", "pagination"],
   "additionalProperties": false
 }
+

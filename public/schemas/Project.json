@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Project.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Project.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Project",
   "description": "An organized project planning structure recording milestones, timelines, expenses context, and team leaders.",
@@ -42,3 +42,4 @@
   },
   "required": ["id", "code", "name", "progressPercentage"]
 }
+

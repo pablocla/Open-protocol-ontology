@@ -64,7 +64,7 @@ Expose supported local maps through standard `/.well-known/opo.json` configurati
 
 ```json
 {
-  "$schema": "https://openprotocol.dev/ontology/schemas/opo-manifest.json",
+  "$schema": "https://openontology.vercel.app/ontology/schemas/opo-manifest.json",
   "opo_version": "0.1.0",
   "system_identifier": "TANGO-LOCAL-SQL-ARG",
   "jurisdiction": "Argentina",
@@ -133,3 +133,4 @@ curl -X GET "http://localhost:3000/api/v1/entities/Customer/CUST0041" \
 ### Error: `Connection Error: SQL Server instance not found or port blocked`
 - **Cause**: MS SQL Server instance does not allow TCP/IP traffic, or network firewall is blocking port 1433.
 - **Fix**: Open SQL Server Configuration Manager, enable TCP/IP, set standard port to 1433, and authorize connection rules inside Windows Defender firewall.
+

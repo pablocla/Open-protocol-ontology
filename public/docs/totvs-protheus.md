@@ -72,7 +72,7 @@ Expose supported Brazilian localized structures by maintaining standard `/.well-
 
 ```json
 {
-  "$schema": "https://openprotocol.dev/ontology/schemas/opo-manifest.json",
+  "$schema": "https://openontology.vercel.app/ontology/schemas/opo-manifest.json",
   "opo_version": "0.1.0",
   "system_identifier": "TOTVS-PROTHEUS-PRD-BR",
   "jurisdiction": "Brazil",
@@ -141,3 +141,4 @@ curl -X GET "https://protheus-opo.myenterprise.com.br/api/v1/entities/Customer/0
 ### Error: `TOTVS AppServer Error: Connection Refused (8000)`
 - **Cause**: The HTTPREST service section has not been configured or isn't active under Protheus `appserver.ini`.
 - **Fix**: Open configuration files on the host computer, double-check port bindings, and restart AppServer.
+

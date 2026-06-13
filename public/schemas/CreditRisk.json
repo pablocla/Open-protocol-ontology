@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/CreditRisk.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/CreditRisk.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "CreditRisk",
   "description": "Financial credit risk assessment indexes registering profile ratings, default metrics, and score categories.",
@@ -41,3 +41,4 @@
   },
   "required": ["id", "partyId", "creditRating", "probabilityOfDefault", "riskLevel"]
 }
+

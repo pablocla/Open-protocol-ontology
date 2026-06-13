@@ -60,7 +60,7 @@ Expose supported endpoints using standard `/.well-known/opo.json` configurations
 
 ```json
 {
-  "$schema": "https://openprotocol.dev/ontology/schemas/opo-manifest.json",
+  "$schema": "https://openontology.vercel.app/ontology/schemas/opo-manifest.json",
   "opo_version": "0.1.0",
   "system_identifier": "INFOR-ION-OS-PRD",
   "jurisdiction": "Global",
@@ -124,3 +124,4 @@ curl -X GET "https://infor-opo.myenterprise.com/api/v1/entities/Customer/C000109
 ### Error: `Infor OS Error: Routing path or endpoint target unreachable`
 - **Cause**: Underlying business ERP endpoint lacks proper subscription in ION OS.
 - **Fix**: Open ION routing dashboard, go to Connection Points, and verify target application subscription status.
+

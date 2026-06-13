@@ -6,34 +6,35 @@
     "jurisdictions": ["US", "BR", "AR"]
   },
   "discovery": {
-    "context_url": "https://openprotocol.dev/ontology/opo-context.jsonld",
-    "registry_url": "https://openprotocol.dev/ontology/opo-registry.json"
+    "context_url": "https://openontology.vercel.app/ontology/opo-context.jsonld",
+    "registry_url": "https://openontology.vercel.app/ontology/opo-registry.json"
   },
   "endpoints": {
     "opo:Customer": {
       "path": "/customers",
       "methods": ["GET"],
-      "schema": "https://openprotocol.dev/ontology/schemas/Customer.json"
+      "schema": "https://openontology.vercel.app/ontology/schemas/Customer.json"
     },
     "opo:Supplier": {
       "path": "/suppliers",
       "methods": ["GET"],
-      "schema": "https://openprotocol.dev/ontology/schemas/Supplier.json"
+      "schema": "https://openontology.vercel.app/ontology/schemas/Supplier.json"
     },
     "opo:Invoice": {
       "path": "/invoices",
       "methods": ["GET", "POST"],
-      "schema": "https://openprotocol.dev/ontology/schemas/Invoice.json"
+      "schema": "https://openontology.vercel.app/ontology/schemas/Invoice.json"
     },
     "opo:Product": {
       "path": "/products",
       "methods": ["GET"],
-      "schema": "https://openprotocol.dev/ontology/schemas/Product.json"
+      "schema": "https://openontology.vercel.app/ontology/schemas/Product.json"
     },
     "opo:PriceList": {
       "path": "/pricelists",
       "methods": ["GET"],
-      "schema": "https://openprotocol.dev/ontology/schemas/PriceList.json"
+      "schema": "https://openontology.vercel.app/ontology/schemas/PriceList.json"
     }
   }
 }
+

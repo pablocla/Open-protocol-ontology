@@ -68,7 +68,7 @@ Provide NetSuite schema profiles within your `/.well-known/opo.json` file so AI 
 
 ```json
 {
-  "$schema": "https://openprotocol.dev/ontology/schemas/opo-manifest.json",
+  "$schema": "https://openontology.vercel.app/ontology/schemas/opo-manifest.json",
   "opo_version": "0.1.0",
   "system_identifier": "NETSUITE-PROD-GLOBAL",
   "jurisdiction": "Global",
@@ -137,3 +137,4 @@ curl -X GET "https://netsuite-opo.myenterprise.com/api/v1/entities/Customer/9482
 ### Error: `NetSuite Access Denied: Insufficient permissions for API endpoint`
 - **Cause**: The user role associated with your TBA token lacks the required WEB SERVICES integration permissions.
 - **Fix**: Go to Users/Roles > Manage Roles, select your API service role, click Permissions > Setup, and add `REST Web Services` privilege.
+

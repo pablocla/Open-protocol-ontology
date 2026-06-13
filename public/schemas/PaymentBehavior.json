@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/PaymentBehavior.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/PaymentBehavior.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "PaymentBehavior",
   "description": "Historical metrics capturing a partner's credit-payment behavior, average delays, dunning stages, and collection histories.",
@@ -40,3 +40,4 @@
   },
   "required": ["id", "partyId", "averageDaysLate", "onTimePaymentRatio"]
 }
+

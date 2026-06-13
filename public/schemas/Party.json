@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Party.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Party.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Party",
   "description": "A legal entity, natural person, or organizational division capable of entering into agreements, incurring obligations, or participating in transactions.",
@@ -64,3 +64,4 @@
     }
   }
 }
+

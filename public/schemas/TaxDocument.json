@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/TaxDocument.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/TaxDocument.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "TaxDocument",
   "description": "Withholding certificates, tax declarations, fiscal vouchers, and regulatory filings matching corporate transactions.",
@@ -52,3 +52,4 @@
     }
   }
 }
+

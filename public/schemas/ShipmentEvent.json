@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/ShipmentEvent.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/ShipmentEvent.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "ShipmentEvent",
   "description": "Logistics events and tracing records representing shipment dispatch, carrier Handover, and destination deliveries.",
@@ -42,3 +42,4 @@
   },
   "required": ["id", "orderId", "status", "eventTimestamp"]
 }
+

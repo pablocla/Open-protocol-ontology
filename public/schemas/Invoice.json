@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Invoice.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Invoice.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Invoice",
   "description": "A legal accounting invoice documenting supplied assets, tax breakdowns, currencies, and due payments.",
@@ -70,3 +70,4 @@
     }
   }
 }
+

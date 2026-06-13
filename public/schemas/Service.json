@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Service.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Service.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Service",
   "description": "An intangible task, professional consultation, or labor-based action rendered to a customer or acquired from a supplier.",
@@ -50,3 +50,4 @@
     }
   }
 }
+

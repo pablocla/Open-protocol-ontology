@@ -14,7 +14,7 @@ export default function HomePage() {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText('https://openprotocol.dev/ontology/opo-ai-primer.md');
+    navigator.clipboard.writeText('https://openontology.vercel.app/ontology/opo-ai-primer.md');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -368,3 +368,4 @@ export default function HomePage() {
     </div>
   );
 }
+

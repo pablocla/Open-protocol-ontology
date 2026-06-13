@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/FinancialExposure.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/FinancialExposure.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "FinancialExposure",
   "description": "Aggregate financial metrics representing active, credit-weighted exposures, open orders and bill statuses for a counterparty.",
@@ -50,3 +50,4 @@
     }
   }
 }
+

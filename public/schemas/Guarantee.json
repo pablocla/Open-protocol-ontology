@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Guarantee.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Guarantee.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Guarantee",
   "description": "Financial warrants, third-party guarantors, or collaterals backing transactions and invoices.",
@@ -51,3 +51,4 @@
     }
   }
 }
+

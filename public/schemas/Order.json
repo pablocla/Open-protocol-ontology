@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Order.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Order.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Order",
   "description": "An agreement for purchasing or sales delivery describing requested products, quantities, prices, and expected delivery dates.",
@@ -65,3 +65,4 @@
     }
   }
 }
+

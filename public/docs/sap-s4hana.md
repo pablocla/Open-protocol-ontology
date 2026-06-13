@@ -66,7 +66,7 @@ Configure your reverse proxy or gateway to respond on standard `/.well-known/opo
 
 ```json
 {
-  "$schema": "https://openprotocol.dev/ontology/schemas/opo-manifest.json",
+  "$schema": "https://openontology.vercel.app/ontology/schemas/opo-manifest.json",
   "opo_version": "0.1.0",
   "system_identifier": "SAP-S4HANA-PRD-CLD",
   "jurisdiction": "Global",
@@ -144,3 +144,4 @@ curl -X GET "https://opo-adapter.myenterprise.com/api/v1/entities/Party/10002" \
 ### Error: `OPO-ERR-005: Destination SAP System Unreachable`
 - **Cause**: S/4 instance on-premise firewall blocking BTP cloud connector.
 - **Fix**: Open SAP Cloud Connector management interface, verify connection tunnel status, and confirm resource accessibility rules.
+

@@ -55,7 +55,7 @@ const ENTITIES_MAPPING: Record<string, OPOEntity> = {
       { name: 'type', type: 'string (INDIVIDUAL | ORGANIZATION)', description: 'Legal class of entity', required: false }
     ],
     rawSchema: `{
-  "$id": "https://openprotocol.dev/ontology/schemas/Party.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Party.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Party",
   "type": "object",
@@ -100,7 +100,7 @@ const ENTITIES_MAPPING: Record<string, OPOEntity> = {
       { name: 'active', type: 'boolean', description: 'Account status state indicators', required: false }
     ],
     rawSchema: `{
-  "$id": "https://openprotocol.dev/ontology/schemas/Customer.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Customer.json",
   "title": "Customer",
   "type": "object",
   "properties": {
@@ -141,7 +141,7 @@ const ENTITIES_MAPPING: Record<string, OPOEntity> = {
       { name: 'purchaseBalance', type: 'Money', description: 'Current outstanding debt values payable', required: true }
     ],
     rawSchema: `{
-  "$id": "https://openprotocol.dev/ontology/schemas/Supplier.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Supplier.json",
   "title": "Supplier",
   "type": "object",
   "properties": {
@@ -776,3 +776,4 @@ export function getEntity(name: string): OPOEntity | undefined {
 export function getEntitiesByTier(tier: 1 | 2 | 3): OPOEntity[] {
   return getAllEntities().filter((e) => e.tier === tier);
 }
+
