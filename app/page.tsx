@@ -135,6 +135,63 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Universal Protocol Adaptation Section */}
+      <section className="mx-auto max-w-4xl px-4 mt-20">
+        <div className="flex items-center justify-between mb-8">
+          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Universal Adaptation</h3>
+          <span className="text-[10px] font-mono text-emerald-500">v0.1.0_LATEST</span>
+        </div>
+        
+        <div className="rounded-xl border border-slate-800 bg-slate-900/30 p-8 backdrop-blur-sm overflow-hidden relative group transition-all hover:bg-slate-900/40 hover:border-slate-700">
+          {/* Background Gradient */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-blue-500/5 blur-[100px] rounded-full pointer-events-none group-hover:bg-blue-500/10 transition-colors duration-700" />
+          
+          <div className="relative z-10">
+            <h2 className="font-mono text-lg font-bold text-white mb-4">
+              Write Once, Resolve Anywhere.
+            </h2>
+            <p className="text-sm text-slate-300 leading-relaxed mb-8 max-w-2xl">
+              OPO is strictly agnostic to your underlying infrastructure. AI Agents send a single, standardized JSON payload (<code className="font-mono text-emerald-400">OpoQuery</code>), and the OPO Sidecar dynamically translates the intent into the required native protocol. <strong>No AI hallucinations, no complex prompt engineering for specific endpoints.</strong>
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              {/* SQL Card */}
+              <div className="p-5 border border-slate-700/50 bg-black/50 rounded-lg hover:border-emerald-500/50 transition-colors shadow-sm">
+                <div className="text-emerald-400 font-mono text-xs font-bold mb-3 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                  SQL Adapters
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Translates semantic queries directly into strictly typed Postgres, Oracle, or SQL Server dialects. The ultimate bridge for legacy ERP indices like <span className="font-mono text-emerald-200">BKPF</span>.
+                </p>
+              </div>
+
+              {/* REST / GraphQL Card */}
+              <div className="p-5 border border-slate-700/50 bg-black/50 rounded-lg hover:border-blue-500/50 transition-colors shadow-sm">
+                <div className="text-blue-400 font-mono text-xs font-bold mb-3 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.8)]" />
+                  REST & GraphQL
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Maps canonical actions directly to modern API endpoints or GraphQL mutations. The AI interacts with OPO, and OPO orchestrates the HTTP headers and payloads automatically.
+                </p>
+              </div>
+
+              {/* n8n Orchestration Card */}
+              <div className="p-5 border border-slate-700/50 bg-black/50 rounded-lg hover:border-purple-500/50 transition-colors shadow-sm">
+                <div className="text-purple-400 font-mono text-xs font-bold mb-3 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,0.8)]" />
+                  n8n Orchestration
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Bridge complex multi-step actions by wiring OPO directly into <strong>n8n webhooks</strong>. OPO structures and secures the AI&apos;s data, while n8n executes the workflow.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Bento Grid: Quickstart Paths */}
       <section className="mx-auto max-w-4xl px-4 mt-20">
         <div className="flex items-center justify-between mb-8">
