@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openontology.vercel.app/schema/v1/mapping-schema.json",
+  "entity": "Invoice",
+  "sourceType": "SQL",
+  "tableName": "account_move",
+  "description": "Odoo 17 Detalles contables y facturas",
+  "fields": {
+    "id": { "column": "id", "type": "number" },
+    "customerId": { "column": "partner_id", "type": "number" },
+    "totalAmount": { "column": "amount_total", "type": "number" },
+    "status": { "column": "state", "type": "string" }
+  }
+}

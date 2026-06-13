@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openontology.vercel.app/schema/v1/mapping-schema.json",
+  "entity": "Order",
+  "sourceType": "SQL",
+  "tableName": "sale_order",
+  "description": "Odoo 17 Pedidos de Venta",
+  "fields": {
+    "id": { "column": "id", "type": "number" },
+    "customerId": { "column": "partner_id", "type": "number" },
+    "totalAmount": { "column": "amount_total", "type": "number" },
+    "status": { "column": "state", "type": "string" },
+    "dateOrder": { "column": "date_order", "type": "string" }
+  }
+}

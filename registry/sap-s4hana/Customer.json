@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openontology.vercel.app/schema/v1/mapping-schema.json",
+  "entity": "Customer",
+  "sourceType": "SQL",
+  "tableName": "KNA1",
+  "description": "SAP Maestro General de Clientes",
+  "fields": {
+    "id": { "column": "KUNNR", "type": "string" },
+    "name": { "column": "NAME1", "type": "string" },
+    "country": { "column": "LAND1", "type": "string" }
+  }
+}

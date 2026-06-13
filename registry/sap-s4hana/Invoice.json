@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openontology.vercel.app/schema/v1/mapping-schema.json",
+  "entity": "Invoice",
+  "sourceType": "SQL",
+  "tableName": "VBRK",
+  "description": "SAP SD Cabecera de Factura Comercial",
+  "fields": {
+    "id": { "column": "VBELN", "type": "string" },
+    "customerId": { "column": "KUNAG", "type": "string" },
+    "totalAmount": { "column": "NETWR", "type": "number" },
+    "currency": { "column": "WAERK", "type": "string" }
+  }
+}
