@@ -238,7 +238,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
             </div>
 
             <a
-              href="https://github.com/openprotocol/ontology"
+              href="https://github.com/pablocla/Open-protocol-ontology"
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-medium text-slate-400 hover:text-white border border-slate-800 rounded hover:border-slate-700 transition-colors bg-slate-950/40"

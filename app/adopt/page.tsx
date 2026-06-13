@@ -177,7 +177,7 @@ export default function AdoptPage() {
               </div>
               
               <a
-                href="https://github.com/openprotocol/ontology/issues/new?title=Register+Active+OPO+Adapter"
+                href="https://github.com/pablocla/Open-protocol-ontology/issues/new?title=Register+Active+OPO+Adapter"
                 target="_blank"
                 rel="noreferrer"
                 className="whitespace-nowrap inline-flex items-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900/50 px-5 py-3 text-xs font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all active:scale-95"
