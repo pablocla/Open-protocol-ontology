@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/CreditAccount.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/CreditAccount.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "CreditAccount",
   "description": "An administrative ledger tracking credit lines, current utilization, and credit availability for customers and counterparties.",
@@ -7,7 +7,16 @@
   "x-opo-tier": 1,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "CreditAccount", "Cuenta de Credito", "Conta de Credito", "Línea de Crédito", "UKMBP_CMS", "credit.account", "SE1 (Credit)", "Credit Line", "Subcuenta", "Limite"
+    "CreditAccount",
+    "Cuenta de Credito",
+    "Conta de Credito",
+    "Línea de Crédito",
+    "UKMBP_CMS",
+    "credit.account",
+    "SE1 (Credit)",
+    "Credit Line",
+    "Subcuenta",
+    "Limite"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "UKMBP_CMS_SGM (Credit Segment Partner Data)",
@@ -27,26 +36,60 @@
     "Verify UKMBP_CMS financial segments."
   ],
   "x-opo-distinguishable-from": [
-    "Customer", "CreditRisk"
+    "Customer",
+    "CreditRisk"
   ],
   "type": "object",
   "properties": {
-    "id": { "type": "string" },
-    "partyId": { "type": "string" },
-    "authorizedLimit": { "$ref": "#/$defs/Money" },
-    "utilizedBalance": { "$ref": "#/$defs/Money" },
-    "availableCredit": { "$ref": "#/$defs/Money" },
-    "creditStatus": { "type": "string", "enum": ["ACTIVE", "SUSPENDED", "REVIEW_REQUIRED"] }
+    "id": {
+      "type": "string"
+    },
+    "partyId": {
+      "type": "string"
+    },
+    "authorizedLimit": {
+      "$ref": "#/$defs/Money"
+    },
+    "utilizedBalance": {
+      "$ref": "#/$defs/Money"
+    },
+    "availableCredit": {
+      "$ref": "#/$defs/Money"
+    },
+    "creditStatus": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "SUSPENDED",
+        "REVIEW_REQUIRED"
+      ]
+    }
   },
-  "required": ["id", "partyId", "authorizedLimit", "utilizedBalance", "availableCredit", "creditStatus"],
+  "required": [
+    "id",
+    "partyId",
+    "authorizedLimit",
+    "utilizedBalance",
+    "availableCredit",
+    "creditStatus"
+  ],
   "$defs": {
     "Money": {
       "type": "object",
       "properties": {
-        "amount": { "type": "number" },
-        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3
+        }
       },
-      "required": ["amount", "currency"]
+      "required": [
+        "amount",
+        "currency"
+      ]
     }
   }
 }

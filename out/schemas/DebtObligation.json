@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/DebtObligation.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/DebtObligation.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "DebtObligation",
   "description": "Debt obligations, financial loans, or security liabilities held by the enterprise or counterparties.",
@@ -7,7 +7,17 @@
   "x-opo-tier": 2,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "DebtObligation", "Obligacion de Deuda", "Obrigacao de Divida", "Debenture", "BSEG (Loans)", "account.loan", "SE2 (Debt)", "Prestamo", "Emprestimo", "Debito", "Mutuo"
+    "DebtObligation",
+    "Obligacion de Deuda",
+    "Obrigacao de Divida",
+    "Debenture",
+    "BSEG (Loans)",
+    "account.loan",
+    "SE2 (Debt)",
+    "Prestamo",
+    "Emprestimo",
+    "Debito",
+    "Mutuo"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "BKPF (Financial Header) / BSEG (with posting keys for liabilities or loans), T001 (Company code parameters)",
@@ -27,27 +37,65 @@
     "Check accounts payable loans in SE2."
   ],
   "x-opo-distinguishable-from": [
-    "Invoice", "FinancialExposure"
+    "Invoice",
+    "FinancialExposure"
   ],
   "type": "object",
   "properties": {
-    "id": { "type": "string" },
-    "partyId": { "type": "string" },
-    "principal": { "$ref": "#/$defs/Money" },
-    "remainingBalance": { "$ref": "#/$defs/Money" },
-    "interestRate": { "type": "number" },
-    "maturityDate": { "type": "string", "format": "date" },
-    "status": { "type": "string", "enum": ["ACTIVE", "PAID", "DEFAULTED"] }
+    "id": {
+      "type": "string"
+    },
+    "partyId": {
+      "type": "string"
+    },
+    "principal": {
+      "$ref": "#/$defs/Money"
+    },
+    "remainingBalance": {
+      "$ref": "#/$defs/Money"
+    },
+    "interestRate": {
+      "type": "number"
+    },
+    "maturityDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "PAID",
+        "DEFAULTED"
+      ]
+    }
   },
-  "required": ["id", "partyId", "principal", "remainingBalance", "interestRate", "maturityDate", "status"],
+  "required": [
+    "id",
+    "partyId",
+    "principal",
+    "remainingBalance",
+    "interestRate",
+    "maturityDate",
+    "status"
+  ],
   "$defs": {
     "Money": {
       "type": "object",
       "properties": {
-        "amount": { "type": "number" },
-        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3
+        }
       },
-      "required": ["amount", "currency"]
+      "required": [
+        "amount",
+        "currency"
+      ]
     }
   }
 }

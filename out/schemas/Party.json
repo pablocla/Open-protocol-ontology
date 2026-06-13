@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Party.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Party.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Party",
   "description": "A legal entity, natural person, or organizational division capable of entering into agreements, incurring obligations, or participating in transactions.",
@@ -7,7 +7,17 @@
   "x-opo-tier": 1,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "Party", "Tercero", "Parceiro", "Entidad", "BUT000", "res.partner", "SA1", "SA2", "Legal Entity", "Contraparte", "Ente"
+    "Party",
+    "Tercero",
+    "Parceiro",
+    "Entidad",
+    "BUT000",
+    "res.partner",
+    "SA1",
+    "SA2",
+    "Legal Entity",
+    "Contraparte",
+    "Ente"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "BUT000 (Business Partner Master Data)",
@@ -27,40 +37,107 @@
     "Identify corporate or individual legal counterparties."
   ],
   "x-opo-distinguishable-from": [
-    "Customer", "Supplier", "Employee"
+    "Customer",
+    "Supplier",
+    "Employee"
   ],
   "type": "object",
   "properties": {
-    "id": { "type": "string", "description": "Unique identifier for the party" },
-    "legalName": { "type": "string", "description": "Registered standard corporate or personal legal name" },
-    "tradeName": { "type": "string", "description": "Commercial brand or DBA name" },
-    "taxId": { "$ref": "#/$defs/TaxId" },
-    "address": { "$ref": "#/$defs/Address" },
-    "email": { "type": "string", "format": "email" },
-    "phone": { "type": "string" },
-    "type": { "type": "string", "enum": ["INDIVIDUAL", "ORGANIZATION", "GOVERNMENT"] }
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the party"
+    },
+    "legalName": {
+      "type": "string",
+      "description": "Registered standard corporate or personal legal name"
+    },
+    "tradeName": {
+      "type": "string",
+      "description": "Commercial brand or DBA name"
+    },
+    "taxId": {
+      "$ref": "#/$defs/TaxId"
+    },
+    "address": {
+      "$ref": "#/$defs/Address"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "INDIVIDUAL",
+        "ORGANIZATION",
+        "GOVERNMENT"
+      ]
+    }
   },
-  "required": ["id", "legalName", "taxId"],
+  "required": [
+    "id",
+    "legalName",
+    "taxId"
+  ],
   "$defs": {
     "TaxId": {
       "type": "object",
       "properties": {
-        "value": { "type": "string" },
-        "country": { "type": "string", "maxLength": 2 },
-        "type": { "type": "string", "enum": ["CUIT", "CNPJ", "CPF", "RFC", "SSN", "EIN", "VAT", "OTHER"] }
+        "value": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string",
+          "maxLength": 2
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "CUIT",
+            "CNPJ",
+            "CPF",
+            "RFC",
+            "SSN",
+            "EIN",
+            "VAT",
+            "OTHER"
+          ]
+        }
       },
-      "required": ["value", "country", "type"]
+      "required": [
+        "value",
+        "country",
+        "type"
+      ]
     },
     "Address": {
       "type": "object",
       "properties": {
-        "street": { "type": "string" },
-        "city": { "type": "string" },
-        "state": { "type": "string" },
-        "postalCode": { "type": "string" },
-        "country": { "type": "string", "maxLength": 2 }
+        "street": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string",
+          "maxLength": 2
+        }
       },
-      "required": ["street", "city", "country"]
+      "required": [
+        "street",
+        "city",
+        "country"
+      ]
     }
   }
 }

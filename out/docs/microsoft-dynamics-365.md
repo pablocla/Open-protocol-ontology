@@ -64,7 +64,7 @@ Publish standard entity translations inside your `/.well-known/opo.json` file di
 
 ```json
 {
-  "$schema": "https://openprotocol.dev/ontology/schemas/opo-manifest.json",
+  "$schema": "https://openontology.vercel.app/ontology/schemas/opo-manifest.json",
   "opo_version": "0.1.0",
   "system_identifier": "DYNAMICS365-CORP-FIN",
   "jurisdiction": "Global",

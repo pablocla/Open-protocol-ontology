@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Employee.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Employee.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Employee",
   "description": "An individual hired by the organization to perform services in exchange for salary or hourly compensation.",
@@ -7,7 +7,16 @@
   "x-opo-tier": 1,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "Employee", "Empleado", "Empregado", "SRA", "PA0002", "hr.employee", "Colaborador", "Staff", "Funcionario", "Personal"
+    "Employee",
+    "Empleado",
+    "Empregado",
+    "SRA",
+    "PA0002",
+    "hr.employee",
+    "Colaborador",
+    "Staff",
+    "Funcionario",
+    "Personal"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "PA0002 / PA0008 (HCM Infotypes)",
@@ -31,23 +40,57 @@
   ],
   "type": "object",
   "properties": {
-    "id": { "type": "string" },
-    "partyId": { "type": "string" },
-    "role": { "type": "string" },
-    "department": { "type": "string" },
-    "status": { "type": "string", "enum": ["ACTIVE", "TERMINATED", "ON_LEAVE"] },
-    "hireDate": { "type": "string", "format": "date" },
-    "salary": { "$ref": "#/$defs/Money" }
+    "id": {
+      "type": "string"
+    },
+    "partyId": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "department": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "TERMINATED",
+        "ON_LEAVE"
+      ]
+    },
+    "hireDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "salary": {
+      "$ref": "#/$defs/Money"
+    }
   },
-  "required": ["id", "partyId", "role", "status"],
+  "required": [
+    "id",
+    "partyId",
+    "role",
+    "status"
+  ],
   "$defs": {
     "Money": {
       "type": "object",
       "properties": {
-        "amount": { "type": "number" },
-        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3
+        }
       },
-      "required": ["amount", "currency"]
+      "required": [
+        "amount",
+        "currency"
+      ]
     }
   }
 }

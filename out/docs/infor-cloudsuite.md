@@ -60,7 +60,7 @@ Expose supported endpoints using standard `/.well-known/opo.json` configurations
 
 ```json
 {
-  "$schema": "https://openprotocol.dev/ontology/schemas/opo-manifest.json",
+  "$schema": "https://openontology.vercel.app/ontology/schemas/opo-manifest.json",
   "opo_version": "0.1.0",
   "system_identifier": "INFOR-ION-OS-PRD",
   "jurisdiction": "Global",

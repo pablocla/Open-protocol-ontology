@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Payment.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Payment.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Payment",
   "description": "An execution of a monetary transaction, representing funds cleared for an invoice or external account balance.",
@@ -7,7 +7,18 @@
   "x-opo-tier": 1,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "Payment", "Pago", "Pagamento", "Recibo", "Cobro", "PAYR", "account.payment", "SE1", "SE5", "Transaction", "Liquidador", "Giro"
+    "Payment",
+    "Pago",
+    "Pagamento",
+    "Recibo",
+    "Cobro",
+    "PAYR",
+    "account.payment",
+    "SE1",
+    "SE5",
+    "Transaction",
+    "Liquidador",
+    "Giro"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "PAYR (Payment Medium File) / REGUP (Processed items)",
@@ -31,23 +42,61 @@
   ],
   "type": "object",
   "properties": {
-    "id": { "type": "string" },
-    "invoiceId": { "type": "string" },
-    "partyId": { "type": "string" },
-    "paymentDate": { "type": "string", "format": "date" },
-    "amount": { "$ref": "#/$defs/Money" },
-    "paymentMethod": { "type": "string", "enum": ["CASH", "BANK_TRANSFER", "CREDIT_CARD", "CHECK", "ELECTRONIC", "OTHER"] },
-    "reference": { "type": "string" }
+    "id": {
+      "type": "string"
+    },
+    "invoiceId": {
+      "type": "string"
+    },
+    "partyId": {
+      "type": "string"
+    },
+    "paymentDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "amount": {
+      "$ref": "#/$defs/Money"
+    },
+    "paymentMethod": {
+      "type": "string",
+      "enum": [
+        "CASH",
+        "BANK_TRANSFER",
+        "CREDIT_CARD",
+        "CHECK",
+        "ELECTRONIC",
+        "OTHER"
+      ]
+    },
+    "reference": {
+      "type": "string"
+    }
   },
-  "required": ["id", "partyId", "paymentDate", "amount", "paymentMethod"],
+  "required": [
+    "id",
+    "partyId",
+    "paymentDate",
+    "amount",
+    "paymentMethod"
+  ],
   "$defs": {
     "Money": {
       "type": "object",
       "properties": {
-        "amount": { "type": "number" },
-        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3
+        }
       },
-      "required": ["amount", "currency"]
+      "required": [
+        "amount",
+        "currency"
+      ]
     }
   }
 }

@@ -12,7 +12,7 @@ d:I[4913,["559","static/chunks/app/adopt/page-eb98328f76f42677.js"],"default"]
 16:I[4431,[],"MetadataBoundary"]
 17:"$Sreact.suspense"
 5:["$","div",null,{"className":"flex items-center gap-2 text-xxs font-mono text-zinc-500","children":[["$","svg",null,{"ref":"$undefined","xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-globe h-4 w-4 text-emerald-400/80","aria-hidden":"true","children":[["$","circle","1mglay",{"cx":"12","cy":"12","r":"10"}],["$","path","13o1zl",{"d":"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"}],["$","path","9i4pu4",{"d":"M2 12h20"}],"$undefined"]}],["$","span",null,{"children":"Exposed globally on port 443"}]]}]
-6:["$","div",null,{"className":"lg:col-span-2 bg-zinc-950 border border-zinc-900 rounded-xl overflow-hidden","children":[["$","div",null,{"className":"flex items-center justify-between border-b border-zinc-900 px-6 py-2.5 bg-zinc-950","children":[["$","span",null,{"className":"font-mono text-xxs font-bold text-zinc-400 flex items-center gap-1","children":"JSON Declaration Profile"}],["$","$Ld",null,{"text":"{\n  \"opo_version\": \"0.1.0\",\n  \"system_identity\": {\n    \"erp_name\": \"TOTVS Protheus\",\n    \"version\": \"12.1.2310\"\n  },\n  \"endpoints\": {\n    \"opo:Customer\": {\n      \"path\": \"/api/opo/v1/customers\",\n      \"methods\": [\"GET\"],\n      \"schema\": \"https://openprotocol.dev/ontology/schemas/Customer.json\"\n    }\n  }\n}","label":"JSON Manifest"}]]}],["$","pre",null,{"className":"p-5 bg-zinc-900/10 text-xxs font-mono text-zinc-500 overflow-x-auto max-h-56","children":["$","code",null,{"children":"{\n  \"opo_version\": \"0.1.0\",\n  \"system_identity\": {\n    \"erp_name\": \"TOTVS Protheus\",\n    \"version\": \"12.1.2310\"\n  },\n  \"endpoints\": {\n    \"opo:Customer\": {\n      \"path\": \"/api/opo/v1/customers\",\n      \"methods\": [\"GET\"],\n      \"schema\": \"https://openprotocol.dev/ontology/schemas/Customer.json\"\n    }\n  }\n}"}]}]]}]
+6:["$","div",null,{"className":"lg:col-span-2 bg-zinc-950 border border-zinc-900 rounded-xl overflow-hidden","children":[["$","div",null,{"className":"flex items-center justify-between border-b border-zinc-900 px-6 py-2.5 bg-zinc-950","children":[["$","span",null,{"className":"font-mono text-xxs font-bold text-zinc-400 flex items-center gap-1","children":"JSON Declaration Profile"}],["$","$Ld",null,{"text":"{\n  \"opo_version\": \"0.1.0\",\n  \"system_identity\": {\n    \"erp_name\": \"TOTVS Protheus\",\n    \"version\": \"12.1.2310\"\n  },\n  \"endpoints\": {\n    \"opo:Customer\": {\n      \"path\": \"/api/opo/v1/customers\",\n      \"methods\": [\"GET\"],\n      \"schema\": \"https://openontology.vercel.app/ontology/schemas/Customer.json\"\n    }\n  }\n}","label":"JSON Manifest"}]]}],["$","pre",null,{"className":"p-5 bg-zinc-900/10 text-xxs font-mono text-zinc-500 overflow-x-auto max-h-56","children":["$","code",null,{"children":"{\n  \"opo_version\": \"0.1.0\",\n  \"system_identity\": {\n    \"erp_name\": \"TOTVS Protheus\",\n    \"version\": \"12.1.2310\"\n  },\n  \"endpoints\": {\n    \"opo:Customer\": {\n      \"path\": \"/api/opo/v1/customers\",\n      \"methods\": [\"GET\"],\n      \"schema\": \"https://openontology.vercel.app/ontology/schemas/Customer.json\"\n    }\n  }\n}"}]}]]}]
 e:T563,import express from 'express';
 
 const app = express();
@@ -30,7 +30,7 @@ app.get('/.well-known/opo.json', (req, res) => {
       "opo:Invoice": {
         "path": "/api/opo/invoices",
         "methods": ["GET"],
-        "schema": "https://openprotocol.dev/ontology/schemas/Invoice.json"
+        "schema": "https://openontology.vercel.app/ontology/schemas/Invoice.json"
       }
     }
   });
@@ -79,7 +79,7 @@ app.get('/.well-known/opo.json', (req, res) => {
       "opo:Invoice": {
         "path": "/api/opo/invoices",
         "methods": ["GET"],
-        "schema": "https://openprotocol.dev/ontology/schemas/Invoice.json"
+        "schema": "https://openontology.vercel.app/ontology/schemas/Invoice.json"
       }
     }
   });

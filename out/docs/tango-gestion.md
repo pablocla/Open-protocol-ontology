@@ -64,7 +64,7 @@ Expose supported local maps through standard `/.well-known/opo.json` configurati
 
 ```json
 {
-  "$schema": "https://openprotocol.dev/ontology/schemas/opo-manifest.json",
+  "$schema": "https://openontology.vercel.app/ontology/schemas/opo-manifest.json",
   "opo_version": "0.1.0",
   "system_identifier": "TANGO-LOCAL-SQL-ARG",
   "jurisdiction": "Argentina",

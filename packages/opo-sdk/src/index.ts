@@ -13,10 +13,6 @@ export interface OpoMapping {
 }
 
 export interface OpoClientOptions {
-  /**
-   * The base URL of the OPO registry. 
-   * Defaults to https://openontology.vercel.app
-   */
   registryUrl?: string;
 }
 
@@ -27,12 +23,6 @@ export class OpoClient {
     this.registryUrl = options?.registryUrl || 'https://openontology.vercel.app';
   }
 
-  /**
-   * Fetches the canonical mapping for a specific ERP provider and entity.
-   * @param provider e.g. "sap-s4hana", "odoo-17", "totvs-protheus"
-   * @param entity e.g. "Invoice", "Customer", "Order"
-   * @returns The parsed OPO JSON Mapping
-   */
   async getMapping(provider: string, entity: string): Promise<OpoMapping> {
     const url = `${this.registryUrl}/registry/${provider}/${entity}.json`;
     
@@ -49,10 +39,6 @@ export class OpoClient {
     }
   }
 
-  /**
-   * Generates a simple prompt context instructing an AI how to output an OpoQuery 
-   * for the retrieved mapping.
-   */
   generateSystemPrompt(mapping: OpoMapping): string {
     const fieldNames = Object.keys(mapping.fields).join(', ');
     return `You are an intelligent agent connecting to ${mapping.sourceType} table "${mapping.tableName}".\n` +
@@ -60,3 +46,5 @@ export class OpoClient {
            `The OPO Sidecar will automatically translate these to the underlying columns.`;
   }
 }
+
+export * from './builder';

@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Supplier.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Supplier.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Supplier",
   "description": "An entity representing a vendor, merchant, or service provider that supplies materials or services to the enterprise.",
@@ -7,7 +7,16 @@
   "x-opo-tier": 1,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "Supplier", "Vendor", "Proveedor", "Fornecedor", "LFA1", "Acreedor", "Credor", "SA2", "res.partner", "Abastecedor"
+    "Supplier",
+    "Vendor",
+    "Proveedor",
+    "Fornecedor",
+    "LFA1",
+    "Acreedor",
+    "Credor",
+    "SA2",
+    "res.partner",
+    "Abastecedor"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "LFA1 (General Vendor) / LFM1 (Purchasing Org)",
@@ -27,26 +36,54 @@
     "Which supplier provides this electronic part?"
   ],
   "x-opo-distinguishable-from": [
-    "Party", "Customer"
+    "Party",
+    "Customer"
   ],
   "type": "object",
   "properties": {
-    "id": { "type": "string" },
-    "partyId": { "type": "string" },
-    "paymentTerms": { "type": "string" },
-    "purchaseBalance": { "$ref": "#/$defs/Money" },
-    "active": { "type": "boolean" },
-    "rating": { "type": "number", "minimum": 0, "maximum": 5 }
+    "id": {
+      "type": "string"
+    },
+    "partyId": {
+      "type": "string"
+    },
+    "paymentTerms": {
+      "type": "string"
+    },
+    "purchaseBalance": {
+      "$ref": "#/$defs/Money"
+    },
+    "active": {
+      "type": "boolean"
+    },
+    "rating": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5
+    }
   },
-  "required": ["id", "partyId", "purchaseBalance"],
+  "required": [
+    "id",
+    "partyId",
+    "purchaseBalance"
+  ],
   "$defs": {
     "Money": {
       "type": "object",
       "properties": {
-        "amount": { "type": "number" },
-        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3
+        }
       },
-      "required": ["amount", "currency"]
+      "required": [
+        "amount",
+        "currency"
+      ]
     }
   }
 }

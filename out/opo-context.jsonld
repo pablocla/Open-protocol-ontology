@@ -5,7 +5,7 @@
     "schema": "https://schema.org/",
     "fibo": "https://spec.edmcouncil.org/fibo/ontology/",
     "gr": "http://purl.org/goodrelations/v1#",
-    "opo": "https://openprotocol.dev/ontology/",
+    "opo": "https://openontology.vercel.app/ontology/",
     "id": "@id",
     "type": "@type",
     "label": {

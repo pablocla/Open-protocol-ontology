@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Customer.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Customer.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Customer",
   "description": "An entity representing a buyer, client, or consumer that purchases goods, services, or contracts from the business.",
@@ -7,7 +7,16 @@
   "x-opo-tier": 1,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "Customer", "Cliente", "KNA1", "res.partner", "SA1", "Client", "Account Receivable", "Deudor", "Comprador", "Fregues"
+    "Customer",
+    "Cliente",
+    "KNA1",
+    "res.partner",
+    "SA1",
+    "Client",
+    "Account Receivable",
+    "Deudor",
+    "Comprador",
+    "Fregues"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "KNA1 (General Data) / KNVV (Sales Data)",
@@ -27,27 +36,55 @@
     "Get buyer profile for the sales team."
   ],
   "x-opo-distinguishable-from": [
-    "Party", "Supplier"
+    "Party",
+    "Supplier"
   ],
   "type": "object",
   "properties": {
-    "id": { "type": "string" },
-    "partyId": { "type": "string" },
-    "creditLimit": { "$ref": "#/$defs/Money" },
-    "outstandingBalance": { "$ref": "#/$defs/Money" },
-    "paymentTerms": { "type": "string" },
-    "active": { "type": "boolean" },
-    "salesRepresentative": { "type": "string" }
+    "id": {
+      "type": "string"
+    },
+    "partyId": {
+      "type": "string"
+    },
+    "creditLimit": {
+      "$ref": "#/$defs/Money"
+    },
+    "outstandingBalance": {
+      "$ref": "#/$defs/Money"
+    },
+    "paymentTerms": {
+      "type": "string"
+    },
+    "active": {
+      "type": "boolean"
+    },
+    "salesRepresentative": {
+      "type": "string"
+    }
   },
-  "required": ["id", "partyId", "outstandingBalance"],
+  "required": [
+    "id",
+    "partyId",
+    "outstandingBalance"
+  ],
   "$defs": {
     "Money": {
       "type": "object",
       "properties": {
-        "amount": { "type": "number" },
-        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3
+        }
       },
-      "required": ["amount", "currency"]
+      "required": [
+        "amount",
+        "currency"
+      ]
     }
   }
 }

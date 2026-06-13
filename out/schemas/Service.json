@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Service.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Service.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Service",
   "description": "An intangible task, professional consultation, or labor-based action rendered to a customer or acquired from a supplier.",
@@ -7,7 +7,15 @@
   "x-opo-tier": 1,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "Service", "Servicio", "Servico", "ASMD", "product.template (Service type)", "SB1 (Tipo SV)", "Task", "Prestacion", "Labor"
+    "Service",
+    "Servicio",
+    "Servico",
+    "ASMD",
+    "product.template (Service type)",
+    "SB1 (Tipo SV)",
+    "Task",
+    "Prestacion",
+    "Labor"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "ASMD (Service Master Data)",
@@ -31,22 +39,53 @@
   ],
   "type": "object",
   "properties": {
-    "id": { "type": "string" },
-    "code": { "type": "string" },
-    "name": { "type": "string" },
-    "description": { "type": "string" },
-    "billingType": { "type": "string", "enum": ["HOURLY", "FIXED", "MILESTONE"] },
-    "rate": { "$ref": "#/$defs/Money" }
+    "id": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "billingType": {
+      "type": "string",
+      "enum": [
+        "HOURLY",
+        "FIXED",
+        "MILESTONE"
+      ]
+    },
+    "rate": {
+      "$ref": "#/$defs/Money"
+    }
   },
-  "required": ["id", "code", "name", "billingType"],
+  "required": [
+    "id",
+    "code",
+    "name",
+    "billingType"
+  ],
   "$defs": {
     "Money": {
       "type": "object",
       "properties": {
-        "amount": { "type": "number" },
-        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3
+        }
       },
-      "required": ["amount", "currency"]
+      "required": [
+        "amount",
+        "currency"
+      ]
     }
   }
 }

@@ -63,7 +63,7 @@ Expose QBO supported entities inside your standard `/.well-known/opo.json` file 
 
 ```json
 {
-  "$schema": "https://openprotocol.dev/ontology/schemas/opo-manifest.json",
+  "$schema": "https://openontology.vercel.app/ontology/schemas/opo-manifest.json",
   "opo_version": "0.1.0",
   "system_identifier": "QUICKBOOKS-ONLINE-GLB",
   "jurisdiction": "Global",

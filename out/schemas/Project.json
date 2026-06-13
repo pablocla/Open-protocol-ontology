@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Project.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Project.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Project",
   "description": "An organized project planning structure recording milestones, timelines, expenses context, and team leaders.",
@@ -7,7 +7,16 @@
   "x-opo-tier": 3,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "Project", "Proyecto", "Projeto", "PROJ", "project.project", "CN9", "WBS Element", "Pep", "Tarefa", "Hito"
+    "Project",
+    "Proyecto",
+    "Projeto",
+    "PROJ",
+    "project.project",
+    "CN9",
+    "WBS Element",
+    "Pep",
+    "Tarefa",
+    "Hito"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "PROJ (Project Definition Master) / PRPS (WBS Element Master Data)",
@@ -31,14 +40,39 @@
   ],
   "type": "object",
   "properties": {
-    "id": { "type": "string" },
-    "code": { "type": "string" },
-    "name": { "type": "string" },
-    "description": { "type": "string" },
-    "progressPercentage": { "type": "number", "minimum": 0, "maximum": 100 },
-    "startDate": { "type": "string", "format": "date" },
-    "endDate": { "type": "string", "format": "date" },
-    "projectLeaderId": { "type": "string" }
+    "id": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "progressPercentage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "startDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "endDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "projectLeaderId": {
+      "type": "string"
+    }
   },
-  "required": ["id", "code", "name", "progressPercentage"]
+  "required": [
+    "id",
+    "code",
+    "name",
+    "progressPercentage"
+  ]
 }

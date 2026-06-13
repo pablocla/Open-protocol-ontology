@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/CreditRisk.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/CreditRisk.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "CreditRisk",
   "description": "Financial credit risk assessment indexes registering profile ratings, default metrics, and score categories.",
@@ -7,7 +7,16 @@
   "x-opo-tier": 2,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "CreditRisk", "Riesgo de Credito", "Risco de Credito", "Scoring", "UKM_SGM", "credit.risk", "SA1 (Risk Assessment)", "FICO Score", "Calificacion", "Score"
+    "CreditRisk",
+    "Riesgo de Credito",
+    "Risco de Credito",
+    "Scoring",
+    "UKM_SGM",
+    "credit.risk",
+    "SA1 (Risk Assessment)",
+    "FICO Score",
+    "Calificacion",
+    "Score"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "UKM_SGM (Credit Management Account Data)",
@@ -27,17 +36,47 @@
     "Show me payment defaults or risk trends for this partner."
   ],
   "x-opo-distinguishable-from": [
-    "CreditAccount", "PaymentBehavior"
+    "CreditAccount",
+    "PaymentBehavior"
   ],
   "type": "object",
   "properties": {
-    "id": { "type": "string" },
-    "partyId": { "type": "string" },
-    "creditRating": { "type": "string" },
-    "scoreValue": { "type": "number" },
-    "probabilityOfDefault": { "type": "number", "minimum": 0, "maximum": 1 },
-    "riskLevel": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
-    "updatedDate": { "type": "string", "format": "date" }
+    "id": {
+      "type": "string"
+    },
+    "partyId": {
+      "type": "string"
+    },
+    "creditRating": {
+      "type": "string"
+    },
+    "scoreValue": {
+      "type": "number"
+    },
+    "probabilityOfDefault": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "riskLevel": {
+      "type": "string",
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    },
+    "updatedDate": {
+      "type": "string",
+      "format": "date"
+    }
   },
-  "required": ["id", "partyId", "creditRating", "probabilityOfDefault", "riskLevel"]
+  "required": [
+    "id",
+    "partyId",
+    "creditRating",
+    "probabilityOfDefault",
+    "riskLevel"
+  ]
 }

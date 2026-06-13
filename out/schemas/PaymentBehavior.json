@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/PaymentBehavior.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/PaymentBehavior.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "PaymentBehavior",
   "description": "Historical metrics capturing a partner's credit-payment behavior, average delays, dunning stages, and collection histories.",
@@ -7,7 +7,17 @@
   "x-opo-tier": 2,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "PaymentBehavior", "Comportamiento de Pago", "Comportamento de Pagamento", "Dunning", "UKM_DSO", "credit.history", "SA1 (Dunning Index)", "Days Late", "Atrasos", "Mora", "Prazo medio"
+    "PaymentBehavior",
+    "Comportamiento de Pago",
+    "Comportamento de Pagamento",
+    "Dunning",
+    "UKM_DSO",
+    "credit.history",
+    "SA1 (Dunning Index)",
+    "Days Late",
+    "Atrasos",
+    "Mora",
+    "Prazo medio"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "KNB5 (Dunning Data per Customer) / UKM_SGM (repayment records)",
@@ -27,16 +37,37 @@
     "Find collection letter history in CustCollectionLetterJour."
   ],
   "x-opo-distinguishable-from": [
-    "CreditRisk", "Payment"
+    "CreditRisk",
+    "Payment"
   ],
   "type": "object",
   "properties": {
-    "id": { "type": "string" },
-    "partyId": { "type": "string" },
-    "averageDaysLate": { "type": "number" },
-    "dunningLevel": { "type": "integer" },
-    "lastDunningDate": { "type": "string", "format": "date" },
-    "onTimePaymentRatio": { "type": "number", "minimum": 0, "maximum": 1 }
+    "id": {
+      "type": "string"
+    },
+    "partyId": {
+      "type": "string"
+    },
+    "averageDaysLate": {
+      "type": "number"
+    },
+    "dunningLevel": {
+      "type": "integer"
+    },
+    "lastDunningDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "onTimePaymentRatio": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
   },
-  "required": ["id", "partyId", "averageDaysLate", "onTimePaymentRatio"]
+  "required": [
+    "id",
+    "partyId",
+    "averageDaysLate",
+    "onTimePaymentRatio"
+  ]
 }

@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Order.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Order.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Order",
   "description": "An agreement for purchasing or sales delivery describing requested products, quantities, prices, and expected delivery dates.",
@@ -7,7 +7,17 @@
   "x-opo-tier": 1,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "Order", "Pedido", "Ordem", "VBAK", "sale.order", "purchase.order", "SC5", "SC6", "Sales Order", "Purchase Order", "Peticion"
+    "Order",
+    "Pedido",
+    "Ordem",
+    "VBAK",
+    "sale.order",
+    "purchase.order",
+    "SC5",
+    "SC6",
+    "Sales Order",
+    "Purchase Order",
+    "Peticion"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "VBAK (Sales Order Header) / VBAP (Items), EKKO (Purchase Order) / EKPO (Items)",
@@ -27,41 +37,100 @@
     "Check SC5 order quantities."
   ],
   "x-opo-distinguishable-from": [
-    "Invoice", "Contract"
+    "Invoice",
+    "Contract"
   ],
   "type": "object",
   "properties": {
-    "id": { "type": "string" },
-    "number": { "type": "string" },
-    "partyId": { "type": "string" },
-    "orderType": { "type": "string", "enum": ["SALES", "PURCHASE"] },
-    "orderDate": { "type": "string", "format": "date" },
-    "status": { "type": "string", "enum": ["DRAFT", "CONFIRMED", "SHIPPED", "COMPLETED", "CANCELLED"] },
+    "id": {
+      "type": "string"
+    },
+    "number": {
+      "type": "string"
+    },
+    "partyId": {
+      "type": "string"
+    },
+    "orderType": {
+      "type": "string",
+      "enum": [
+        "SALES",
+        "PURCHASE"
+      ]
+    },
+    "orderDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "CONFIRMED",
+        "SHIPPED",
+        "COMPLETED",
+        "CANCELLED"
+      ]
+    },
     "items": {
       "type": "array",
-      "items": { "$ref": "#/$defs/OrderItem" }
+      "items": {
+        "$ref": "#/$defs/OrderItem"
+      }
     },
-    "totalAmount": { "$ref": "#/$defs/Money" }
+    "totalAmount": {
+      "$ref": "#/$defs/Money"
+    }
   },
-  "required": ["id", "number", "partyId", "orderType", "orderDate", "status", "items", "totalAmount"],
+  "required": [
+    "id",
+    "number",
+    "partyId",
+    "orderType",
+    "orderDate",
+    "status",
+    "items",
+    "totalAmount"
+  ],
   "$defs": {
     "Money": {
       "type": "object",
       "properties": {
-        "amount": { "type": "number" },
-        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3
+        }
       },
-      "required": ["amount", "currency"]
+      "required": [
+        "amount",
+        "currency"
+      ]
     },
     "OrderItem": {
       "type": "object",
       "properties": {
-        "productId": { "type": "string" },
-        "quantity": { "type": "number" },
-        "unitPrice": { "$ref": "#/$defs/Money" },
-        "status": { "type": "string" }
+        "productId": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
+        },
+        "unitPrice": {
+          "$ref": "#/$defs/Money"
+        },
+        "status": {
+          "type": "string"
+        }
       },
-      "required": ["productId", "quantity", "unitPrice"]
+      "required": [
+        "productId",
+        "quantity",
+        "unitPrice"
+      ]
     }
   }
 }

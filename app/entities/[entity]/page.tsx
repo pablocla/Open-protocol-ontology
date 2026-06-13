@@ -44,7 +44,7 @@ export default async function EntityDetailPage({ params }: PageProps) {
 
   // Generate a mock complete JSON-LD context for standard showcase
   const jsonLdCode = `{
-  "@context": "https://openprotocol.dev/ontology/opo-context.jsonld",
+  "@context": "https://openontology.vercel.app/ontology/opo-context.jsonld",
   "@id": "opo:${entity.name}",
   "@type": "rdfs:Class",
   "label": "${entity.name}",
@@ -79,13 +79,12 @@ export default async function EntityDetailPage({ params }: PageProps) {
             </div>
 
             <span
-              className={`inline-flex items-center gap-1 rounded-full px-3 py-1 font-mono text-xs font-bold uppercase ${
-                entity.tier === 1
+              className={`inline-flex items-center gap-1 rounded-full px-3 py-1 font-mono text-xs font-bold uppercase ${entity.tier === 1
                   ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/10'
                   : entity.tier === 2
-                  ? 'bg-blue-500/10 text-blue-400 border border-blue-500/10'
-                  : 'bg-purple-500/10 text-purple-400 border border-purple-500/10'
-              }`}
+                    ? 'bg-blue-500/10 text-blue-400 border border-blue-500/10'
+                    : 'bg-purple-500/10 text-purple-400 border border-purple-500/10'
+                }`}
             >
               Tier {entity.tier} Standard Record
             </span>
@@ -106,7 +105,7 @@ export default async function EntityDetailPage({ params }: PageProps) {
                 <Terminal className="h-4 w-4 text-emerald-400" />
                 Schema Properties Validation
               </h3>
-              
+
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse font-sans text-xs">
                   <thead>

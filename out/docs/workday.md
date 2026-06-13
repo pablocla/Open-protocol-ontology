@@ -62,7 +62,7 @@ Provide directory structures for workers and cost centers inside `/.well-known/o
 
 ```json
 {
-  "$schema": "https://openprotocol.dev/ontology/schemas/opo-manifest.json",
+  "$schema": "https://openontology.vercel.app/ontology/schemas/opo-manifest.json",
   "opo_version": "0.1.0",
   "system_identifier": "WORKDAY-CLOUD-ENT",
   "jurisdiction": "Global",

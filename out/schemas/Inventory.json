@@ -1,5 +1,5 @@
 {
-  "$id": "https://openprotocol.dev/ontology/schemas/Inventory.json",
+  "$id": "https://openontology.vercel.app/ontology/schemas/Inventory.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Inventory",
   "description": "Stock inventory records capturing item quantities, reserved segments, and location warehouses.",
@@ -7,7 +7,16 @@
   "x-opo-tier": 1,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "Inventory", "Inventario", "Estoques", "Stock", "MARD", "stock.quant", "SB2", "Existencia", "Fisico", "Saldo"
+    "Inventory",
+    "Inventario",
+    "Estoques",
+    "Stock",
+    "MARD",
+    "stock.quant",
+    "SB2",
+    "Existencia",
+    "Fisico",
+    "Saldo"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "MARD (Material Storage Location Data) / MBEW (Material Valuation)",
@@ -27,27 +36,57 @@
     "Find available product stock in SB2."
   ],
   "x-opo-distinguishable-from": [
-    "Warehouse", "Product"
+    "Warehouse",
+    "Product"
   ],
   "type": "object",
   "properties": {
-    "id": { "type": "string" },
-    "productId": { "type": "string" },
-    "warehouseId": { "type": "string" },
-    "quantityOnHand": { "type": "number" },
-    "quantityReserved": { "type": "number" },
-    "quantityAvailable": { "type": "number" },
-    "valuationPrice": { "$ref": "#/$defs/Money" }
+    "id": {
+      "type": "string"
+    },
+    "productId": {
+      "type": "string"
+    },
+    "warehouseId": {
+      "type": "string"
+    },
+    "quantityOnHand": {
+      "type": "number"
+    },
+    "quantityReserved": {
+      "type": "number"
+    },
+    "quantityAvailable": {
+      "type": "number"
+    },
+    "valuationPrice": {
+      "$ref": "#/$defs/Money"
+    }
   },
-  "required": ["id", "productId", "warehouseId", "quantityOnHand", "quantityAvailable"],
+  "required": [
+    "id",
+    "productId",
+    "warehouseId",
+    "quantityOnHand",
+    "quantityAvailable"
+  ],
   "$defs": {
     "Money": {
       "type": "object",
       "properties": {
-        "amount": { "type": "number" },
-        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3
+        }
       },
-      "required": ["amount", "currency"]
+      "required": [
+        "amount",
+        "currency"
+      ]
     }
   }
 }

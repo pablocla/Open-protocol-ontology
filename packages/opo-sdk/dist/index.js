@@ -20,20 +20,54 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
-  OpoClient: () => OpoClient
+  OpoClient: () => OpoClient,
+  OpoOntologyBuilder: () => OpoOntologyBuilder
 });
 module.exports = __toCommonJS(index_exports);
+
+// src/builder.ts
+var OpoOntologyBuilder = class {
+  mapping;
+  constructor() {
+    this.mapping = {
+      $schema: "https://openontology.vercel.app/schema/v1/mapping-schema.json",
+      fields: {}
+    };
+  }
+  setEntity(entityName) {
+    this.mapping.entity = entityName;
+    return this;
+  }
+  setSource(sourceType, tableNameOrEndpoint) {
+    this.mapping.sourceType = sourceType;
+    this.mapping.tableName = tableNameOrEndpoint;
+    return this;
+  }
+  setDescription(desc) {
+    this.mapping.description = desc;
+    return this;
+  }
+  addField(canonicalName, physicalColumn, type = "string") {
+    if (!this.mapping.fields) {
+      this.mapping.fields = {};
+    }
+    this.mapping.fields[canonicalName] = { column: physicalColumn, type };
+    return this;
+  }
+  build() {
+    if (!this.mapping.entity || !this.mapping.sourceType || !this.mapping.tableName) {
+      throw new Error("Incomplete OPO Mapping. Missing entity, sourceType, or tableName.");
+    }
+    return this.mapping;
+  }
+};
+
+// src/index.ts
 var OpoClient = class {
   registryUrl;
   constructor(options) {
     this.registryUrl = options?.registryUrl || "https://openontology.vercel.app";
   }
-  /**
-   * Fetches the canonical mapping for a specific ERP provider and entity.
-   * @param provider e.g. "sap-s4hana", "odoo-17", "totvs-protheus"
-   * @param entity e.g. "Invoice", "Customer", "Order"
-   * @returns The parsed OPO JSON Mapping
-   */
   async getMapping(provider, entity) {
     const url = `${this.registryUrl}/registry/${provider}/${entity}.json`;
     try {
@@ -48,10 +82,6 @@ var OpoClient = class {
       throw error;
     }
   }
-  /**
-   * Generates a simple prompt context instructing an AI how to output an OpoQuery 
-   * for the retrieved mapping.
-   */
   generateSystemPrompt(mapping) {
     const fieldNames = Object.keys(mapping.fields).join(", ");
     return `You are an intelligent agent connecting to ${mapping.sourceType} table "${mapping.tableName}".
@@ -61,5 +91,6 @@ The OPO Sidecar will automatically translate these to the underlying columns.`;
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  OpoClient
+  OpoClient,
+  OpoOntologyBuilder
 });

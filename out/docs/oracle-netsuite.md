@@ -68,7 +68,7 @@ Provide NetSuite schema profiles within your `/.well-known/opo.json` file so AI 
 
 ```json
 {
-  "$schema": "https://openprotocol.dev/ontology/schemas/opo-manifest.json",
+  "$schema": "https://openontology.vercel.app/ontology/schemas/opo-manifest.json",
   "opo_version": "0.1.0",
   "system_identifier": "NETSUITE-PROD-GLOBAL",
   "jurisdiction": "Global",

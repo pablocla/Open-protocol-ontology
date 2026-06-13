@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://openprotocol.dev/schemas/OpoQuery.json",
+  "$id": "https://openontology.vercel.app/schemas/OpoQuery.json",
   "title": "OpoQuery",
   "description": "Standardized OPO Query Language (OPO-QL) for deterministic AI fetching with strict boundaries",
   "type": "object",
@@ -8,49 +8,68 @@
     "query": {
       "type": "object",
       "properties": {
-        "entity": { 
+        "entity": {
           "type": "string",
           "description": "The target OPO entity type, e.g. 'Invoice', 'Customer'"
         },
         "pagination": {
           "type": "object",
           "properties": {
-            "limit": { 
-              "type": "integer", 
-              "minimum": 1, 
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
               "maximum": 100,
               "description": "Maximum number of records to return. Hardcapped at 100 to prevent context window asphyxiation."
             },
-            "cursor": { 
+            "cursor": {
               "type": "string",
               "description": "Opaque base64 cursor from the previous response for pagination."
             }
           },
-          "required": ["limit"],
+          "required": [
+            "limit"
+          ],
           "additionalProperties": false
         },
-        "filter": { 
+        "filter": {
           "$ref": "#/$defs/filterNode",
           "description": "Semantic query filters that must be mapped to prepared statements by the adapter."
         },
-        "select": { 
+        "select": {
           "$ref": "#/$defs/selectNode",
           "description": "Hierarchical field projection to mitigate N+1 request problems."
         }
       },
-      "required": ["entity", "pagination"],
+      "required": [
+        "entity",
+        "pagination"
+      ],
       "additionalProperties": false
     }
   },
-  "required": ["query"],
+  "required": [
+    "query"
+  ],
   "additionalProperties": false,
   "$defs": {
     "filterNode": {
       "type": "object",
       "properties": {
-        "AND": { "type": "array", "items": { "$ref": "#/$defs/filterNode" } },
-        "OR": { "type": "array", "items": { "$ref": "#/$defs/filterNode" } },
-        "NOT": { "$ref": "#/$defs/filterNode" }
+        "AND": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/filterNode"
+          }
+        },
+        "OR": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/filterNode"
+          }
+        },
+        "NOT": {
+          "$ref": "#/$defs/filterNode"
+        }
       },
       "patternProperties": {
         "^(?!(AND|OR|NOT)$)[a-zA-Z0-9_]+$": {
@@ -62,8 +81,12 @@
             "gte": {},
             "lt": {},
             "lte": {},
-            "like": { "type": "string" },
-            "in": { "type": "array" }
+            "like": {
+              "type": "string"
+            },
+            "in": {
+              "type": "array"
+            }
           },
           "additionalProperties": false
         }
@@ -75,13 +98,19 @@
       "patternProperties": {
         "^.*$": {
           "anyOf": [
-            { "type": "boolean" },
+            {
+              "type": "boolean"
+            },
             {
               "type": "object",
               "properties": {
-                "select": { "$ref": "#/$defs/selectNode" }
+                "select": {
+                  "$ref": "#/$defs/selectNode"
+                }
               },
-              "required": ["select"],
+              "required": [
+                "select"
+              ],
               "additionalProperties": false
             }
           ]
