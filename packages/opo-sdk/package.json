@@ -1,0 +1,28 @@
+{
+  "name": "opo-sdk",
+  "version": "0.1.0",
+  "description": "The official SDK for the Open Protocol Ontology (OPO)",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch"
+  },
+  "keywords": [
+    "opo",
+    "ontology",
+    "erp",
+    "ai",
+    "agents",
+    "mcp",
+    "semantic",
+    "layer"
+  ],
+  "author": "Pablo Clavero",
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5"
+  }
+}
