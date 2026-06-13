@@ -1,0 +1,53 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/Inventory.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Inventory",
+  "description": "Stock inventory records capturing item quantities, reserved segments, and location warehouses.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 1,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "Inventory", "Inventario", "Estoques", "Stock", "MARD", "stock.quant", "SB2", "Existencia", "Fisico", "Saldo"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "MARD (Material Storage Location Data) / MBEW (Material Valuation)",
+    "Odoo": "stock.quant / stock.inventory",
+    "Protheus": "SB2 (Saldo Físico e Financeiro)",
+    "Tango": "Articulos / Saldos (STA19)",
+    "Dynamics_365": "InventSum",
+    "NetSuite": "Inventory Balance (inventorybalance)",
+    "QuickBooks": "ItemInventory Entity",
+    "Salesforce": "ProductItem"
+  },
+  "x-opo-ai-discovery-hints": [
+    "What is the stock level for this SKU?",
+    "Lookup item reserves and physical quantities on hand.",
+    "Verify product storage details or MARD data.",
+    "Query stock.quant records in Odoo.",
+    "Find available product stock in SB2."
+  ],
+  "x-opo-distinguishable-from": [
+    "Warehouse", "Product"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "productId": { "type": "string" },
+    "warehouseId": { "type": "string" },
+    "quantityOnHand": { "type": "number" },
+    "quantityReserved": { "type": "number" },
+    "quantityAvailable": { "type": "number" },
+    "valuationPrice": { "$ref": "#/$defs/Money" }
+  },
+  "required": ["id", "productId", "warehouseId", "quantityOnHand", "quantityAvailable"],
+  "$defs": {
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+      },
+      "required": ["amount", "currency"]
+    }
+  }
+}

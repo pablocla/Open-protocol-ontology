@@ -1,0 +1,59 @@
+{
+  "opo_version": "0.1.0",
+  "system_identity": {
+    "erp_name": "Odoo Community Edition",
+    "version": "17.0",
+    "jurisdictions": ["US", "EU"],
+    "organization_name": "AeroTech Solutions"
+  },
+  "adapter_configuration": {
+    "base_url": "https://odoo.aerotech.io/opo/v1",
+    "authentication_type": "APIKey",
+    "protocol_interface": "JSON-RPC"
+  },
+  "supported_entities": [
+    {
+      "canonical": "opo:Customer",
+      "native_reference": "res.partner",
+      "confidence": 0.95,
+      "limitations": "Queries res.partner where customer_rank > 0."
+    },
+    {
+      "canonical": "opo:Supplier",
+      "native_reference": "res.partner",
+      "confidence": 0.95,
+      "limitations": "Queries res.partner where supplier_rank > 0."
+    },
+    {
+      "canonical": "opo:Invoice",
+      "native_reference": "account.move",
+      "confidence": 0.98,
+      "limitations": "Queries account.move where move_type in ('out_invoice', 'in_invoice')."
+    },
+    {
+      "canonical": "opo:Product",
+      "native_reference": "product.template",
+      "confidence": 0.98,
+      "limitations": "Templates are returned, options are resolved into single SKUs if active."
+    }
+  ],
+  "custom_mappings": {
+    "Customer": {
+      "res_partner_fields": {
+        "id": "id",
+        "partyId": "vat",
+        "tradeName": "name",
+        "legalName": "legal_name || name",
+        "outstandingBalance": "credit"
+      }
+    },
+    "Invoice": {
+      "account_move_fields": {
+        "id": "id",
+        "number": "name",
+        "issueDate": "invoice_date",
+        "grandTotal": "amount_total"
+      }
+    }
+  }
+}

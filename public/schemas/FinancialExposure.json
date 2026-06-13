@@ -1,0 +1,52 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/FinancialExposure.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FinancialExposure",
+  "description": "Aggregate financial metrics representing active, credit-weighted exposures, open orders and bill statuses for a counterparty.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 2,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "FinancialExposure", "Exposicion Financiera", "Exposicao Financeira", "Exposure", "UKM_TOTALS", "res.partner exposure", "SE1/SE2 totals", "Riesgo comercial", "Outstanding Credit", "Risco"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "UKM_SGM (Credit Management exposure sum)",
+    "Odoo": "res.partner risk exposure metrics",
+    "Protheus": "SE1 / SE2 credit-outstanding formulas",
+    "Tango": "Clientes balance (GVA14 totals)",
+    "Dynamics_365": "CustCreditLimitTotals",
+    "NetSuite": "Customer Balance + Open Orders tally",
+    "QuickBooks": "Customer Outstanding balance totals",
+    "Salesforce": "Account Billing Exposure Rollups"
+  },
+  "x-opo-ai-discovery-hints": [
+    "What is our total financial exposure to this client?",
+    "Lookup credit exposure or total liability bounds.",
+    "Verify open sales order tallies or outstanding debts.",
+    "Compare total balances and credit risks.",
+    "Find commercial exposure from UKM_TOTALS."
+  ],
+  "x-opo-distinguishable-from": [
+    "CreditAccount", "DebtObligation"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "partyId": { "type": "string" },
+    "outstandingReceivables": { "$ref": "#/$defs/Money" },
+    "openOrdersAmount": { "$ref": "#/$defs/Money" },
+    "totalExposure": { "$ref": "#/$defs/Money" },
+    "updatedDate": { "type": "string", "format": "date" }
+  },
+  "required": ["id", "partyId", "outstandingReceivables", "openOrdersAmount", "totalExposure", "updatedDate"],
+  "$defs": {
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+      },
+      "required": ["amount", "currency"]
+    }
+  }
+}

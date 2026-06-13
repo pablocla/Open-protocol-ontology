@@ -1,0 +1,67 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/Order.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Order",
+  "description": "An agreement for purchasing or sales delivery describing requested products, quantities, prices, and expected delivery dates.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 1,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "Order", "Pedido", "Ordem", "VBAK", "sale.order", "purchase.order", "SC5", "SC6", "Sales Order", "Purchase Order", "Peticion"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "VBAK (Sales Order Header) / VBAP (Items), EKKO (Purchase Order) / EKPO (Items)",
+    "Odoo": "sale.order / purchase.order with sale.order.line / purchase.order.line",
+    "Protheus": "SC5 (Pedidos de Venda) / SC7 (Pedidos de Compra)",
+    "Tango": "Pedidos de Venta (GVA03) / Compras (CPA03)",
+    "Dynamics_365": "SalesTable / SalesLine, PurchTable / PurchLine",
+    "NetSuite": "Sales Order (salesorder) / Purchase Order (purchaseorder)",
+    "QuickBooks": "Estimate / SalesOrder / PurchaseOrder Entities",
+    "Salesforce": "Order / OrderItem"
+  },
+  "x-opo-ai-discovery-hints": [
+    "Lookup pending order summaries.",
+    "Verify order line items and purchase requests.",
+    "Show me sale.order status in Odoo.",
+    "Retrieve client request details from VBAK.",
+    "Check SC5 order quantities."
+  ],
+  "x-opo-distinguishable-from": [
+    "Invoice", "Contract"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "number": { "type": "string" },
+    "partyId": { "type": "string" },
+    "orderType": { "type": "string", "enum": ["SALES", "PURCHASE"] },
+    "orderDate": { "type": "string", "format": "date" },
+    "status": { "type": "string", "enum": ["DRAFT", "CONFIRMED", "SHIPPED", "COMPLETED", "CANCELLED"] },
+    "items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/OrderItem" }
+    },
+    "totalAmount": { "$ref": "#/$defs/Money" }
+  },
+  "required": ["id", "number", "partyId", "orderType", "orderDate", "status", "items", "totalAmount"],
+  "$defs": {
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+      },
+      "required": ["amount", "currency"]
+    },
+    "OrderItem": {
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string" },
+        "quantity": { "type": "number" },
+        "unitPrice": { "$ref": "#/$defs/Money" },
+        "status": { "type": "string" }
+      },
+      "required": ["productId", "quantity", "unitPrice"]
+    }
+  }
+}

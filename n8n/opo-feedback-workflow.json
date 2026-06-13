@@ -1,0 +1,148 @@
+{
+  "name": "OPO Community Feedback Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "opo-feedback",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "18c89bdf-db8a-40a1-8d2b-665cd98a12e2",
+      "name": "Webhook Listener",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        100,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.entity }}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{ $json.body.alias }}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{ $json.body.type }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "ef2caaec-a079-4ef2-9f93-87002ef2c2c1",
+      "name": "Verify Payload",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        320,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"error\": \"Bad Request\",\n  \"message\": \"Required payload fields 'entity', 'alias', or 'type' are missing.\"\n}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "9d4cb31f-cca1-487b-891a-7b3ee8aa9b02",
+      "name": "Reject Invalid",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        540,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "owner": "openprotocol-dev",
+        "repository": "opo",
+        "title": "=OPO Contribution: {{ $node[\"Webhook Listener\"].json.body.type }} for {{ $node[\"Webhook Listener\"].json.body.entity }}",
+        "body": "=## OPO Contribution Details\n\n- **Contribution Type:** {{ $node[\"Webhook Listener\"].json.body.type }}\n- **Canonical Entity:** `{{ $node[\"Webhook Listener\"].json.body.entity }}`\n- **ERP Segment:** `{{ $node[\"Webhook Listener\"].json.body.erp }}`\n- **Proposed Alias / Mapped Database Block:** `{{ $node[\"Webhook Listener\"].json.body.alias }}`\n- **Assessed Confidence Level:** `{{ $node[\"Webhook Listener\"].json.body.confidence }}`\n- **Optional SUBMITTER CONTACT:** `{{ $node[\"Webhook Listener\"].json.body.contact || 'Anonymous' }}`\n- **Timestamp UTC:** `{{ $node[\"Webhook Listener\"].json.body.timestamp }}`\n- **Source URL:** [OPO App View]({{ $node[\"Webhook Listener\"].json.body.source_url }})\n\n### Editorial/Developer Notes\n\n```text\n{{ $node[\"Webhook Listener\"].json.body.notes || 'No description or metadata provided by the contributor.' }}\n```\n\n---\n*Automated community contribution captured inline and processed via n8n integration gateway.*",
+        "labels": "=[ \"contribution/{{ $node[\\\"Webhook Listener\\\"].json.body.type }}\" ]",
+        "additionalFields": {}
+      },
+      "id": "4020c6ae-da78-4ab8-91af-f63ec29aae32",
+      "name": "Create GitHub Issue Node",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [
+        620,
+        140
+      ],
+      "credentials": {
+        "githubApi": {
+          "id": "dummy-creds-to-be-configured",
+          "name": "GitHub OAuth2 Credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"success\": true,\n  \"message\": \"Your contribution has been verified and registered on GitHub.\",\n  \"issue_url\": \"={{ $json.html_url }}\",\n  \"issue_number\": \"={{ $json.number }}\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "e6a2eb67-b5bb-4cb0-bc7e-2cf8ea576efc",
+      "name": "Send Positive Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        860,
+        140
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Listener": {
+      "main": [
+        [
+          {
+            "node": "Verify Payload",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Payload": {
+      "main": [
+        [
+          {
+            "node": "Create GitHub Issue Node",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reject Invalid",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create GitHub Issue Node": {
+      "main": [
+        [
+          {
+            "node": "Send Positive Response",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {}
+}

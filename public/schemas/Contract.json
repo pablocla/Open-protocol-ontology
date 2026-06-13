@@ -1,0 +1,53 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/Contract.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Contract",
+  "description": "A binding legal agreement between the organization and a counterparty specifying operational conditions, timelines, and financial clauses.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 1,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "Contract", "Contrato", "Convenio", "Acuerdo", "VEDA", "contract.contract", "SE8", "Lease", "Legal Agreement", "Pacto", "Termo"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "VEDK (Contract Header) / VEDA (Contract Data Detail)",
+    "Odoo": "account.analytic.account / hr.contract",
+    "Protheus": "SE8 (Contratos de Parceria) / CN8 (Medição de Contratos)",
+    "Tango": "Contratos / Abonos database",
+    "Dynamics_365": "SalesContract / PurchaseContract",
+    "NetSuite": "Contract Record (contract)",
+    "QuickBooks": "Contract Entity",
+    "Salesforce": "Contract"
+  },
+  "x-opo-ai-discovery-hints": [
+    "Lookup active supplier contracts.",
+    "Show me the contractual duration or expiration date.",
+    "Check rental or service agreements.",
+    "Is there a signed agreement in the SE8 table?",
+    "Show me contract.contract terms."
+  ],
+  "x-opo-distinguishable-from": [
+    "Order", "Guarantee"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "partyId": { "type": "string" },
+    "startDate": { "type": "string", "format": "date" },
+    "endDate": { "type": "string", "format": "date" },
+    "value": { "$ref": "#/$defs/Money" },
+    "status": { "type": "string", "enum": ["DRAFT", "ACTIVE", "EXPIRED", "TERMINATED"] }
+  },
+  "required": ["id", "title", "partyId", "startDate", "status"],
+  "$defs": {
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+      },
+      "required": ["amount", "currency"]
+    }
+  }
+}

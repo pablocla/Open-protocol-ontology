@@ -1,0 +1,53 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/Employee.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Employee",
+  "description": "An individual hired by the organization to perform services in exchange for salary or hourly compensation.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 1,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "Employee", "Empleado", "Empregado", "SRA", "PA0002", "hr.employee", "Colaborador", "Staff", "Funcionario", "Personal"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "PA0002 / PA0008 (HCM Infotypes)",
+    "Odoo": "hr.employee",
+    "Protheus": "SRA (Cadastro de Funcionarios)",
+    "Tango": "Sueldos / Legajos database",
+    "Dynamics_365": "mserp_hcmworker",
+    "NetSuite": "Employee Record (employee)",
+    "QuickBooks": "Employee Entity",
+    "Salesforce": "User / Contact HR fields"
+  },
+  "x-opo-ai-discovery-hints": [
+    "List the employees in our system.",
+    "Lookup worker compensation status.",
+    "Get full employee record for payroll calculation.",
+    "Verify SRA database parameters.",
+    "Find hr.employee record associated with this team member."
+  ],
+  "x-opo-distinguishable-from": [
+    "Party"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "partyId": { "type": "string" },
+    "role": { "type": "string" },
+    "department": { "type": "string" },
+    "status": { "type": "string", "enum": ["ACTIVE", "TERMINATED", "ON_LEAVE"] },
+    "hireDate": { "type": "string", "format": "date" },
+    "salary": { "$ref": "#/$defs/Money" }
+  },
+  "required": ["id", "partyId", "role", "status"],
+  "$defs": {
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+      },
+      "required": ["amount", "currency"]
+    }
+  }
+}

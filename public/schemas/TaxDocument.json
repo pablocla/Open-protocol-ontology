@@ -1,0 +1,54 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/TaxDocument.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TaxDocument",
+  "description": "Withholding certificates, tax declarations, fiscal vouchers, and regulatory filings matching corporate transactions.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 2,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "TaxDocument", "Documento Fiscal", "Certificado Retencion", "Retencion", "WITH_ITEM", "account.tax", "SF3", "Comprobante Retención", "Certificado", "Aliquota"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "WITH_ITEM (Withholding Tax Table per FI Document)",
+    "Odoo": "account.tax / account.fiscal.position",
+    "Protheus": "SF3 (Livros Fiscais - Impostos de Notas Fiscais)",
+    "Tango": "Retenciones (CPA05)",
+    "Dynamics_365": "TaxTrans / TaxTable",
+    "NetSuite": "Tax Item Record (taxitem) / Tax Group",
+    "QuickBooks": "TaxRate / TaxCode Entities",
+    "Salesforce": "TaxTreatment (Revenue Cloud)"
+  },
+  "x-opo-ai-discovery-hints": [
+    "Verify tax withholding certificates.",
+    "Lookup localized tax rates or fiscal regimes.",
+    "Show me tax calculations in WITH_ITEM.",
+    "Query account.tax configurations.",
+    "Find tax values for SF3 records."
+  ],
+  "x-opo-distinguishable-from": [
+    "Invoice"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "relatedInvoiceId": { "type": "string" },
+    "documentType": { "type": "string", "enum": ["WITHHOLDING_CERTIFICATE", "VAT_DECLARATION", "CUSTOMS_ENTRY", "REGULATORY_STATEMENT"] },
+    "fiscalIdentifier": { "type": "string" },
+    "taxAuthorityName": { "type": "string" },
+    "withholdingAmount": { "$ref": "#/$defs/Money" },
+    "taxRateApplied": { "type": "number" },
+    "issueDate": { "type": "string", "format": "date" }
+  },
+  "required": ["id", "documentType", "fiscalIdentifier", "withholdingAmount", "issueDate"],
+  "$defs": {
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+      },
+      "required": ["amount", "currency"]
+    }
+  }
+}

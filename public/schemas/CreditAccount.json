@@ -1,0 +1,52 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/CreditAccount.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CreditAccount",
+  "description": "An administrative ledger tracking credit lines, current utilization, and credit availability for customers and counterparties.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 1,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "CreditAccount", "Cuenta de Credito", "Conta de Credito", "Línea de Crédito", "UKMBP_CMS", "credit.account", "SE1 (Credit)", "Credit Line", "Subcuenta", "Limite"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "UKMBP_CMS_SGM (Credit Segment Partner Data)",
+    "Odoo": "res.partner credit limit properties",
+    "Protheus": "SE1 (Contas a Receber, credit limits properties)",
+    "Tango": "Cuentas Corrientes (GVA14)",
+    "Dynamics_365": "CustCreditLimitTable",
+    "NetSuite": "Customer Finance settings / credit limits",
+    "QuickBooks": "Customer Credit Profile",
+    "Salesforce": "Billing Account Credit fields"
+  },
+  "x-opo-ai-discovery-hints": [
+    "Find how much credit is available for this client.",
+    "Show me the credit account utilization level.",
+    "Lookup credit limits and billing records.",
+    "Is the client account flagged for credit freeze?",
+    "Verify UKMBP_CMS financial segments."
+  ],
+  "x-opo-distinguishable-from": [
+    "Customer", "CreditRisk"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "partyId": { "type": "string" },
+    "authorizedLimit": { "$ref": "#/$defs/Money" },
+    "utilizedBalance": { "$ref": "#/$defs/Money" },
+    "availableCredit": { "$ref": "#/$defs/Money" },
+    "creditStatus": { "type": "string", "enum": ["ACTIVE", "SUSPENDED", "REVIEW_REQUIRED"] }
+  },
+  "required": ["id", "partyId", "authorizedLimit", "utilizedBalance", "availableCredit", "creditStatus"],
+  "$defs": {
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+      },
+      "required": ["amount", "currency"]
+    }
+  }
+}

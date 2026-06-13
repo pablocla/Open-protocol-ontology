@@ -1,0 +1,6 @@
+{
+  "name": "Open Protocol Ontology",
+  "description": "An open standard semantic layer for AI to interact with any Enterprise Resource Planning (ERP) system.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

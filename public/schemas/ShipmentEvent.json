@@ -1,0 +1,44 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/ShipmentEvent.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ShipmentEvent",
+  "description": "Logistics events and tracing records representing shipment dispatch, carrier Handover, and destination deliveries.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 2,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "ShipmentEvent", "Evento de Embarque", "Evento de Envio", "Despacho", "VTTK", "stock.picking", "GW1", "Tracking", "Entrega", "Remito", "Minuta"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "VTTK (Shipment Header) / VTTP (Shipment Item), LIKP (SD Document Delivery)",
+    "Odoo": "stock.picking / stock.move.line",
+    "Protheus": "GW1 (Documentos de Carga) / SC9 (Liberação de Pedidos)",
+    "Tango": "Guias / Despachos database",
+    "Dynamics_365": "WHSShipmentTable",
+    "NetSuite": "Item Fulfillment (itemfulfillment)",
+    "QuickBooks": "Shipping details profile",
+    "Salesforce": "Shipment / ShipmentProduct"
+  },
+  "x-opo-ai-discovery-hints": [
+    "Check shipping status.",
+    "Lookup carrier package tracking numbers.",
+    "Show me delivery timestamps from VTTK.",
+    "Query stock.picking records in Odoo.",
+    "Find shipment load information in GW1."
+  ],
+  "x-opo-distinguishable-from": [
+    "Order", "Warehouse"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "orderId": { "type": "string" },
+    "trackingNumber": { "type": "string" },
+    "carrierName": { "type": "string" },
+    "currentLocation": { "type": "string" },
+    "status": { "type": "string", "enum": ["DISPATCHED", "IN_TRANSIT", "OUT_FOR_DELIVERY", "DELIVERED", "DELAYED"] },
+    "eventTimestamp": { "type": "string", "format": "date-time" },
+    "estimatedDelivery": { "type": "string", "format": "date" }
+  },
+  "required": ["id", "orderId", "status", "eventTimestamp"]
+}
