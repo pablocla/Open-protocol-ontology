@@ -32,17 +32,17 @@ Este manifiesto actúa como un contrato vinculante entre el servidor y el Agente
   "entities": {
     "Invoice": {
       "endpoint": "/opo/invoices",
-      "schema_url": "https://schema.opo.dev/v1/Invoice.json",
+      "schema_url": "https://openontology.vercel.app/schema/v1/Invoice.json",
       "supported_methods": ["GET", "POST"]
     },
     "Customer": {
       "endpoint": "/opo/customers",
-      "schema_url": "https://schema.opo.dev/v1/Customer.json",
+      "schema_url": "https://openontology.vercel.app/schema/v1/Customer.json",
       "supported_methods": ["GET"]
     },
     "Product": {
       "endpoint": "/opo/products",
-      "schema_url": "https://schema.opo.dev/v1/Product.json",
+      "schema_url": "https://openontology.vercel.app/schema/v1/Product.json",
       "supported_methods": ["GET"]
     }
   }

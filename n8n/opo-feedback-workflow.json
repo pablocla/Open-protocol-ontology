@@ -66,8 +66,8 @@
       "parameters": {
         "resource": "issue",
         "operation": "create",
-        "owner": "openprotocol-dev",
-        "repository": "opo",
+        "owner": "pablocla",
+        "repository": "Open-protocol-ontology",
         "title": "=OPO Contribution: {{ $node[\"Webhook Listener\"].json.body.type }} for {{ $node[\"Webhook Listener\"].json.body.entity }}",
         "body": "=## OPO Contribution Details\n\n- **Contribution Type:** {{ $node[\"Webhook Listener\"].json.body.type }}\n- **Canonical Entity:** `{{ $node[\"Webhook Listener\"].json.body.entity }}`\n- **ERP Segment:** `{{ $node[\"Webhook Listener\"].json.body.erp }}`\n- **Proposed Alias / Mapped Database Block:** `{{ $node[\"Webhook Listener\"].json.body.alias }}`\n- **Assessed Confidence Level:** `{{ $node[\"Webhook Listener\"].json.body.confidence }}`\n- **Optional SUBMITTER CONTACT:** `{{ $node[\"Webhook Listener\"].json.body.contact || 'Anonymous' }}`\n- **Timestamp UTC:** `{{ $node[\"Webhook Listener\"].json.body.timestamp }}`\n- **Source URL:** [OPO App View]({{ $node[\"Webhook Listener\"].json.body.source_url }})\n\n### Editorial/Developer Notes\n\n```text\n{{ $node[\"Webhook Listener\"].json.body.notes || 'No description or metadata provided by the contributor.' }}\n```\n\n---\n*Automated community contribution captured inline and processed via n8n integration gateway.*",
         "labels": "=[ \"contribution/{{ $node[\\\"Webhook Listener\\\"].json.body.type }}\" ]",

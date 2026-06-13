@@ -60,7 +60,7 @@ Abre el archivo `mappings/invoice.json` y define cómo la ontología oficial de 
 
 ```json
 {
-  "$schema": "https://schema.opo.dev/v1/mapping-schema.json",
+  "$schema": "https://openontology.vercel.app/schema/v1/mapping-schema.json",
   "entity": "Invoice",
   "tableName": "FACTURAS_HISTORICAS",
   "fields": {

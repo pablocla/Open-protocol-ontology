@@ -248,7 +248,7 @@ export default function DocsPage() {
 
         <div className="shrink-0">
           <a
-            href="https://github.com/openprotocol-dev/opo"
+            href="https://github.com/pablocla/Open-protocol-ontology"
             target="_blank"
             className="inline-flex items-center gap-1.5 px-4 py-2 border border-slate-700 bg-slate-900/50 hover:bg-slate-900 hover:border-slate-500 text-white font-mono text-xxs font-bold uppercase tracking-wider rounded transition-colors"
           >

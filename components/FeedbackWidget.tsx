@@ -134,7 +134,7 @@ export default function FeedbackWidget({
       `${notes || 'None provided.'}\n\n` +
       `*Submitted via OPO Live Core Interface fallback.*`;
 
-    return `https://github.com/openprotocol-dev/opo/issues/new?title=${encodeURIComponent(titleText)}&body=${encodeURIComponent(bodyText)}`;
+    return `https://github.com/pablocla/Open-protocol-ontology/issues/new?title=${encodeURIComponent(titleText)}&body=${encodeURIComponent(bodyText)}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -206,7 +206,7 @@ export default function FeedbackWidget({
             <p className="mt-1 text-xs text-slate-300 leading-relaxed">{currentText.success}</p>
             <div className="mt-4">
               <a
-                href="https://github.com/openprotocol-dev/opo/issues"
+                href="https://github.com/pablocla/Open-protocol-ontology/issues"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1.5 font-mono text-xxs font-bold uppercase bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded transition-all"
