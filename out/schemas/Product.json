@@ -1,0 +1,44 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/Product.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Product",
+  "description": "A physical or digital tangible item produced, stocked, transacted, or sold by the organization.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 1,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "Product", "Producto", "Produto", "SKU", "MARA", "product.template", "SB1", "Item", "Mercaderia", "Peca"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "MARA (General Material Data) / MAKT (Material Description)",
+    "Odoo": "product.product / product.template",
+    "Protheus": "SB1 (Cadastro de Produtos)",
+    "Tango": "Articulos / Productos (STA11)",
+    "Dynamics_365": "EcoResProduct / InventTable",
+    "NetSuite": "Inventory Item Record (inventoryitem)",
+    "QuickBooks": "Item (Inventory type)",
+    "Salesforce": "Product2"
+  },
+  "x-opo-ai-discovery-hints": [
+    "Check product catalogs.",
+    "Lookup item SKU details.",
+    "Show me item dimensions or UPC/EAN.",
+    "Verify product list or MARA table rows.",
+    "Get description for SB1 item."
+  ],
+  "x-opo-distinguishable-from": [
+    "Service"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "sku": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "category": { "type": "string" },
+    "barcode": { "type": "string" },
+    "unitOfMeasure": { "type": "string" },
+    "weight": { "type": "number" }
+  },
+  "required": ["id", "sku", "name", "unitOfMeasure"]
+}

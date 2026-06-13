@@ -5,9 +5,16 @@
   "bin": {
     "opo": "./dist/index.js"
   },
+  "types": "./opo-types.d.ts",
+  "exports": {
+    ".": {
+      "types": "./opo-types.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
     "dev": "next dev",
-    "build:cli": "tsup cli/index.ts --format cjs",
+    "build:cli": "tsup cli/index.ts --format cjs --external json-schema-to-typescript",
     "build": "npm run build:cli && next build",
     "start": "next start",
     "lint": "eslint .",
@@ -16,6 +23,7 @@
   "dependencies": {
     "@google/genai": "^2.4.0",
     "@hookform/resolvers": "^5.2.1",
+    "@monaco-editor/react": "^4.7.0",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "autoprefixer": "^10.4.21",
@@ -42,6 +50,7 @@
     "eslint": "9.39.1",
     "eslint-config-next": "16.0.8",
     "firebase-tools": "^15.0.0",
+    "json-schema-to-typescript": "^15.0.4",
     "tailwindcss": "4.1.11",
     "tsup": "^8.5.1",
     "tsx": "^4.22.4",

@@ -1,0 +1,54 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/Warehouse.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Warehouse",
+  "description": "Stock warehouse or storage depot housing inventory, physical assets, and shipment routes.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 2,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "Warehouse", "Almacen", "Almoxarifado", "Deposito", "T001L", "stock.warehouse", "NNR", "Site", "Centro", "Barracao", "Galpao"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "T001L (Storage Locations) / WRF1 (Plant Master Data)",
+    "Odoo": "stock.warehouse / stock.location",
+    "Protheus": "NNR (Locais de Estoque) / SB2 (Warehouse segments)",
+    "Tango": "Depositos (STA22)",
+    "Dynamics_365": "InventLocation / InventSite",
+    "NetSuite": "Location Record (location)",
+    "QuickBooks": "Inventory Site Entity",
+    "Salesforce": "Location (Service Cloud)"
+  },
+  "x-opo-ai-discovery-hints": [
+    "Which warehouse belongs to this code?",
+    "Find storage location details.",
+    "Verify botanical or material plants from T001L.",
+    "Query stock.warehouse records in Odoo.",
+    "Retrieve NNR warehouse address."
+  ],
+  "x-opo-distinguishable-from": [
+    "Inventory"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "code": { "type": "string" },
+    "name": { "type": "string" },
+    "address": { "$ref": "#/$defs/Address" },
+    "managerId": { "type": "string" }
+  },
+  "required": ["id", "code", "name"],
+  "$defs": {
+    "Address": {
+      "type": "object",
+      "properties": {
+        "street": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "postalCode": { "type": "string" },
+        "country": { "type": "string", "maxLength": 2 }
+      },
+      "required": ["street", "city", "country"]
+    }
+  }
+}

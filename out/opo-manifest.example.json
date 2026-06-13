@@ -1,0 +1,59 @@
+{
+  "opo_version": "0.1.0",
+  "system_identity": {
+    "erp_name": "TOTVS Protheus",
+    "version": "12.1.2310",
+    "jurisdictions": ["BR", "AR"],
+    "organization_name": "Industrias del Sol S.A."
+  },
+  "adapter_configuration": {
+    "base_url": "https://protheus.sol-industries.com/api/opo/v1",
+    "authentication_type": "OAuth2",
+    "protocol_interface": "REST"
+  },
+  "supported_entities": [
+    {
+      "canonical": "opo:Customer",
+      "native_reference": "SA1",
+      "confidence": 0.98,
+      "limitations": "Only active clients with status A1_MSBLQL != '1' are exposed."
+    },
+    {
+      "canonical": "opo:Supplier",
+      "native_reference": "SA2",
+      "confidence": 0.98,
+      "limitations": "Excludes historical suppliers with status A2_MSBLQL == '1'."
+    },
+    {
+      "canonical": "opo:Invoice",
+      "native_reference": "SF2 (Sales) / SF1 (Purchases)",
+      "confidence": 0.95,
+      "limitations": "Withholding calculations require SF3 (Livros Fiscais) correlation."
+    },
+    {
+      "canonical": "opo:Order",
+      "native_reference": "SC5 (Sales) / SC7 (Purchases)",
+      "confidence": 0.92,
+      "limitations": "Line status reflects SC6/SC9 releases."
+    }
+  ],
+  "custom_mappings": {
+    "Customer": {
+      "SA1_fields": {
+        "id": "A1_COD + A1_LOJA",
+        "partyId": "A1_CGC",
+        "tradeName": "A1_NREDUZ",
+        "legalName": "A1_NOME",
+        "outstandingBalance": "A1_SALDUP"
+      }
+    },
+    "Invoice": {
+      "SF2_fields": {
+        "id": "F2_DOC + F2_SERIE",
+        "number": "F2_DOC",
+        "issueDate": "F2_EMISSAO",
+        "grandTotal": "F2_VALBRUT"
+      }
+    }
+  }
+}

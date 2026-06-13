@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opo.example.com/schemas/OpoManifest.json",
+  "version": "0.1.0",
+  "system": {
+    "vendor": "Custom",
+    "product": "My ERP",
+    "version": "1.0"
+  },
+  "entities": []
+}

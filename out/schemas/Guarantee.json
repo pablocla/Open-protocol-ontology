@@ -1,0 +1,53 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/Guarantee.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Guarantee",
+  "description": "Financial warrants, third-party guarantors, or collaterals backing transactions and invoices.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 2,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "Guarantee", "Garantia", "Fianza", "Aval", "Warrant", "Collateral", "BSEG (Guarantees)", "account.guarantee", "SE1 (Avals)", "Fiel", "Caucion", "Duplicata"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "BKPF / BSEG (with special G/L indicators for guarantees)",
+    "Odoo": "account.guarantee / res.partner bank.guarantees",
+    "Protheus": "SE1 (Contas a Receber, collateral records) / CN8 (Contracts collateral)",
+    "Tango": "Garantias / Avales database",
+    "Dynamics_365": "BankGuaranteeTable",
+    "NetSuite": "Security Deposit / Collateral attributes",
+    "QuickBooks": "Guarantor Record",
+    "Salesforce": "Financial Guarantee / Asset Collateral"
+  },
+  "x-opo-ai-discovery-hints": [
+    "Does this contract have a bank guarantee?",
+    "Lookup collateral warrants.",
+    "Verify guarantor information or aval status.",
+    "Find commercial guarantees.",
+    "Check contract CN8 collateral records."
+  ],
+  "x-opo-distinguishable-from": [
+    "Contract"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "partyId": { "type": "string" },
+    "contractId": { "type": "string" },
+    "value": { "$ref": "#/$defs/Money" },
+    "guaranteeType": { "type": "string", "enum": ["BANK_GUARANTEE", "SURETY_BOND", "COLLATERAL", "PERSONAL"] },
+    "expiryDate": { "type": "string", "format": "date" },
+    "status": { "type": "string", "enum": ["PENDING", "ACTIVE", "EXPIRED", "RELEASED"] }
+  },
+  "required": ["id", "partyId", "value", "guaranteeType", "status"],
+  "$defs": {
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+      },
+      "required": ["amount", "currency"]
+    }
+  }
+}

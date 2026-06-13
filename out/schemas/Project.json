@@ -1,0 +1,44 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/Project.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project",
+  "description": "An organized project planning structure recording milestones, timelines, expenses context, and team leaders.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 3,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "Project", "Proyecto", "Projeto", "PROJ", "project.project", "CN9", "WBS Element", "Pep", "Tarefa", "Hito"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "PROJ (Project Definition Master) / PRPS (WBS Element Master Data)",
+    "Odoo": "project.project / project.task",
+    "Protheus": "CN9 (Cadastro de Projetos) / CNE (Cronograma Financeiro do Projeto)",
+    "Tango": "Proyectos database",
+    "Dynamics_365": "ProjTable / ProjTransBudget",
+    "NetSuite": "Project Record (job / project)",
+    "QuickBooks": "Customer (Job type) Entity",
+    "Salesforce": "Project (Professional Services)"
+  },
+  "x-opo-ai-discovery-hints": [
+    "Lookup active enterprise project timelines.",
+    "Verify project planning milestones and WBS elements.",
+    "Show me project.project tasks for Odoo.",
+    "Retrieve project definitions from PROJ table.",
+    "Check CN9 project progress."
+  ],
+  "x-opo-distinguishable-from": [
+    "CostCenter"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "code": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "progressPercentage": { "type": "number", "minimum": 0, "maximum": 100 },
+    "startDate": { "type": "string", "format": "date" },
+    "endDate": { "type": "string", "format": "date" },
+    "projectLeaderId": { "type": "string" }
+  },
+  "required": ["id", "code", "name", "progressPercentage"]
+}

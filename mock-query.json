@@ -1,0 +1,19 @@
+{
+  "query": {
+    "entity": "Invoice",
+    "pagination": { "limit": 50, "cursor": "base64token" },
+    "filter": {
+      "AND": [
+        { "status": { "eq": "UNPAID" } },
+        { "grandTotal": { "gte": 100 } }
+      ]
+    },
+    "select": {
+      "id": true,
+      "grandTotal": true,
+      "customer": {
+        "select": { "legalName": true, "taxId": true }
+      }
+    }
+  }
+}

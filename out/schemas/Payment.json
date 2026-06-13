@@ -1,0 +1,53 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/Payment.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Payment",
+  "description": "An execution of a monetary transaction, representing funds cleared for an invoice or external account balance.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 1,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "Payment", "Pago", "Pagamento", "Recibo", "Cobro", "PAYR", "account.payment", "SE1", "SE5", "Transaction", "Liquidador", "Giro"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "PAYR (Payment Medium File) / REGUP (Processed items)",
+    "Odoo": "account.payment",
+    "Protheus": "SE5 (Movimentação Bancária) / SE1 (Contas a Receber recs) / SE2 (Contas a Pagar recs)",
+    "Tango": "Cobros (GVA12) / Pagos (CPA04)",
+    "Dynamics_365": "CustTransOpen / LedgerJournalTrans",
+    "NetSuite": "Customer Payment (customerpayment) / Vendor Payment (vendorpayment)",
+    "QuickBooks": "Payment / BillPayment Entities",
+    "Salesforce": "Payment (Salesplace)"
+  },
+  "x-opo-ai-discovery-hints": [
+    "Check paid invoices matching.",
+    "Lookup bank transaction identifiers.",
+    "List payment collections for this partner.",
+    "Find account.payment records in Odoo.",
+    "Verify receipt SE5 transaction dates."
+  ],
+  "x-opo-distinguishable-from": [
+    "Invoice"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "invoiceId": { "type": "string" },
+    "partyId": { "type": "string" },
+    "paymentDate": { "type": "string", "format": "date" },
+    "amount": { "$ref": "#/$defs/Money" },
+    "paymentMethod": { "type": "string", "enum": ["CASH", "BANK_TRANSFER", "CREDIT_CARD", "CHECK", "ELECTRONIC", "OTHER"] },
+    "reference": { "type": "string" }
+  },
+  "required": ["id", "partyId", "paymentDate", "amount", "paymentMethod"],
+  "$defs": {
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+      },
+      "required": ["amount", "currency"]
+    }
+  }
+}

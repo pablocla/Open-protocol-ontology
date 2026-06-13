@@ -1,0 +1,133 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "fibo": "https://spec.edmcouncil.org/fibo/ontology/",
+    "gr": "http://purl.org/goodrelations/v1#",
+    "opo": "https://openprotocol.dev/ontology/",
+    "id": "@id",
+    "type": "@type",
+    "label": {
+      "@id": "rdfs:label",
+      "@container": "@language"
+    },
+    "comment": {
+      "@id": "rdfs:comment",
+      "@container": "@language"
+    },
+    "aiHint": {
+      "@id": "opo:aiHint",
+      "@container": "@language"
+    },
+    "tier": {
+      "@id": "opo:tier",
+      "@type": "http://www.w3.org/2001/XMLSchema#integer"
+    },
+    "erpMappings": {
+      "@id": "opo:erpMappings"
+    }
+  },
+  "@graph": [
+    {
+      "id": "opo:Party",
+      "type": "rdfs:Class",
+      "label": {
+        "en": "Party",
+        "es": "Tercero / Parte",
+        "pt-BR": "Parceiro / Parte"
+      },
+      "comment": {
+        "en": "Represent an entity capable of executing contracts or trade. Super-type for Customer, Supplier, Employee.",
+        "es": "Entidad legal o individual con capacidad legal para contratar.",
+        "pt-BR": "Entidade legal ou individual capaz de firmar contratos ou transações."
+      },
+      "aiHint": {
+        "en": "Use for any master entity representing people, corporations, or partners before role resolution.",
+        "es": "Usar para cualquier entidad que represente personas o corporaciones.",
+        "pt-BR": "Usar para pessoas físicas ou jurídicas parceiras do negócio."
+      },
+      "tier": 1,
+      "erpMappings": {
+        "SAP_S4": "BUT000 (Business Partner)",
+        "Odoo": "res.partner",
+        "Protheus": "SA1/SA2"
+      }
+    },
+    {
+      "id": "opo:Customer",
+      "type": "rdfs:Class",
+      "label": {
+        "en": "Customer",
+        "es": "Cliente",
+        "pt-BR": "Cliente"
+      },
+      "comment": {
+        "en": "Entity who purchases commodities, goods, services, or contracts from the business.",
+        "es": "Sujeto que adquiere bienes o servicios del emisor.",
+        "pt-BR": "Entidade compradora de bens ou serviços."
+      },
+      "aiHint": {
+        "en": "Match to buyers, clients, accounts receivable debited parties.",
+        "es": "Vincular a deudores, cuentas a cobrar y tomadores de servicios.",
+        "pt-BR": "Vincular a clientes, contas a receber e tomadores."
+      },
+      "tier": 1,
+      "erpMappings": {
+        "SAP_S4": "KNA1 (Customer Master)",
+        "Odoo": "res.partner (where customer_rank > 0)",
+        "Protheus": "SA1"
+      }
+    },
+    {
+      "id": "opo:Supplier",
+      "type": "rdfs:Class",
+      "label": {
+        "en": "Supplier",
+        "es": "Proveedor",
+        "pt-BR": "Fornecedor"
+      },
+      "comment": {
+        "en": "Entity rendering hardware, software, services, raw materials, or items to the firm.",
+        "es": "Proveedor o acreedor que abastece materias primas o servicios.",
+        "pt-BR": "Fornecedor ou credor de matérias-primas e serviços."
+      },
+      "aiHint": {
+        "en": "Match to vendors, creditors, trade suppliers.",
+        "es": "Asociar con proveedores, acreedores comerciales y vendors.",
+        "pt-BR": "Associar com fornecedores, credores e prestadores de serviços contratados."
+      },
+      "tier": 1,
+      "erpMappings": {
+        "SAP_S4": "LFA1 (Vendor Master)",
+        "Odoo": "res.partner (where supplier_rank > 0)",
+        "Protheus": "SA2"
+      }
+    },
+    {
+      "id": "opo:Invoice",
+      "type": "rdfs:Class",
+      "label": {
+        "en": "Invoice",
+        "es": "Factura",
+        "pt-BR": "Nota Fiscal / Fatura"
+      },
+      "comment": {
+        "en": "A commercial document listing goods or services delivered, their prices, and payment obligations.",
+        "es": "Documento comercial que detalla productos o servicios despachados y montos a pagar.",
+        "pt-BR": "Documento fiscal que lista mercadorias ou serviços e os impostos incidentes."
+      },
+      "aiHint": {
+        "en": "Primary asset for tax audit, sales analytics, accounts payable/receivable mapping.",
+        "es": "Documento de partida doble para cuentas por cobrar/pagar e impuestos.",
+        "pt-BR": "Espelho da transação mercantil com valores de impostos e prazos de pagamento."
+      },
+      "tier": 1,
+      "erpMappings": {
+        "SAP_S4": "VBRK (Billing Document), BKPF/BSEG (FI Document)",
+        "Odoo": "account.move",
+        "Protheus": "SF2 (Sales), SF1 (Purchases)"
+      }
+    }
+  ]
+}

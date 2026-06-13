@@ -1,0 +1,52 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/Service.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Service",
+  "description": "An intangible task, professional consultation, or labor-based action rendered to a customer or acquired from a supplier.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 1,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "Service", "Servicio", "Servico", "ASMD", "product.template (Service type)", "SB1 (Tipo SV)", "Task", "Prestacion", "Labor"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "ASMD (Service Master Data)",
+    "Odoo": "product.template with type='service'",
+    "Protheus": "SB1 (Cadastro de Produtos with B1_TIPO='SV')",
+    "Tango": "Articulos / Servicios (STA11 with type SV)",
+    "Dynamics_365": "Product with ProductType Service",
+    "NetSuite": "Service Item Record (serviceitem)",
+    "QuickBooks": "Item (Service type)",
+    "Salesforce": "Product2 with IsService=true"
+  },
+  "x-opo-ai-discovery-hints": [
+    "Identify intangible services rendered.",
+    "Show me the service code list.",
+    "Check service fee profiles.",
+    "Lookup ASMD service master database entries.",
+    "Is this transaction a material product or a service dispatch?"
+  ],
+  "x-opo-distinguishable-from": [
+    "Product"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "code": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "billingType": { "type": "string", "enum": ["HOURLY", "FIXED", "MILESTONE"] },
+    "rate": { "$ref": "#/$defs/Money" }
+  },
+  "required": ["id", "code", "name", "billingType"],
+  "$defs": {
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+      },
+      "required": ["amount", "currency"]
+    }
+  }
+}

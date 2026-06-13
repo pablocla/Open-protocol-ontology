@@ -1,0 +1,52 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/CostCenter.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CostCenter",
+  "description": "An organizational unit or segment that collects, tracks, and audits operational costs, budgets, and departmental expenses.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 3,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "CostCenter", "Centro de Costo", "Centro de Custo", "CC", "CSKS", "account.analytic.account (Cost Center)", "SI3", "Department Expense Unit", "CeCo", "Conta Analitica"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "CSKS (Cost Center Master Record) / CSKT (Cost Center Texts)",
+    "Odoo": "account.analytic.account with group indicators",
+    "Protheus": "SI3 (Centro de Custos) / CTH (Classes de Valores)",
+    "Tango": "Contabilidad / Centros de Costo database",
+    "Dynamics_365": "DimensionAttributeValue (Financial Dimensions)",
+    "NetSuite": "Department Record (department) / Cost Center",
+    "QuickBooks": "Class / Department Entity",
+    "Salesforce": "CostCenter (Revenue Cloud)"
+  },
+  "x-opo-ai-discovery-hints": [
+    "What cost center was charged for this travel?",
+    "Show me the list of operational departments.",
+    "Verify departmental budget targets on the CSKS master table.",
+    "Lookup analytical account allocations in Odoo.",
+    "Retrieve SI3 centro de custo information."
+  ],
+  "x-opo-distinguishable-from": [
+    "Project"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "code": { "type": "string" },
+    "name": { "type": "string" },
+    "department": { "type": "string" },
+    "budgetLimit": { "$ref": "#/$defs/Money" },
+    "expensesYtd": { "$ref": "#/$defs/Money" }
+  },
+  "required": ["id", "code", "name"],
+  "$defs": {
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+      },
+      "required": ["amount", "currency"]
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "$id": "https://openprotocol.dev/ontology/schemas/DebtObligation.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DebtObligation",
+  "description": "Debt obligations, financial loans, or security liabilities held by the enterprise or counterparties.",
+  "x-opo-version": "0.1.0",
+  "x-opo-tier": 2,
+  "x-opo-license": "Apache-2.0",
+  "x-opo-aliases": [
+    "DebtObligation", "Obligacion de Deuda", "Obrigacao de Divida", "Debenture", "BSEG (Loans)", "account.loan", "SE2 (Debt)", "Prestamo", "Emprestimo", "Debito", "Mutuo"
+  ],
+  "x-opo-erp-mappings": {
+    "SAP_S4": "BKPF (Financial Header) / BSEG (with posting keys for liabilities or loans), T001 (Company code parameters)",
+    "Odoo": "account.loan / account.move for long-term liabilities",
+    "Protheus": "SE2 (Contas a Pagar with loan indicator B2_TIPO)",
+    "Tango": "Prestamos / Pasivos database",
+    "Dynamics_365": "LedgerJournalTrans",
+    "NetSuite": "Term Loan Records / Liability accounts",
+    "QuickBooks": "Loan / LongTermLiability accounts",
+    "Salesforce": "Financial Deal / Asset Liability fields"
+  },
+  "x-opo-ai-discovery-hints": [
+    "What loans are outstanding?",
+    "Lookup long-term debt liabilities.",
+    "Verify repayment rates or financial leverage.",
+    "Find debt commitments or BSEG postings.",
+    "Check accounts payable loans in SE2."
+  ],
+  "x-opo-distinguishable-from": [
+    "Invoice", "FinancialExposure"
+  ],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "partyId": { "type": "string" },
+    "principal": { "$ref": "#/$defs/Money" },
+    "remainingBalance": { "$ref": "#/$defs/Money" },
+    "interestRate": { "type": "number" },
+    "maturityDate": { "type": "string", "format": "date" },
+    "status": { "type": "string", "enum": ["ACTIVE", "PAID", "DEFAULTED"] }
+  },
+  "required": ["id", "partyId", "principal", "remainingBalance", "interestRate", "maturityDate", "status"],
+  "$defs": {
+    "Money": {
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
+      },
+      "required": ["amount", "currency"]
+    }
+  }
+}

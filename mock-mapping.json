@@ -1,0 +1,16 @@
+{
+  "Invoice": {
+    "tableName": "SYA010",
+    "fields": {
+      "id": "A1_COD",
+      "grandTotal": "A1_TOTAL",
+      "status": "A1_STATUS"
+    },
+    "joins": {
+      "customer": {
+        "tableName": "SA1010",
+        "on": "SYA010.A1_CLIENTE = SA1010.A1_COD"
+      }
+    }
+  }
+}

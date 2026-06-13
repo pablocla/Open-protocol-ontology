@@ -1,0 +1,1262 @@
+[
+  {
+    "alias": "KNA1",
+    "language": "erp-specific",
+    "canonical": "opo:Customer",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4HANA Customer General Master table."
+  },
+  {
+    "alias": "SA1",
+    "language": "erp-specific",
+    "canonical": "opo:Customer",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus Customer master table SA1."
+  },
+  {
+    "alias": "res.partner.customer",
+    "language": "erp-specific",
+    "canonical": "opo:Customer",
+    "confidence": 0.9,
+    "source": "erp",
+    "erp_context": "Odoo",
+    "notes": "Odoo partner record with customer flag rank > 0."
+  },
+  {
+    "alias": "client",
+    "language": "en",
+    "canonical": "opo:Customer",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Common English synonym for customer."
+  },
+  {
+    "alias": "cliente",
+    "language": "es",
+    "canonical": "opo:Customer",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for Customer."
+  },
+  {
+    "alias": "cliente",
+    "language": "pt-BR",
+    "canonical": "opo:Customer",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Portuguese translation for Customer."
+  },
+  {
+    "alias": "comprador",
+    "language": "es",
+    "canonical": "opo:Customer",
+    "confidence": 0.85,
+    "source": "regional",
+    "erp_context": null,
+    "notes": "Buyer or purchasing agent/party."
+  },
+  {
+    "alias": "fregues",
+    "language": "pt-BR",
+    "canonical": "opo:Customer",
+    "confidence": 0.8,
+    "source": "regional",
+    "erp_context": null,
+    "notes": "Colloquial buyer term in Portuguese."
+  },
+  {
+    "alias": "deudor",
+    "language": "es",
+    "canonical": "opo:Customer",
+    "confidence": 0.9,
+    "source": "common",
+    "erp_context": "Tango",
+    "notes": "Accounts receivable debit client in Tango."
+  },
+  {
+    "alias": "Account",
+    "language": "en",
+    "canonical": "opo:Customer",
+    "confidence": 0.85,
+    "source": "erp",
+    "erp_context": "Salesforce",
+    "notes": "Account model acting as client."
+  },
+  {
+    "alias": "CustTable",
+    "language": "erp-specific",
+    "canonical": "opo:Customer",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Dynamics365",
+    "notes": "Dynamics 365 Finance core customer table."
+  },
+  {
+    "alias": "CustomerRecord",
+    "language": "en",
+    "canonical": "opo:Customer",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "NetSuite",
+    "notes": "Standard NetSuite Customer entity."
+  },
+  {
+    "alias": "comitente",
+    "language": "es",
+    "canonical": "opo:Customer",
+    "confidence": 0.75,
+    "source": "contributed",
+    "erp_context": null,
+    "notes": "Secondary legal counterparty classification."
+  },
+  {
+    "alias": "consignatario",
+    "language": "es",
+    "canonical": "opo:Customer",
+    "confidence": 0.8,
+    "source": "regional",
+    "erp_context": null,
+    "notes": "Consignee or receiving party mapping."
+  },
+  {
+    "alias": "end-user",
+    "language": "en",
+    "canonical": "opo:Customer",
+    "confidence": 0.85,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Target product consumer party."
+  },
+  {
+    "alias": "LFA1",
+    "language": "erp-specific",
+    "canonical": "opo:Supplier",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4HANA Vendor Master general table."
+  },
+  {
+    "alias": "SA2",
+    "language": "erp-specific",
+    "canonical": "opo:Supplier",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus vendor table SA2."
+  },
+  {
+    "alias": "vendor",
+    "language": "en",
+    "canonical": "opo:Supplier",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Common English synonym for supplier."
+  },
+  {
+    "alias": "proveedor",
+    "language": "es",
+    "canonical": "opo:Supplier",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for Supplier."
+  },
+  {
+    "alias": "fornecedor",
+    "language": "pt-BR",
+    "canonical": "opo:Supplier",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Portuguese translation for Supplier."
+  },
+  {
+    "alias": "res.partner.supplier",
+    "language": "erp-specific",
+    "canonical": "opo:Supplier",
+    "confidence": 0.9,
+    "source": "erp",
+    "erp_context": "Odoo",
+    "notes": "Odoo partner record with supplier flag rank > 0."
+  },
+  {
+    "alias": "acreedor",
+    "language": "es",
+    "canonical": "opo:Supplier",
+    "confidence": 0.85,
+    "source": "regional",
+    "erp_context": null,
+    "notes": "Accounts payable non-commodity vendor."
+  },
+  {
+    "alias": "credor",
+    "language": "pt-BR",
+    "canonical": "opo:Supplier",
+    "confidence": 0.85,
+    "source": "regional",
+    "erp_context": null,
+    "notes": "Accounts payable non-commodity vendor in pt-BR."
+  },
+  {
+    "alias": "abastecedor",
+    "language": "es",
+    "canonical": "opo:Supplier",
+    "confidence": 0.8,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Localized supplier term."
+  },
+  {
+    "alias": "CP01",
+    "language": "erp-specific",
+    "canonical": "opo:Supplier",
+    "confidence": 0.9,
+    "source": "erp",
+    "erp_context": "Tango",
+    "notes": "Tango Gestión Proveedores database table."
+  },
+  {
+    "alias": "VendTable",
+    "language": "erp-specific",
+    "canonical": "opo:Supplier",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Dynamics365",
+    "notes": "Dynamics 365 core vendor master table."
+  },
+  {
+    "alias": "VendorRecord",
+    "language": "en",
+    "canonical": "opo:Supplier",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "NetSuite",
+    "notes": "Standard NetSuite Vendor schema record."
+  },
+  {
+    "alias": "merchant",
+    "language": "en",
+    "canonical": "opo:Supplier",
+    "confidence": 0.8,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Trade supplier or merchant."
+  },
+  {
+    "alias": "seller",
+    "language": "en",
+    "canonical": "opo:Supplier",
+    "confidence": 0.8,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Selling party in transaction."
+  },
+  {
+    "alias": "supridor",
+    "language": "pt-BR",
+    "canonical": "opo:Supplier",
+    "confidence": 0.85,
+    "source": "regional",
+    "erp_context": null,
+    "notes": "Supply chain provisioning partner."
+  },
+  {
+    "alias": "VBRK",
+    "language": "erp-specific",
+    "canonical": "opo:Invoice",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4HANA Sales Billing Document Header."
+  },
+  {
+    "alias": "SF2",
+    "language": "erp-specific",
+    "canonical": "opo:Invoice",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus Notas Fiscais de Saida."
+  },
+  {
+    "alias": "SF1",
+    "language": "erp-specific",
+    "canonical": "opo:Invoice",
+    "confidence": 0.9,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus Notas Fiscais de Entrada."
+  },
+  {
+    "alias": "account.move",
+    "language": "erp-specific",
+    "canonical": "opo:Invoice",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Odoo",
+    "notes": "Odoo accounting journal entries."
+  },
+  {
+    "alias": "bill",
+    "language": "en",
+    "canonical": "opo:Invoice",
+    "confidence": 0.95,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Accounts payable incoming invoice."
+  },
+  {
+    "alias": "factura",
+    "language": "es",
+    "canonical": "opo:Invoice",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for Invoice."
+  },
+  {
+    "alias": "nota fiscal",
+    "language": "pt-BR",
+    "canonical": "opo:Invoice",
+    "confidence": 0.95,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Brazilian fiscal invoice representation."
+  },
+  {
+    "alias": "fatura",
+    "language": "pt-BR",
+    "canonical": "opo:Invoice",
+    "confidence": 0.95,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Accounts payable invoice term."
+  },
+  {
+    "alias": "nfe",
+    "language": "pt-BR",
+    "canonical": "opo:Invoice",
+    "confidence": 0.9,
+    "source": "regional",
+    "erp_context": null,
+    "notes": "Brazilian electronic invoice."
+  },
+  {
+    "alias": "comprobante",
+    "language": "es",
+    "canonical": "opo:Invoice",
+    "confidence": 0.85,
+    "source": "regional",
+    "erp_context": null,
+    "notes": "Generic tax document/invoice in es-AR/es-MX."
+  },
+  {
+    "alias": "CustInvoiceJour",
+    "language": "erp-specific",
+    "canonical": "opo:Invoice",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Dynamics365",
+    "notes": "Dynamics 365 Customer invoices journal."
+  },
+  {
+    "alias": "invoice",
+    "language": "en",
+    "canonical": "opo:Invoice",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Standard English canonical alias."
+  },
+  {
+    "alias": "GVA12",
+    "language": "erp-specific",
+    "canonical": "opo:Invoice",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Tango",
+    "notes": "Tango Facturación/Ventas header master."
+  },
+  {
+    "alias": "receipt",
+    "language": "en",
+    "canonical": "opo:Invoice",
+    "confidence": 0.8,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Invoice counterpart or receipt."
+  },
+  {
+    "alias": "declaracao",
+    "language": "pt-BR",
+    "canonical": "opo:Invoice",
+    "confidence": 0.75,
+    "source": "contributed",
+    "erp_context": null,
+    "notes": "Broad fiscal declaration descriptor."
+  },
+  {
+    "alias": "BUT000",
+    "language": "erp-specific",
+    "canonical": "opo:Party",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP Business Partner Master table."
+  },
+  {
+    "alias": "res.partner",
+    "language": "erp-specific",
+    "canonical": "opo:Party",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Odoo",
+    "notes": "Odoo Partner model."
+  },
+  {
+    "alias": "contractor",
+    "language": "en",
+    "canonical": "opo:Party",
+    "confidence": 0.85,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Engaged business party."
+  },
+  {
+    "alias": "tercero",
+    "language": "es",
+    "canonical": "opo:Party",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for third-party/partner."
+  },
+  {
+    "alias": "parceiro",
+    "language": "pt-BR",
+    "canonical": "opo:Party",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Portuguese translation for partner entity."
+  },
+  {
+    "alias": "ente",
+    "language": "es",
+    "canonical": "opo:Party",
+    "confidence": 0.8,
+    "source": "regional",
+    "erp_context": null,
+    "notes": "Broad entity reference."
+  },
+  {
+    "alias": "contraparte",
+    "language": "es",
+    "canonical": "opo:Party",
+    "confidence": 0.9,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Contractual counterparty."
+  },
+  {
+    "alias": "co-signer",
+    "language": "en",
+    "canonical": "opo:Party",
+    "confidence": 0.75,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Co-signer party in deal."
+  },
+  {
+    "alias": "legal-entity",
+    "language": "en",
+    "canonical": "opo:Party",
+    "confidence": 0.9,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Formal organization or legal individual."
+  },
+  {
+    "alias": "sujeito",
+    "language": "pt-BR",
+    "canonical": "opo:Party",
+    "confidence": 0.75,
+    "source": "regional",
+    "erp_context": null,
+    "notes": "Subject or participant of action."
+  },
+  {
+    "alias": "AccountContact",
+    "language": "en",
+    "canonical": "opo:Party",
+    "confidence": 0.8,
+    "source": "erp",
+    "erp_context": "Salesforce",
+    "notes": "Salesforce contact or corporate account."
+  },
+  {
+    "alias": "PA0002",
+    "language": "erp-specific",
+    "canonical": "opo:Employee",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4 Personal Data infotype table."
+  },
+  {
+    "alias": "SRA",
+    "language": "erp-specific",
+    "canonical": "opo:Employee",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus funcionario master table."
+  },
+  {
+    "alias": "hr.employee",
+    "language": "erp-specific",
+    "canonical": "opo:Employee",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Odoo",
+    "notes": "Odoo human resources employee record."
+  },
+  {
+    "alias": "staff",
+    "language": "en",
+    "canonical": "opo:Employee",
+    "confidence": 0.9,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Staff or personnel listing."
+  },
+  {
+    "alias": "empleado",
+    "language": "es",
+    "canonical": "opo:Employee",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for Employee."
+  },
+  {
+    "alias": "empregado",
+    "language": "pt-BR",
+    "canonical": "opo:Employee",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Portuguese translation for Employee."
+  },
+  {
+    "alias": "colaborador",
+    "language": "pt-BR",
+    "canonical": "opo:Employee",
+    "confidence": 0.95,
+    "source": "regional",
+    "erp_context": null,
+    "notes": "Corporate teammate label in Brazil."
+  },
+  {
+    "alias": "personal",
+    "language": "es",
+    "canonical": "opo:Employee",
+    "confidence": 0.9,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Human resources payroll collection alias."
+  },
+  {
+    "alias": "mserp_hcmworker",
+    "language": "erp-specific",
+    "canonical": "opo:Employee",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Dynamics365",
+    "notes": "Dynamics 365 Finance worker entity."
+  },
+  {
+    "alias": "EmployeeRecord",
+    "language": "en",
+    "canonical": "opo:Employee",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "NetSuite",
+    "notes": "Standard NetSuite Employee representation."
+  },
+  {
+    "alias": "helper",
+    "language": "en",
+    "canonical": "opo:Employee",
+    "confidence": 0.7,
+    "source": "contributed",
+    "erp_context": null,
+    "notes": "Temporary collaborator."
+  },
+  {
+    "alias": "MARA",
+    "language": "erp-specific",
+    "canonical": "opo:Product",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4 Material Master table."
+  },
+  {
+    "alias": "SB1",
+    "language": "erp-specific",
+    "canonical": "opo:Product",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus cadastro de produtos."
+  },
+  {
+    "alias": "product.template",
+    "language": "erp-specific",
+    "canonical": "opo:Product",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Odoo",
+    "notes": "Odoo product template definition."
+  },
+  {
+    "alias": "sku",
+    "language": "en",
+    "canonical": "opo:Product",
+    "confidence": 0.95,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Stock Keeping Unit product reference."
+  },
+  {
+    "alias": "producto",
+    "language": "es",
+    "canonical": "opo:Product",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for Product."
+  },
+  {
+    "alias": "produto",
+    "language": "pt-BR",
+    "canonical": "opo:Product",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Portuguese translation for Product."
+  },
+  {
+    "alias": "mercaderia",
+    "language": "es",
+    "canonical": "opo:Product",
+    "confidence": 0.9,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Goods or tradeable commodities."
+  },
+  {
+    "alias": "item",
+    "language": "en",
+    "canonical": "opo:Product",
+    "confidence": 0.95,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Standard product item alias."
+  },
+  {
+    "alias": "InventTable",
+    "language": "erp-specific",
+    "canonical": "opo:Product",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Dynamics365",
+    "notes": "Dynamics 365 Finance materials inventory catalog."
+  },
+  {
+    "alias": "ASMD",
+    "language": "erp-specific",
+    "canonical": "opo:Service",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4 Service Master general table."
+  },
+  {
+    "alias": "VBAK",
+    "language": "erp-specific",
+    "canonical": "opo:Order",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4 Sales Order Header database."
+  },
+  {
+    "alias": "SC5",
+    "language": "erp-specific",
+    "canonical": "opo:Order",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus pedidos de venda table."
+  },
+  {
+    "alias": "sale.order",
+    "language": "erp-specific",
+    "canonical": "opo:Order",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Odoo",
+    "notes": "Odoo sales agreement profile."
+  },
+  {
+    "alias": "pedido",
+    "language": "es",
+    "canonical": "opo:Order",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for sales or purchase order."
+  },
+  {
+    "alias": "pedido",
+    "language": "pt-BR",
+    "canonical": "opo:Order",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Portuguese translation for order record."
+  },
+  {
+    "alias": "purchase.order",
+    "language": "erp-specific",
+    "canonical": "opo:Order",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Odoo",
+    "notes": "Odoo procurement purchase request."
+  },
+  {
+    "alias": "SC7",
+    "language": "erp-specific",
+    "canonical": "opo:Order",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus purchase order table."
+  },
+  {
+    "alias": "VBAK_VBPX",
+    "language": "erp-specific",
+    "canonical": "opo:Order",
+    "confidence": 0.9,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP sales orders containing parameters."
+  },
+  {
+    "alias": "VEDA",
+    "language": "erp-specific",
+    "canonical": "opo:Contract",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4 Contract Master table."
+  },
+  {
+    "alias": "SE8",
+    "language": "erp-specific",
+    "canonical": "opo:Contract",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus contract master table SE8."
+  },
+  {
+    "alias": "contrato",
+    "language": "es",
+    "canonical": "opo:Contract",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for contract agreement."
+  },
+  {
+    "alias": "contrato",
+    "language": "pt-BR",
+    "canonical": "opo:Contract",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Portuguese translation for contract schema."
+  },
+  {
+    "alias": "agreement",
+    "language": "en",
+    "canonical": "opo:Contract",
+    "confidence": 0.95,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Standard English contract synonym."
+  },
+  {
+    "alias": "PAYR",
+    "language": "erp-specific",
+    "canonical": "opo:Payment",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4 Payment Medium parameters table."
+  },
+  {
+    "alias": "SE5",
+    "language": "erp-specific",
+    "canonical": "opo:Payment",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus bank movimentation file."
+  },
+  {
+    "alias": "pago",
+    "language": "es",
+    "canonical": "opo:Payment",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for transaction payment."
+  },
+  {
+    "alias": "pagamento",
+    "language": "pt-BR",
+    "canonical": "opo:Payment",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Portuguese translation for cleared payment."
+  },
+  {
+    "alias": "recibo",
+    "language": "es",
+    "canonical": "opo:Payment",
+    "confidence": 0.9,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Receipt transaction record."
+  },
+  {
+    "alias": "account.payment",
+    "language": "erp-specific",
+    "canonical": "opo:Payment",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Odoo",
+    "notes": "Odoo cash book payment entries."
+  },
+  {
+    "alias": "UKMBP_CMS",
+    "language": "erp-specific",
+    "canonical": "opo:CreditAccount",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4 Business Partner Credit parameters."
+  },
+  {
+    "alias": "credit_limit",
+    "language": "en",
+    "canonical": "opo:CreditAccount",
+    "confidence": 0.9,
+    "source": "common",
+    "erp_context": null,
+    "notes": "General credit line descriptor."
+  },
+  {
+    "alias": "MARD",
+    "language": "erp-specific",
+    "canonical": "opo:Inventory",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4 Storage Location inventory balance table."
+  },
+  {
+    "alias": "SB2",
+    "language": "erp-specific",
+    "canonical": "opo:Inventory",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus saldo fisico e financeiro."
+  },
+  {
+    "alias": "stock.quant",
+    "language": "erp-specific",
+    "canonical": "opo:Inventory",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Odoo",
+    "notes": "Odoo inventory stock quant model."
+  },
+  {
+    "alias": "inventario",
+    "language": "es",
+    "canonical": "opo:Inventory",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for item stock inventory."
+  },
+  {
+    "alias": "estoques",
+    "language": "pt-BR",
+    "canonical": "opo:Inventory",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Portuguese translation for product inventory."
+  },
+  {
+    "alias": "A018",
+    "language": "erp-specific",
+    "canonical": "opo:PriceList",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4 pricing condition table A018."
+  },
+  {
+    "alias": "DA0",
+    "language": "erp-specific",
+    "canonical": "opo:PriceList",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus tabela de precos DA0."
+  },
+  {
+    "alias": "product.pricelist",
+    "language": "erp-specific",
+    "canonical": "opo:PriceList",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Odoo",
+    "notes": "Odoo core price list registry."
+  },
+  {
+    "alias": "lista de precios",
+    "language": "es",
+    "canonical": "opo:PriceList",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for trade pricing matrix."
+  },
+  {
+    "alias": "lista de precos",
+    "language": "pt-BR",
+    "canonical": "opo:PriceList",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Portuguese translation for item price matrix."
+  },
+  {
+    "alias": "UKM_SGM",
+    "language": "erp-specific",
+    "canonical": "opo:CreditRisk",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4 credit risk segment parameters table."
+  },
+  {
+    "alias": "riesgo",
+    "language": "es",
+    "canonical": "opo:CreditRisk",
+    "confidence": 0.9,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for credit lines risk metrics."
+  },
+  {
+    "alias": "risco",
+    "language": "pt-BR",
+    "canonical": "opo:CreditRisk",
+    "confidence": 0.9,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Portuguese translation for partner risk level."
+  },
+  {
+    "alias": "score",
+    "language": "en",
+    "canonical": "opo:CreditRisk",
+    "confidence": 0.95,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Credit risk evaluation scoring index."
+  },
+  {
+    "alias": "BSEG_LOANS",
+    "language": "erp-specific",
+    "canonical": "opo:DebtObligation",
+    "confidence": 0.85,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4 financial postings tracking loan liabilities."
+  },
+  {
+    "alias": "mutuo",
+    "language": "es",
+    "canonical": "opo:DebtObligation",
+    "confidence": 0.9,
+    "source": "regional",
+    "erp_context": null,
+    "notes": "Corporate loan agreements in South America."
+  },
+  {
+    "alias": "debit",
+    "language": "en",
+    "canonical": "opo:DebtObligation",
+    "confidence": 0.8,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Outstanding debt asset liability."
+  },
+  {
+    "alias": "aval",
+    "language": "es",
+    "canonical": "opo:Guarantee",
+    "confidence": 0.95,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish legal warrant / guarantor profile."
+  },
+  {
+    "alias": "caucion",
+    "language": "es",
+    "canonical": "opo:Guarantee",
+    "confidence": 0.9,
+    "source": "regional",
+    "erp_context": null,
+    "notes": "Insurance or legal pledge backings."
+  },
+  {
+    "alias": "fiel",
+    "language": "pt-BR",
+    "canonical": "opo:Guarantee",
+    "confidence": 0.85,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Contractual warranty downpayment terms."
+  },
+  {
+    "alias": "T001L",
+    "language": "erp-specific",
+    "canonical": "opo:Warehouse",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4 storage locations master code."
+  },
+  {
+    "alias": "NNR",
+    "language": "erp-specific",
+    "canonical": "opo:Warehouse",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus locais de estoque table."
+  },
+  {
+    "alias": "deposito",
+    "language": "es",
+    "canonical": "opo:Warehouse",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for warehouse depot."
+  },
+  {
+    "alias": "almoxarifado",
+    "language": "pt-BR",
+    "canonical": "opo:Warehouse",
+    "confidence": 0.95,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Standard Portuguese warehouse storage label."
+  },
+  {
+    "alias": "stock.location",
+    "language": "erp-specific",
+    "canonical": "opo:Warehouse",
+    "confidence": 0.9,
+    "source": "erp",
+    "erp_context": "Odoo",
+    "notes": "Odoo Inventory storage coordinates."
+  },
+  {
+    "alias": "VTTK",
+    "language": "erp-specific",
+    "canonical": "opo:ShipmentEvent",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4 shipment execution header table."
+  },
+  {
+    "alias": "GW1",
+    "language": "erp-specific",
+    "canonical": "opo:ShipmentEvent",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus logistics documents de carga."
+  },
+  {
+    "alias": "stock.picking",
+    "language": "erp-specific",
+    "canonical": "opo:ShipmentEvent",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Odoo",
+    "notes": "Odoo shipment dispatch transfer model."
+  },
+  {
+    "alias": "despacho",
+    "language": "es",
+    "canonical": "opo:ShipmentEvent",
+    "confidence": 0.95,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for shipment shipping."
+  },
+  {
+    "alias": "remito",
+    "language": "es",
+    "canonical": "opo:ShipmentEvent",
+    "confidence": 0.9,
+    "source": "regional",
+    "erp_context": "Tango",
+    "notes": "Shipping delivery note in Argentina."
+  },
+  {
+    "alias": "WITH_ITEM",
+    "language": "erp-specific",
+    "canonical": "opo:TaxDocument",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP withholding tax ledger entries table."
+  },
+  {
+    "alias": "SF3",
+    "language": "erp-specific",
+    "canonical": "opo:TaxDocument",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus livros fiscais e impostos."
+  },
+  {
+    "alias": "retencion",
+    "language": "es",
+    "canonical": "opo:TaxDocument",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Tax withholding document profile."
+  },
+  {
+    "alias": "CSKS",
+    "language": "erp-specific",
+    "canonical": "opo:CostCenter",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4 Cost Center Definition master table."
+  },
+  {
+    "alias": "SI3",
+    "language": "erp-specific",
+    "canonical": "opo:CostCenter",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus Centro de Custos cadastro."
+  },
+  {
+    "alias": "centro de costo",
+    "language": "es",
+    "canonical": "opo:CostCenter",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for Cost Center ledger."
+  },
+  {
+    "alias": "centro de custo",
+    "language": "pt-BR",
+    "canonical": "opo:CostCenter",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Portuguese translation for cost tracking center."
+  },
+  {
+    "alias": "PROJ",
+    "language": "erp-specific",
+    "canonical": "opo:Project",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "SAP_S4",
+    "notes": "SAP S/4 project planning header master."
+  },
+  {
+    "alias": "CN9",
+    "language": "erp-specific",
+    "canonical": "opo:Project",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Protheus",
+    "notes": "TOTVS Protheus cadastro de projetos CN9."
+  },
+  {
+    "alias": "project.project",
+    "language": "erp-specific",
+    "canonical": "opo:Project",
+    "confidence": 0.95,
+    "source": "erp",
+    "erp_context": "Odoo",
+    "notes": "Odoo project records."
+  },
+  {
+    "alias": "proyecto",
+    "language": "es",
+    "canonical": "opo:Project",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Spanish translation for Project master standard."
+  },
+  {
+    "alias": "projeto",
+    "language": "pt-BR",
+    "canonical": "opo:Project",
+    "confidence": 1.0,
+    "source": "common",
+    "erp_context": null,
+    "notes": "Portuguese translation for Project tracker."
+  }
+]

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openprotocol.dev/schemas/OpoQueryResponse.json",
+  "title": "OpoQueryResponse",
+  "description": "Standardized enveloped response for OPO queries with cursor pagination metadata",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": { "type": "object" },
+      "description": "Array of returned entities mapped to OPO JSON-LD format"
+    },
+    "pagination": {
+      "type": "object",
+      "properties": {
+        "hasNextPage": { 
+          "type": "boolean",
+          "description": "Indicates if there are more records beyond the current page."
+        },
+        "endCursor": { 
+          "type": ["string", "null"],
+          "description": "Opaque base64 cursor to be used in the next request's pagination.cursor field."
+        }
+      },
+      "required": ["hasNextPage", "endCursor"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["data", "pagination"],
+  "additionalProperties": false
+}

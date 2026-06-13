@@ -52,6 +52,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     { labelEn: 'Protocol Spec', labelEs: 'Espec de Protocolo', href: '/spec/', num: '04' },
     { labelEn: 'Alias Registry', labelEs: 'Registro de Alias', href: '/registry/', num: '05' },
     { labelEn: 'Adopt OPO', labelEs: 'Adoptar OPO', href: '/adopt/', num: '06' },
+    { labelEn: 'Web Validator', labelEs: 'Validador Web', href: '/validator/', num: '07' },
   ];
 
   // Helper to determine active state

@@ -2,6 +2,8 @@
 import { Command } from 'commander';
 import { initCommand } from './commands/init';
 import { validateCommand } from './commands/validate';
+import { generateCommand } from './commands/generate';
+import { translateCommand } from './commands/translate';
 
 const program = new Command();
 
@@ -12,5 +14,7 @@ program
 
 program.addCommand(initCommand);
 program.addCommand(validateCommand);
+program.addCommand(generateCommand);
+program.addCommand(translateCommand);
 
 program.parse(process.argv);
