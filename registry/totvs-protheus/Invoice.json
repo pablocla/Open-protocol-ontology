@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openontology.vercel.app/schema/v1/mapping-schema.json",
+  "entity": "Invoice",
+  "sourceType": "SQL",
+  "tableName": "SF2",
+  "description": "TOTVS Protheus Cabecera de Facturas de Salida (Definido en SX2)",
+  "fields": {
+    "id": { "column": "F2_DOC", "type": "string" },
+    "customerId": { "column": "F2_CLIENTE", "type": "string" },
+    "totalAmount": { "column": "F2_VALBRUT", "type": "number" },
+    "issueDate": { "column": "F2_EMISSAO", "type": "string" }
+  }
+}

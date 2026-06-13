@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openontology.vercel.app/schema/v1/mapping-schema.json",
+  "entity": "Customer",
+  "sourceType": "SQL",
+  "tableName": "SA1",
+  "description": "TOTVS Protheus Maestro de Clientes (Definido en SX2)",
+  "fields": {
+    "id": { "column": "A1_COD", "type": "string" },
+    "name": { "column": "A1_NOME", "type": "string" },
+    "country": { "column": "A1_PAIS", "type": "string" }
+  }
+}
