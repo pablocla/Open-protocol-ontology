@@ -18,7 +18,11 @@
     "build": "npm run build:cli && next build",
     "start": "next start",
     "lint": "eslint .",
-    "clean": "next clean"
+    "clean": "next clean",
+    "onboard": "npm run build:cli && node dist/index.js onboard",
+    "health": "node dist/index.js health",
+    "query": "node dist/index.js query",
+    "consultas": "npm run dev -- --port 3000"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

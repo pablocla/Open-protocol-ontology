@@ -1,4 +1,6 @@
 import { FieldType, RelationCardinality } from '../../../studio/studioTypes';
+import { deriveFilialFieldFromColumns } from 'opo-sdk';
+import { createProtheusDbClient } from './protheusDbClient';
 import { MOCK_SX2_TABLES, MOCK_SX3_FIELDS, MOCK_SX9_RELATIONSHIPS } from './protheusMockData';
 import {
   BuildProtheusManifestOptions,
@@ -90,20 +92,7 @@ export async function queryProtheusDictionary(
   const sx3Table = `SX3${suffix}`;
   const sx9Table = `SX9${suffix}`;
 
-  let Client: new (config: { connectionString: string }) => {
-    connect(): Promise<void>;
-    query(sql: string): Promise<{ rows: Record<string, unknown>[] }>;
-    end(): Promise<void>;
-  };
-
-  try {
-    Client = require('pg').Client;
-  } catch {
-    throw new Error('El paquete "pg" es requerido para queryProtheusDictionary en mode=database');
-  }
-
-  const client = new Client({ connectionString: options.connectionString });
-  await client.connect();
+  const client = await createProtheusDbClient(options.connectionString);
 
   try {
     const deletedFilter = "D_E_L_E_T_ <> '*'";
@@ -132,14 +121,14 @@ export async function queryProtheusDictionary(
     `);
 
     return buildSnapshotFromRows(
-      sx2Res.rows as ProtheusSx2Row[],
-      sx3Res.rows as ProtheusSx3Row[],
-      sx9Res.rows as ProtheusSx9Row[],
+      sx2Res.rows as unknown as ProtheusSx2Row[],
+      sx3Res.rows as unknown as ProtheusSx3Row[],
+      sx9Res.rows as unknown as ProtheusSx9Row[],
       'database',
       options.tableFilter
     );
   } finally {
-    await client.end();
+    await client.close();
   }
 }
 
@@ -217,6 +206,13 @@ export function extractRelationshipsFromSx9(
     });
 }
 
+function filialFieldForTable(tableName: string, fields: ProtheusSx3Row[]): string | undefined {
+  const tableFields = fields.filter(
+    (f) => normalizeTableName(f.X3_ARQUIVO) === normalizeTableName(tableName)
+  );
+  return deriveFilialFieldFromColumns(tableFields.map((f) => f.X3_CAMPO));
+}
+
 function buildAttributesForTable(
   tableName: string,
   fields: ProtheusSx3Row[]
@@ -291,18 +287,25 @@ export function buildOpoManifestFromProtheus(
   const entities = buildDiscoveredEntities(snapshot);
   const relationships = extractRelationshipsFromSx9(snapshot.relationships, snapshot.tables);
 
+  const companySuffix = options.companySuffix ?? '010';
+
   const supportedEntities = entities.map((entity) => ({
     canonical: entity.canonical,
-    native_reference: entity.tableName,
+    native_reference: `${entity.tableName}${companySuffix}`,
     confidence: 1.0,
     limitations: `Auto-discovered from Protheus dictionary (SX2): ${entity.description}`,
   }));
 
   const customMappings: Record<string, Record<string, unknown>> = {};
 
+  const sx2ByTable = new Map(
+    snapshot.tables.map((t) => [normalizeTableName(t.X2_CHAVE), t])
+  );
+
   for (const entity of entities) {
     const businessName = entity.canonical.replace(/^opo:/, '');
     const fieldsMapping: Record<string, string> = {};
+    const sx2 = sx2ByTable.get(normalizeTableName(entity.tableName));
 
     for (const attr of entity.attributes) {
       const camelName = attr.name
@@ -311,14 +314,25 @@ export function buildOpoManifestFromProtheus(
       fieldsMapping[camelName] = attr.name;
     }
 
+    const physicalTableName = `${entity.tableName}${companySuffix}`;
+    const filialField = filialFieldForTable(entity.tableName, snapshot.fields);
+
     customMappings[businessName] = {
       [`${entity.tableName}_fields`]: fieldsMapping,
       attributes: entity.attributes,
       protheus_meta: {
         alias: entity.alias,
         description: entity.description,
+        physicalTableName,
+        companySuffix,
+        x2Modo: sx2?.X2_MODO,
+        filialField,
         outgoing_relations: entity.outgoingRelations.map((r) => r.id),
         incoming_relations: entity.incomingRelations.map((r) => r.id),
+      },
+      mutation_policy: {
+        readOnly: true,
+        strategy: 'rest',
       },
     };
   }
@@ -335,7 +349,10 @@ export function buildOpoManifestFromProtheus(
       base_url: options.baseUrl ?? '',
       protocol_interface: 'REST',
       dictionary_source: 'SX2/SX3/SX9',
-    },
+      readOnly: true,
+      mutationStrategy: 'rest',
+      company_suffix: companySuffix,
+    } as any,
     supported_entities: supportedEntities,
     custom_mappings: customMappings,
     relationships,

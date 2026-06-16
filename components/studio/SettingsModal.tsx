@@ -2,6 +2,7 @@ import { X, Key, CheckCircle2, XCircle, Loader2, Trash2 } from 'lucide-react';
 import { useStudioStore } from '@/store/useStudioStore';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import ProtheusConnectionForm from './ProtheusConnectionForm';
 
 // GROK OPTIMIZATION: Also surface server-side Vault keys in Studio Settings (makes the Credential Vault usable from the UI)
 interface VaultKey {
@@ -12,9 +13,82 @@ interface VaultKey {
 }
 
 export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const { apiKeys, setApiKey } = useStudioStore();
+  const { apiKeys, setApiKey, erpWorkspace, setErpWorkspace } = useStudioStore();
   const [isTesting, setIsTesting] = useState(false);
   const [testStatus, setTestStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [isScanning, setIsScanning] = useState(false);
+
+  const handleReScan = async (formConfig: any) => {
+    setIsScanning(true);
+    try {
+      const aiProvider = useStudioStore.getState().currentProvider || 'gemini';
+      const configForProvider = useStudioStore.getState().llmConfigs[aiProvider] || {};
+      const aiConfig = {
+        provider: aiProvider,
+        ollamaBaseUrl: configForProvider.baseUrl || 'http://localhost:11434',
+        ollamaModel: configForProvider.model || 'llama3.1',
+        cloudApiKey: configForProvider.apiKey || useStudioStore.getState().apiKeys[aiProvider] || '',
+      };
+
+      const onboardConfig = {
+        ai: aiConfig,
+        erp: {
+          erpId: erpWorkspace.erpId || 'protheus',
+          dataMode: formConfig.dataMode,
+          mssql: formConfig.mssql,
+          connectionString: formConfig.connectionString,
+          filial: formConfig.filial,
+          companySuffix: formConfig.companySuffix,
+        },
+      };
+
+      const res = await fetch('/api/studio/onboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(onboardConfig),
+      });
+
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        throw new Error(result.error || 'No se pudo realizar el re-escaneo');
+      }
+
+      // Update Zustand store
+      const store = useStudioStore.getState();
+      store.loadProjectData(
+        { name: result.projectName },
+        result.nodes,
+        result.edges
+      );
+      store.setErpWorkspace(result.erpWorkspace);
+      toast.success('¡Re-escaneo completado con éxito!');
+    } catch (e: any) {
+      toast.error(`Fallo en el re-escaneo: ${e.message || 'Comprobá su conexión.'}`);
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const handleSaveConnection = (config: any) => {
+    setErpWorkspace(config);
+    toast.success('Conexión guardada correctamente.');
+  };
+
+  const handleClose = () => {
+    if (erpWorkspace.dataMode === 'live' && erpWorkspace.erpId === 'protheus' && !erpWorkspace.filial.trim()) {
+      toast.warning('Modo cambiado a Demostración por falta de filial para Protheus en vivo.');
+      setErpWorkspace({ dataMode: 'demo' });
+    }
+    onClose();
+  };
+
+  const handleDone = () => {
+    if (erpWorkspace.dataMode === 'live' && erpWorkspace.erpId === 'protheus' && !erpWorkspace.filial.trim()) {
+      toast.error('La filial es requerida para el modo en vivo de Protheus.');
+      return;
+    }
+    onClose();
+  };
 
   const [vaultKeys, setVaultKeys] = useState<VaultKey[]>([]);
   const [isLoadingVault, setIsLoadingVault] = useState(false);
@@ -29,6 +103,30 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean; on
       // Non-fatal for the modal
     } finally {
       setIsLoadingVault(false);
+    }
+  }
+
+  async function saveKeyToVault(provider: string, apiKey: string) {
+    if (!apiKey) return;
+    try {
+      const res = await fetch('/api/vault', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider,
+          name: 'default',
+          apiKey
+        })
+      });
+      if (res.ok) {
+        toast.success(`Key for ${provider} saved to server vault.`);
+        loadVaultKeys();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(`Failed to save key: ${err.error || 'Unknown error'}`);
+      }
+    } catch (e) {
+      toast.error('Network error saving key to vault');
     }
   }
 
@@ -80,12 +178,12 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean; on
             <Key className="w-4 h-4 text-neutral-400" />
             <h2 className="text-sm font-semibold text-neutral-200">Settings & API Keys</h2>
           </div>
-          <button onClick={onClose} className="text-neutral-500 hover:text-neutral-300 transition-colors">
+          <button onClick={handleClose} className="text-neutral-500 hover:text-neutral-300 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="p-6 space-y-4">
+        <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
           <p className="text-xs text-neutral-400 mb-4">
             Choose the AI provider for OPO Studio execution and agents. Configure as many as you want — switch anytime. Stored locally.
           </p>
@@ -176,7 +274,9 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean; on
             { prov: 'anthropic', label: 'Anthropic Claude', fields: ['apiKey', 'model'] },
           ].map(({ prov, label, fields }) => {
             const config = useStudioStore.getState().llmConfigs[prov] || {};
-            const isConfigured = (prov === 'ollama' || prov === 'open-code') ? !!config.baseUrl : !!config.apiKey;
+            const isConfigured = (prov === 'ollama' || prov === 'open-code')
+              ? !!config.baseUrl
+              : (!!config.apiKey || vaultKeys.some(k => k.provider.toLowerCase() === prov.toLowerCase()));
 
             return (
               <div key={prov} className="border border-neutral-700 rounded p-3 space-y-2">
@@ -206,6 +306,9 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean; on
                     value={config.apiKey || ''}
                     onChange={(e) => {
                       useStudioStore.getState().setLLMConfig(prov, { apiKey: e.target.value });
+                    }}
+                    onBlur={(e) => {
+                      saveKeyToVault(prov, e.target.value);
                     }}
                     className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1 text-xs"
                   />
@@ -286,11 +389,26 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean; on
               </div>
             )}
           </div>
+
+          {/* ERP Workspace Connection */}
+          <div className="pt-4 border-t border-neutral-800 space-y-3">
+            <ProtheusConnectionForm
+              initialMode={erpWorkspace.dataMode || 'demo'}
+              initialConnectionString={erpWorkspace.connectionString || ''}
+              initialFilial={erpWorkspace.filial || '01'}
+              initialCompanySuffix={erpWorkspace.companySuffix || '010'}
+              submitButtonLabel="Guardar conexión"
+              showReScan={true}
+              onReScan={handleReScan}
+              isScanning={isScanning}
+              onVerified={handleSaveConnection}
+            />
+          </div>
         </div>
 
         <div className="p-4 border-t border-neutral-800 bg-neutral-950 flex justify-end">
           <button
-            onClick={onClose}
+            onClick={handleDone}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded transition-colors"
           >
             Done

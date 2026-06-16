@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+docs-site/node_modules
+out
+*.db
+*.local
+.env
+.env.production
+.env.local
+.env.development

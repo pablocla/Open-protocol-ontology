@@ -14,7 +14,7 @@ export interface SwarmMemorySnapshot {
 
 export interface BlackboardAdapter {
   get(key: string): Promise<any>;
-  set(key: string, value: any): Promise<void>;
+  set(key: string, value: any, ttlSeconds?: number): Promise<void>;
   delete(key: string): Promise<void>;
   
   acquireLock(entityId: string, agentId: string, ttlMs?: number): Promise<boolean>;

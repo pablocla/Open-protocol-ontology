@@ -8,7 +8,11 @@ process.env.OPO_VAULT_SECRET = '0123456789abcdef0123456789abcdef0123456789abcdef
 // Mock BullMQ and Redis
 vi.mock('ioredis', () => {
   return {
-    default: class MockRedis {}
+    default: class MockRedis {
+      on(event: string, cb: Function) {
+        return this;
+      }
+    }
   };
 });
 

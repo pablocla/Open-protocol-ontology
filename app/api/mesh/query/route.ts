@@ -9,7 +9,19 @@ import path from 'path';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { query, ontology, apiKeys } = body;
+    const { query, ontology, llmConfig, erpExecution } = body;
+
+    // Resolve all API keys on the server side securely
+    const { resolveAllApiKeys, resolveApiKey } = await import('@/lib/mesh/vaultResolver');
+    const resolvedApiKeys = resolveAllApiKeys();
+
+    // Populate keys in llmConfig.llmConfigs so the backend has them when agentExecutor looks there
+    const updatedLlmConfigs = { ...(llmConfig?.llmConfigs || {}) };
+    for (const prov of Object.keys(updatedLlmConfigs)) {
+      if (!updatedLlmConfigs[prov].apiKey) {
+        updatedLlmConfigs[prov].apiKey = resolvedApiKeys[prov] || resolveApiKey(prov);
+      }
+    }
 
     if (!query || !ontology) {
       return NextResponse.json({ error: 'Missing query or ontology' }, { status: 400 });
@@ -73,7 +85,7 @@ export async function POST(request: Request) {
     const sessionId = `sess_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 
     // 1. Route the intent synchronously so we know what needs to be done
-    const intent = await semanticRouter.route(query, ontology as OntologyGraph, apiKeys || {});
+    const intent = await semanticRouter.route(query, ontology as OntologyGraph, resolvedApiKeys);
 
     // 2. Setup Session
     const session = {
@@ -88,7 +100,12 @@ export async function POST(request: Request) {
     await enqueueSwarmExecution({
       sessionId,
       session,
-      apiKeys: apiKeys || {}
+      apiKeys: resolvedApiKeys,
+      llmConfig: {
+        ...llmConfig,
+        llmConfigs: updatedLlmConfigs,
+      },
+      erpExecution: erpExecution || { mode: 'mock' },
     });
 
     // Return immediately to avoid HTTP timeouts. The client will connect to /api/mesh/stream/[sessionId] to get updates

@@ -1,3 +1,4 @@
+export * from './protheusDbClient';
 export * from './protheusTypes';
 export * from './protheusMockData';
 export * from './protheusBaselineSeed';

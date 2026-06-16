@@ -1,6 +1,7 @@
 import { Queue } from 'bullmq';
 import { MeshSession } from '@/lib/mesh/meshTypes';
-import { sharedRedisClient } from './redis-client';
+import { getSharedRedisClient } from './redis-client';
+import type { ErpExecutionContext } from '@/lib/studio/runOpoQuery';
 
 export const SWARM_QUEUE_NAME = 'opo-swarm-execution';
 
@@ -13,6 +14,7 @@ export interface SwarmJobData {
     currentProvider?: string;
     llmConfigs?: Record<string, { apiKey?: string; baseUrl?: string; model?: string }>;
   };
+  erpExecution?: ErpExecutionContext;
 }
 
 let swarmQueue: Queue | null = null;
@@ -20,7 +22,7 @@ let swarmQueue: Queue | null = null;
 export function getSwarmQueue(): Queue {
   if (!swarmQueue) {
     swarmQueue = new Queue<SwarmJobData>(SWARM_QUEUE_NAME, {
-      connection: sharedRedisClient,
+      connection: getSharedRedisClient() as any,
       defaultJobOptions: {
         attempts: 3,
         backoff: {

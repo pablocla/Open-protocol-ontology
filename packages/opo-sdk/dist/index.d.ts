@@ -1,13 +1,3 @@
-declare class OpoOntologyBuilder {
-    private mapping;
-    constructor();
-    setEntity(entityName: string): this;
-    setSource(sourceType: 'SQL' | 'REST' | 'GraphQL', tableNameOrEndpoint: string): this;
-    setDescription(desc: string): this;
-    addField(canonicalName: string, physicalColumn: string, type?: string): this;
-    build(): OpoMapping;
-}
-
 /** Defaults aligned with public/schemas/OpoQuery.json */
 declare const DEFAULT_QUERY_LIMIT = 50;
 declare const MAX_QUERY_LIMIT = 100;
@@ -49,11 +39,56 @@ declare function truncatePayloadForLLM(payload: unknown, maxChars?: number): str
 /** Normalize MCP/runtime tool payloads before injecting into agent prompts */
 declare function sanitizeToolResultForLLM(result: unknown): unknown;
 
-interface OpoField$1 {
+/**
+ * Protheus/TOTVS query guards: soft-delete (D_E_L_E_T_) and filial isolation (X2_MODO).
+ */
+declare const PROTHEUS_SOFT_DELETE_FIELD = "D_E_L_E_T_";
+declare const PROTHEUS_ACTIVE_DELETE_MARKER = " ";
+type ProtheusSqlDialect = 'postgresql' | 'mssql' | 'oracle' | 'ansi';
+interface OpoSystemContext {
+    erp?: 'protheus' | 'sap' | 'generic';
+    filial?: string;
+    companySuffix?: string;
+    dialect?: ProtheusSqlDialect;
+}
+interface ProtheusTableMeta {
+    /** SX2_MODO: E/1 = exclusiva por filial, C/2 = compartida */
+    x2Modo?: string;
+    filialField?: string;
+    companySuffix?: string;
+    physicalTableName?: string;
+}
+interface ProtheusMappingExtension {
+    protheus?: ProtheusTableMeta;
+    mutationPolicy?: {
+        readOnly?: boolean;
+        strategy?: 'sql' | 'rest';
+        restEndpoint?: string;
+    };
+}
+/** X2_MODO values that require filial filtering in business queries. */
+declare function isProtheusTableExclusive(x2Modo?: string): boolean;
+declare function resolvePhysicalTableName(logicalOrPhysical: string, companySuffix?: string): string;
+/** Derive filial column from first field prefix (SA1/A1_COD → A1_FILIAL). */
+declare function deriveFilialFieldFromColumns(fieldColumns: string[], explicitFilialField?: string): string | undefined;
+declare function buildProtheusSoftDeleteCondition(tableAlias: string): string;
+declare function buildProtheusFilialCondition(tableAlias: string, filialField: string): string;
+interface ProtheusGuardInjection {
+    conditions: string[];
+    params: unknown[];
+}
+/**
+ * Build mandatory WHERE fragments for a Protheus business table.
+ */
+declare function buildProtheusTableGuards(tableAlias: string, meta: ProtheusTableMeta | undefined, context: OpoSystemContext | undefined, fieldColumns?: string[]): ProtheusGuardInjection;
+declare function formatPaginationClause(dialect: ProtheusSqlDialect | undefined, fetchLimit: number, offset: number): string;
+declare function formatSelectPrefix(dialect: ProtheusSqlDialect | undefined, fetchLimit: number, offset: number): string;
+
+interface OpoField {
     column: string;
     type: string;
 }
-interface OpoMapping$1 {
+interface OpoMapping extends ProtheusMappingExtension {
     $schema?: string;
     entity: string;
     sourceType: string;
@@ -65,10 +100,12 @@ interface OpoMapping$1 {
             contextKey: string;
         };
     };
-    fields: Record<string, OpoField$1>;
+    fields: Record<string, OpoField>;
     joins?: Record<string, {
         tableName: string;
         on: string;
+        conditionSql?: string;
+        protheus?: ProtheusMappingExtension['protheus'];
     }>;
     actions?: Record<string, {
         procedure: string;
@@ -77,18 +114,31 @@ interface OpoMapping$1 {
     }>;
 }
 interface Dictionary {
-    [entityName: string]: OpoMapping$1;
+    [entityName: string]: OpoMapping;
+}
+interface TranslateOpoToSqlOptions {
+    context?: OpoSystemContext;
 }
 interface TranslateOpoToSqlResult {
     sql: string;
     params: unknown[];
     pagination: ResolvedPagination;
 }
-declare function translateOpoToSql(opoQuery: any, dictionary: Dictionary): TranslateOpoToSqlResult;
-declare function translateOpoMutationToSql(opoMutation: any, dictionary: Dictionary): {
+declare function translateOpoToSql(opoQuery: any, dictionary: Dictionary, options?: TranslateOpoToSqlOptions): TranslateOpoToSqlResult;
+declare function translateOpoMutationToSql(opoMutation: any, dictionary: Dictionary, options?: TranslateOpoToSqlOptions): {
     sql: string;
     params: any[];
 };
+
+declare class OpoOntologyBuilder {
+    private mapping;
+    constructor();
+    setEntity(entityName: string): this;
+    setSource(sourceType: 'SQL' | 'REST' | 'GraphQL', tableNameOrEndpoint: string): this;
+    setDescription(desc: string): this;
+    addField(canonicalName: string, physicalColumn: string, type?: string): this;
+    build(): OpoMapping;
+}
 
 interface OpoMcpServerOptions {
     mappingDir?: string;
@@ -120,29 +170,6 @@ declare class OpoGraphQLAdapter {
     private static mapToGraphQLType;
 }
 
-interface OpoField {
-    column: string;
-    type: string;
-}
-interface OpoMapping {
-    $schema: string;
-    entity: string;
-    sourceType: string;
-    tableName: string;
-    description?: string;
-    security?: {
-        rowLevelPolicy?: {
-            field: string;
-            contextKey: string;
-        };
-    };
-    fields: Record<string, OpoField>;
-    actions?: Record<string, {
-        procedure: string;
-        description?: string;
-        params: string[];
-    }>;
-}
 interface OpoClientOptions {
     registryUrl?: string;
 }
@@ -153,4 +180,4 @@ declare class OpoClient {
     generateSystemPrompt(mapping: OpoMapping): string;
 }
 
-export { DEFAULT_QUERY_LIMIT, type Dictionary, MAX_QUERY_LIMIT, OpoClient, type OpoClientOptions, type OpoField, OpoGraphQLAdapter, type OpoMapping, OpoMcpServer, type OpoMcpServerOptions, OpoOntologyBuilder, type OpoQueryResponse, type ResolvedPagination, type TranslateOpoToSqlResult, buildPaginatedResponse, decodeCursor, encodeCursor, normalizeOpoQueryPayload, resolvePagination, sanitizeToolResultForLLM, translateOpoMutationToSql, translateOpoToSql, truncatePayloadForLLM, truncateRowsForLLM };
+export { DEFAULT_QUERY_LIMIT, type Dictionary, MAX_QUERY_LIMIT, OpoClient, type OpoClientOptions, type OpoField, OpoGraphQLAdapter, type OpoMapping, OpoMcpServer, type OpoMcpServerOptions, OpoOntologyBuilder, type OpoQueryResponse, type OpoSystemContext, PROTHEUS_ACTIVE_DELETE_MARKER, PROTHEUS_SOFT_DELETE_FIELD, type ProtheusGuardInjection, type ProtheusMappingExtension, type ProtheusSqlDialect, type ProtheusTableMeta, type ResolvedPagination, type TranslateOpoToSqlOptions, type TranslateOpoToSqlResult, buildPaginatedResponse, buildProtheusFilialCondition, buildProtheusSoftDeleteCondition, buildProtheusTableGuards, decodeCursor, deriveFilialFieldFromColumns, encodeCursor, formatPaginationClause, formatSelectPrefix, isProtheusTableExclusive, normalizeOpoQueryPayload, resolvePagination, resolvePhysicalTableName, sanitizeToolResultForLLM, translateOpoMutationToSql, translateOpoToSql, truncatePayloadForLLM, truncateRowsForLLM };

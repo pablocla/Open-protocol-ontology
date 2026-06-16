@@ -7,9 +7,17 @@ import { HILManager } from '../engine/hil/hil-manager';
 import { callLLM, LLMProvider } from './llm';
 import { sanitizeMeshToolResult } from './queryResultGuard';
 import {
+  buildOpoQueryFromTemplate,
   formatRecurringQueriesForLLM,
   getRecurringQueriesForContext,
+  PROTHEUS_RECURRING_QUERIES,
+  GENERIC_RECURRING_QUERIES,
 } from '@/lib/studio/recurringQueries';
+import { matchRecurringQueryFromText } from '@/lib/studio/matchRecurringQuery';
+import { runOpoQueryById, type ErpExecutionContext } from '@/lib/studio/runOpoQuery';
+import { serializeOpoResponse } from '@/lib/studio/opoResponseParser';
+import { getSessionMessages, appendMessage, setAgentContext } from './sessionMemory';
+import { buildConsultaSummary } from '@/lib/studio/consultasSummary';
 
 export class AgentExecutor {
   
@@ -17,12 +25,22 @@ export class AgentExecutor {
    * Generates a stream of AgentMessages by executing the pipeline.
    */
   async *executePipeline(
-    session: MeshSession, 
-    apiKeys: Record<string, string> = {}, 
-    // GROK FIX #5: 3rd param carries server-safe llm config from job (worker) or request. Eliminates all window.__OPO_* reads in backend paths.
-    llmConfig?: { currentProvider?: string; llmConfigs?: Record<string, { apiKey?: string; baseUrl?: string; model?: string }> }
+    session: MeshSession,
+    apiKeys: Record<string, string> = {},
+    llmConfig?: {
+      currentProvider?: string;
+      llmConfigs?: Record<string, { apiKey?: string; baseUrl?: string; model?: string }>;
+    },
+    erpExecution: ErpExecutionContext = { mode: 'mock' }
   ): AsyncGenerator<AgentMessage> {
     const { intent, ontologySnapshot, messages } = session;
+    const projectName = ontologySnapshot?.projectName ?? (ontologySnapshot as any)?.name ?? null;
+
+    opoRuntime.setContext({
+      erpExecution,
+      ontology: ontologySnapshot,
+      projectName,
+    });
 
     yield {
       id: `msg-${Date.now()}-plan`,
@@ -31,7 +49,8 @@ export class AgentExecutor {
       timestamp: new Date().toISOString()
     };
 
-    const pipelineHistory = [...messages];
+    const storedMessages = await getSessionMessages(session.id);
+    const pipelineHistory = storedMessages && storedMessages.length > 0 ? storedMessages : [...messages];
 
     for (const agentId of intent.agentPipeline) {
       const agent = registry.getAgent(agentId);
@@ -54,7 +73,7 @@ export class AgentExecutor {
            id: `msg-${Date.now()}-hil`,
            agentId,
            role: 'system',
-           content: `⏳ Agent ${agent.name} is waiting for Human-in-the-Loop approval...`,
+           content: `⏳ El agente ${agent.name} está esperando confirmación...`,
            timestamp: new Date().toISOString()
          };
 
@@ -66,7 +85,7 @@ export class AgentExecutor {
            id: `msg-${Date.now()}-hilreq`,
            agentId,
            role: 'system',
-           content: `⏳ HIL pending — requestId=${requestIdForUi}`,
+           content: `⏳ HIL pendiente — requestId=${requestIdForUi}`,
            timestamp: new Date().toISOString(),
            hilRequestId: requestIdForUi
          } as any;
@@ -76,7 +95,7 @@ export class AgentExecutor {
              id: `msg-${Date.now()}-rej`,
              agentId,
              role: 'system',
-             content: `❌ Execution rejected by Human. Halting pipeline.`,
+             content: `❌ Acción cancelada por el usuario. Deteniendo ejecución.`,
              timestamp: new Date().toISOString()
            };
            return;
@@ -86,7 +105,7 @@ export class AgentExecutor {
            id: `msg-${Date.now()}-apprv`,
            agentId,
            role: 'system',
-           content: `✅ Execution approved. Resuming pipeline.`,
+           content: `✅ Acción confirmada. Reanudando ejecución.`,
            timestamp: new Date().toISOString()
          };
       }
@@ -98,6 +117,63 @@ export class AgentExecutor {
         content: `Handing over to ${agent.name}...`,
         timestamp: new Date().toISOString()
       };
+
+      if (agentId === 'data-querier') {
+        const matched = matchRecurringQueryFromText(
+          intent.rawQuery,
+          ontologySnapshot,
+          projectName
+        );
+
+        if (matched) {
+          yield {
+            id: `msg-${Date.now()}-opo-match`,
+            agentId,
+            role: 'system',
+            content: `📊 Consulta recurrente detectada: ${matched.query.humanLabel} (${erpExecution.mode === 'live' ? 'datos en vivo' : 'demostración'})`,
+            timestamp: new Date().toISOString(),
+          };
+
+          try {
+            const result = await runOpoQueryById(
+              matched.query.id,
+              matched.paramValues,
+              ontologySnapshot,
+              projectName,
+              erpExecution
+            );
+            const sourceQuery = buildOpoQueryFromTemplate(matched.query, matched.paramValues);
+            const serialized = serializeOpoResponse({
+              data: result.data,
+              pagination: result.pagination,
+              sourceQuery,
+            });
+            const summary = buildConsultaSummary(matched.query, result.data, result.pagination);
+            const content = `${summary}\n\n${serialized}`;
+
+            const queryResponse: AgentMessage = {
+              id: `msg-${Date.now()}-${agentId}-opo`,
+              agentId,
+              role: 'assistant',
+              content,
+              timestamp: new Date().toISOString(),
+            };
+            yield queryResponse;
+            pipelineHistory.push(queryResponse);
+            await appendMessage(session.id, queryResponse);
+            continue;
+          } catch (queryErr: unknown) {
+            const message = queryErr instanceof Error ? queryErr.message : 'OPO query failed';
+            yield {
+              id: `msg-${Date.now()}-opo-err`,
+              agentId,
+              role: 'system',
+              content: `⚠️ Consulta OPO falló: ${message}. Continuando con razonamiento LLM.`,
+              timestamp: new Date().toISOString(),
+            };
+          }
+        }
+      }
 
       const tools = registry.getToolsForAgent(agentId);
       
@@ -175,7 +251,7 @@ export class AgentExecutor {
         const recurringBlock =
           agentId === 'data-querier' || agentId === 'data-analyst'
             ? formatRecurringQueriesForLLM(
-                getRecurringQueriesForContext(ontologySnapshot, ontologySnapshot.name)
+                getRecurringQueriesForContext(ontologySnapshot, projectName || '')
               )
             : '';
 
@@ -214,8 +290,35 @@ ${recurringBlock ? `${recurringBlock}\nWhen answering business questions, prefer
            const text = await callLLM(fullPrompt, callOpts);
 
            // Very basic toolCall detection for now (can be improved per provider)
-           if (text.includes('functionCall') || text.includes('TOOL:')) {
-             toolCallPart = null;
+           if (text.includes('TOOL:')) {
+             const match = text.match(/TOOL:\s*(\w+)\s*(\{.*\})/s);
+             if (match) {
+               try {
+                 toolCallPart = {
+                   functionCall: {
+                     name: match[1],
+                     args: JSON.parse(match[2])
+                   }
+                 };
+               } catch (e) {}
+             }
+           } else if (text.includes('functionCall')) {
+             try {
+               const parsed = JSON.parse(text);
+               if (parsed.functionCall) {
+                 toolCallPart = parsed;
+               }
+             } catch (e) {
+               const jsonMatch = text.match(/(\{[\s\S]*\})/);
+               if (jsonMatch) {
+                 try {
+                   const parsed = JSON.parse(jsonMatch[1]);
+                   if (parsed.functionCall) {
+                     toolCallPart = parsed;
+                   }
+                 } catch (err) {}
+               }
+             }
            }
 
            if (isStrictSchema && !toolCallPart) {
@@ -260,8 +363,36 @@ ${recurringBlock ? `${recurringBlock}\nWhen answering business questions, prefer
 
           if (matchedTool) {
             const toolResult = await opoRuntime.executeTool(matchedTool, fc.name || '', fc.args || {});
-            const sanitized = sanitizeMeshToolResult(toolResult);
-            responseText = `Tool ${fc.name} returned: ${sanitized}`;
+            if (agentId === 'data-querier' && fc.name === 'execute_query') {
+              const queryResult = toolResult as { status: string; data?: any };
+              if (queryResult.status === 'success' && queryResult.data) {
+                const runResult = queryResult.data;
+                const template = fc.args.queryId
+                  ? getRecurringQueriesForContext(ontologySnapshot, projectName).find(q => q.id === fc.args.queryId) ||
+                    PROTHEUS_RECURRING_QUERIES.find(q => q.id === fc.args.queryId) ||
+                    GENERIC_RECURRING_QUERIES.find(q => q.id === fc.args.queryId)
+                  : null;
+                const sourceQuery = template
+                  ? buildOpoQueryFromTemplate(template, fc.args.params as any)
+                  : fc.args.query;
+                const serialized = serializeOpoResponse({
+                  data: runResult.data,
+                  pagination: runResult.pagination,
+                  sourceQuery: sourceQuery as any,
+                });
+                let summary = '';
+                if (template) {
+                  summary = buildConsultaSummary(template, runResult.data, runResult.pagination);
+                }
+                responseText = summary ? `${summary}\n\n${serialized}` : serialized;
+              } else {
+                const sanitized = sanitizeMeshToolResult(toolResult);
+                responseText = `Tool ${fc.name} returned: ${sanitized}`;
+              }
+            } else {
+              const sanitized = sanitizeMeshToolResult(toolResult);
+              responseText = `Tool ${fc.name} returned: ${sanitized}`;
+            }
           } else {
             responseText = `Tool ${fc.name} not found in registry.`;
           }
@@ -277,6 +408,13 @@ ${recurringBlock ? `${recurringBlock}\nWhen answering business questions, prefer
 
         yield agentResponse;
         pipelineHistory.push(agentResponse);
+        await appendMessage(session.id, agentResponse);
+
+        // Save agent context in Blackboard
+        await setAgentContext(session.id, agentId, {
+          lastResponse: responseText,
+          timestamp: new Date().toISOString()
+        });
 
       } catch (error: any) {
         const errorMsg = `⚠️ Agent ${agent.name} failed: ${error.message}`;
@@ -291,7 +429,7 @@ ${recurringBlock ? `${recurringBlock}\nWhen answering business questions, prefer
             id: `msg-${Date.now()}-escalate-${agentId}`,
             agentId,
             role: 'system',
-            content: `🚨 Agent is uncertain or stuck. Escalating to human superior (HIL).`,
+            content: `🚨 El agente no está seguro o se trabó. Solicitando ayuda al usuario.`,
             timestamp: new Date().toISOString(),
             hilRequestId: `escalate-${Date.now()}`
           } as any;
@@ -304,10 +442,10 @@ ${recurringBlock ? `${recurringBlock}\nWhen answering business questions, prefer
               lastResponse: responseText
             });
             if (!approved) {
-              yield { id: `msg-${Date.now()}-rej`, agentId, role: 'system', content: `❌ Escalation rejected by human superior. Halting.`, timestamp: new Date().toISOString() };
+              yield { id: `msg-${Date.now()}-rej`, agentId, role: 'system', content: `❌ Solicitud cancelada por el usuario. Deteniendo ejecución.`, timestamp: new Date().toISOString() };
               return;
             }
-            yield { id: `msg-${Date.now()}-apprv`, agentId, role: 'system', content: `✅ Human superior approved continuation.`, timestamp: new Date().toISOString() };
+            yield { id: `msg-${Date.now()}-apprv`, agentId, role: 'system', content: `✅ Continuación confirmada por el usuario.`, timestamp: new Date().toISOString() };
           } catch (hilErr) {
             // fall through
           }
@@ -322,6 +460,8 @@ ${recurringBlock ? `${recurringBlock}\nWhen answering business questions, prefer
         };
       }
     }
+
+    opoRuntime.clearContext();
 
     yield {
       id: `msg-${Date.now()}-done`,

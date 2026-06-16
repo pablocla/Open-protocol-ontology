@@ -21,12 +21,18 @@ export default function AgentNode({ data, id, selected }: any) {
           <div className="p-1 bg-violet-500/20 rounded">
             <Brain className="w-4 h-4 text-violet-400" />
           </div>
-          <span className="font-semibold text-neutral-200">{data.label || 'Agent'}</span>
+          <div className="flex flex-col">
+            <span className="text-[10px] text-violet-300/80 uppercase tracking-wider leading-none">Empleado Virtual</span>
+            <span className="font-semibold text-neutral-200">{data.label || 'Sin nombre'}</span>
+          </div>
         </div>
-        <button 
-          onClick={(e) => { e.stopPropagation(); useStudioStore.getState().toggleMosaicWindow(id); }}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            useStudioStore.getState().toggleMosaicWindow(id);
+          }}
           className="p-1 hover:bg-violet-500/20 rounded transition-colors"
-          title="Interactuar con este Agente (Mosaico)"
+          title="Mosaico IA: chateá solo con este empleado (Ollama local o nube). No ejecuta el Swarm ni consultas ERP del equipo completo."
         >
           <MessageSquare className="w-4 h-4 text-violet-400" />
         </button>
@@ -40,7 +46,7 @@ export default function AgentNode({ data, id, selected }: any) {
 
         {capabilities.length > 0 && (
           <div>
-            <span className="text-[10px] text-neutral-500 uppercase font-semibold tracking-wider block mb-1.5">Capabilities</span>
+            <span className="text-[10px] text-neutral-500 uppercase font-semibold tracking-wider block mb-1.5">Habilidades Asignadas</span>
             <div className="flex flex-wrap gap-1">
               {capabilities.map((cap: string, i: number) => (
                 <span key={i} className="text-[10px] bg-violet-500/10 text-violet-300 border border-violet-500/20 px-1.5 py-0.5 rounded">

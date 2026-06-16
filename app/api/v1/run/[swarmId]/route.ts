@@ -76,7 +76,7 @@ export async function POST(
         detectedCapabilities: [],
         toolCalls: []
       } as any,
-      messages: [{ role: 'user', content: query }],
+      messages: [{ id: `msg-init-${Date.now()}`, role: 'user' as const, content: query, timestamp: new Date().toISOString() }],
       ontologySnapshot: swarm.ontology as any,
       createdAt: new Date().toISOString()
     };

@@ -2,6 +2,8 @@ import { Command } from 'commander';
 import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
+import { createProtheusDbClient, detectDriverFromUrl } from '../../lib/mesh/adapters/totvs/protheusDbClient';
+import { buildMssqlConnectionString } from '../../lib/studio/onboarding/connectionBuilder';
 
 // Dynamic mapping of database types to OPO field types
 function mapType(dbType: string): 'String' | 'Int' | 'Float' | 'Boolean' | 'DateTime' {
@@ -68,15 +70,37 @@ function suggestCanonicalName(tableName: string): string {
 
 export const discoverCommand = new Command('discover')
   .description('Auto-discover database schema and generate OPO manifest file (.opo.json)')
-  .option('-d, --db <type>', 'Database type: postgres (currently supported)', 'postgres')
+  .option('-d, --db <type>', 'Database type: postgres | mssql | oracle (auto-detected from --url if omitted)', 'auto')
   .option('-e, --erp <name>', 'ERP adapter: totvs-protheus (uses SX2/SX3/SX9 dictionary)')
   .option('--mock', 'Use embedded mock dictionary (Protheus SX tables)')
   .option('--company-suffix <suffix>', 'Protheus company table suffix, e.g. 010 → SX2010', '010')
+  .option('--filial <code>', 'Protheus filial code (default "01")', '01')
+  .option('--server <server>', 'SQL Server server/host')
+  .option('--port <port>', 'SQL Server port', '1433')
+  .option('--database <database>', 'SQL Server database name')
+  .option('--user <user>', 'SQL Server username')
+  .option('--password <password>', 'SQL Server password')
+  .option('--encrypt', 'Encrypt connection (default false)', false)
+  .option('--trust-server-certificate', 'Trust server certificate (default true)', true)
   .option('--table-filter <glob>', 'Table glob filter, e.g. "SC*,SA*,SF*"')
   .option('-u, --url <url>', 'Database connection string/URL')
   .option('-o, --output <file>', 'Output manifest path', '.well-known/opo.json')
   .action(async (options) => {
-    console.log(chalk.blue('\n🚀 Starting OPO Schema Auto-Discovery...'));
+    console.log(chalk.yellow('\n⚠️  [Deprecado] El comando "opo discover" directo ha sido deprecado. Usá "opo onboard" para un setup completo e interactivo.\n'));
+    console.log(chalk.blue('🚀 Starting OPO Schema Auto-Discovery...'));
+
+    // Build connection string if individual MSSQL connection fields are provided
+    if (options.server && options.database) {
+      options.url = buildMssqlConnectionString({
+        server: options.server,
+        port: Number(options.port) || 1433,
+        database: options.database,
+        user: options.user,
+        password: options.password,
+        encrypt: options.encrypt,
+        trustServerCertificate: options.trustServerCertificate,
+      });
+    }
 
     // TOTVS Protheus: DER desde diccionario SX (no hay FKs SQL)
     if (options.erp === 'totvs-protheus') {
@@ -126,105 +150,144 @@ export const discoverCommand = new Command('discover')
       process.exit(1);
     }
     
-    if (options.db !== 'postgres') {
-      console.error(chalk.red(`\n❌ Error: Database type '${options.db}' is not supported yet. Currently only 'postgres' is supported.`));
-      process.exit(1);
-    }
-    
-    // Lazy load pg dependency to handle missing libraries gracefully
-    let ClientClass;
-    try {
-      const pgModule = require('pg');
-      ClientClass = pgModule.Client;
-    } catch (err) {
-      console.error(chalk.red('\n❌ Error: The "pg" package is required for discover command.'));
-      console.error(chalk.gray('Please run: npm install pg'));
+    const resolvedDb =
+      options.db === 'auto' ? detectDriverFromUrl(options.url) : options.db;
+
+    if (!['postgres', 'postgresql', 'mssql', 'oracle'].includes(resolvedDb)) {
+      console.error(
+        chalk.red(`\n❌ Error: Database type '${resolvedDb}' is not supported. Use postgres, mssql, or oracle.`)
+      );
       process.exit(1);
     }
 
-    const client = new ClientClass({ connectionString: options.url });
+    const dbDriver = resolvedDb === 'postgresql' ? 'postgres' : resolvedDb;
+    const client = await createProtheusDbClient(options.url);
 
     try {
-      console.log(chalk.gray(`Connecting to database at ${options.url.replace(/:([^:@]+)@/, ':****@')}...`));
-      await client.connect();
+      console.log(chalk.gray(`Connecting to ${dbDriver} at ${options.url.replace(/:([^:@]+)@/, ':****@')}...`));
       console.log(chalk.green('✅ Connected successfully!'));
 
-      // Fetch all tables
-      console.log(chalk.gray('Inspecting tables...'));
-      const tablesRes = await client.query(`
-        SELECT table_name 
-        FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-          AND table_type = 'BASE TABLE'
-        ORDER BY table_name;
-      `);
-      
-      const tables = tablesRes.rows.map((r: any) => r.table_name);
-      console.log(chalk.gray(`Found ${tables.length} tables.`));
+      let tables: string[] = [];
+      let columnsRows: any[] = [];
+      let pkRows: any[] = [];
+      let fkRows: any[] = [];
 
+      if (dbDriver === 'postgres') {
+        console.log(chalk.gray('Inspecting tables...'));
+        const tablesRes = await client.query(`
+          SELECT table_name
+          FROM information_schema.tables
+          WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+          ORDER BY table_name;
+        `);
+        tables = tablesRes.rows.map((r: any) => r.table_name);
+
+        const columnsRes = await client.query(`
+          SELECT table_name, column_name, data_type, is_nullable, column_default
+          FROM information_schema.columns
+          WHERE table_schema = 'public'
+          ORDER BY table_name, ordinal_position;
+        `);
+        columnsRows = columnsRes.rows;
+
+        const pksRes = await client.query(`
+          SELECT kcu.table_name, kcu.column_name
+          FROM information_schema.table_constraints tc
+          JOIN information_schema.key_column_usage kcu
+            ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.table_schema
+          WHERE tc.constraint_type = 'PRIMARY KEY' AND tc.table_schema = 'public';
+        `);
+        pkRows = pksRes.rows;
+
+        const fksRes = await client.query(`
+          SELECT
+            kcu.table_name AS source_table,
+            kcu.column_name AS source_column,
+            ccu.table_name AS target_table,
+            ccu.column_name AS target_column
+          FROM information_schema.table_constraints tc
+          JOIN information_schema.key_column_usage kcu
+            ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.table_schema
+          JOIN information_schema.constraint_column_usage ccu
+            ON ccu.constraint_name = tc.constraint_name
+          WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema = 'public';
+        `);
+        fkRows = fksRes.rows;
+      } else if (dbDriver === 'mssql') {
+        const tablesRes = await client.query(`
+          SELECT t.name AS table_name
+          FROM sys.tables t
+          ORDER BY t.name;
+        `);
+        tables = tablesRes.rows.map((r: any) => r.table_name);
+
+        const columnsRes = await client.query(`
+          SELECT t.name AS table_name, c.name AS column_name, ty.name AS data_type,
+                 CASE WHEN c.is_nullable = 1 THEN 'YES' ELSE 'NO' END AS is_nullable,
+                 NULL AS column_default
+          FROM sys.tables t
+          JOIN sys.columns c ON t.object_id = c.object_id
+          JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+          ORDER BY t.name, c.column_id;
+        `);
+        columnsRows = columnsRes.rows;
+
+        const pksRes = await client.query(`
+          SELECT t.name AS table_name, c.name AS column_name
+          FROM sys.tables t
+          JOIN sys.indexes i ON t.object_id = i.object_id AND i.is_primary_key = 1
+          JOIN sys.index_columns ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+          JOIN sys.columns c ON ic.object_id = c.object_id AND ic.column_id = c.column_id;
+        `);
+        pkRows = pksRes.rows;
+
+        fkRows = [];
+      } else {
+        const tablesRes = await client.query(`
+          SELECT table_name FROM user_tables ORDER BY table_name
+        `);
+        tables = tablesRes.rows.map((r: any) => r.TABLE_NAME ?? r.table_name);
+
+        const columnsRes = await client.query(`
+          SELECT utc.TABLE_NAME AS table_name, utc.COLUMN_NAME AS column_name,
+                 utc.DATA_TYPE AS data_type, utc.NULLABLE AS is_nullable, NULL AS column_default
+          FROM USER_TAB_COLUMNS utc
+          ORDER BY utc.TABLE_NAME, utc.COLUMN_ID
+        `);
+        columnsRows = columnsRes.rows;
+
+        const pksRes = await client.query(`
+          SELECT ucc.TABLE_NAME AS table_name, ucc.COLUMN_NAME AS column_name
+          FROM USER_CONS_COLUMNS ucc
+          JOIN USER_CONSTRAINTS uc ON ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME
+          WHERE uc.CONSTRAINT_TYPE = 'P'
+        `);
+        pkRows = pksRes.rows;
+        fkRows = [];
+      }
+
+      console.log(chalk.gray(`Found ${tables.length} tables.`));
       if (tables.length === 0) {
-        console.warn(chalk.yellow('⚠️ No tables found in the public schema.'));
-        await client.end();
+        console.warn(chalk.yellow('⚠️ No tables found.'));
+        await client.close();
         return;
       }
 
-      // Fetch columns metadata
-      console.log(chalk.gray('Analyzing columns and types...'));
-      const columnsRes = await client.query(`
-        SELECT 
-          table_name, 
-          column_name, 
-          data_type, 
-          is_nullable, 
-          column_default
-        FROM information_schema.columns 
-        WHERE table_schema = 'public'
-        ORDER BY table_name, ordinal_position;
-      `);
-
-      // Fetch primary keys
-      console.log(chalk.gray('Locating primary keys...'));
-      const pksRes = await client.query(`
-        SELECT 
-          kcu.table_name, 
-          kcu.column_name
-        FROM information_schema.table_constraints tc
-        JOIN information_schema.key_column_usage kcu 
-          ON tc.constraint_name = kcu.constraint_name
-          AND tc.table_schema = kcu.table_schema
-        WHERE tc.constraint_type = 'PRIMARY KEY'
-          AND tc.table_schema = 'public';
-      `);
-
       const primaryKeysMap = new Map<string, string[]>();
-      pksRes.rows.forEach((row: any) => {
-        const list = primaryKeysMap.get(row.table_name) || [];
-        list.push(row.column_name);
-        primaryKeysMap.set(row.table_name, list);
+      pkRows.forEach((row: any) => {
+        const tableName = row.table_name ?? row.TABLE_NAME;
+        const columnName = row.column_name ?? row.COLUMN_NAME;
+        const list = primaryKeysMap.get(tableName) || [];
+        list.push(columnName);
+        primaryKeysMap.set(tableName, list);
       });
 
-      // Fetch foreign keys (relationships)
-      console.log(chalk.gray('Mapping foreign key relationships...'));
-      const fksRes = await client.query(`
-        SELECT
-          kcu.table_name AS source_table,
-          kcu.column_name AS source_column,
-          ccu.table_name AS target_table,
-          ccu.column_name AS target_column
-        FROM information_schema.table_constraints tc
-        JOIN information_schema.key_column_usage kcu
-          ON tc.constraint_name = kcu.constraint_name
-          AND tc.table_schema = kcu.table_schema
-        JOIN information_schema.constraint_column_usage ccu
-          ON ccu.constraint_name = tc.constraint_name
-        WHERE tc.constraint_type = 'FOREIGN KEY'
-          AND tc.table_schema = 'public';
-      `);
-
-      // Group columns by table
       const entitiesMap = new Map<string, any>();
-      columnsRes.rows.forEach((col: any) => {
-        const tableName = col.table_name;
+      columnsRows.forEach((col: any) => {
+        const tableName = col.table_name ?? col.TABLE_NAME;
+        const columnName = col.column_name ?? col.COLUMN_NAME;
+        const dataType = col.data_type ?? col.DATA_TYPE;
+        const isNullable = col.is_nullable ?? col.IS_NULLABLE;
         if (!entitiesMap.has(tableName)) {
           entitiesMap.set(tableName, {
             name: tableName,
@@ -235,15 +298,15 @@ export const discoverCommand = new Command('discover')
         
         const entity = entitiesMap.get(tableName);
         const pks = primaryKeysMap.get(tableName) || [];
-        const isPk = pks.includes(col.column_name);
+        const isPk = pks.includes(columnName);
 
         entity.attributes.push({
-          id: `attr-${tableName}-${col.column_name}`,
-          name: col.column_name,
-          type: mapType(col.data_type),
+          id: `attr-${tableName}-${columnName}`,
+          name: columnName,
+          type: mapType(dataType),
           isPrimaryKey: isPk,
-          isRequired: col.is_nullable === 'NO' || isPk,
-          isUnique: isPk, // PKs are unique by definition
+          isRequired: isNullable === 'NO' || isNullable === 'N' || isPk,
+          isUnique: isPk,
           defaultValue: col.column_default || undefined
         });
       });
@@ -276,7 +339,7 @@ export const discoverCommand = new Command('discover')
 
       // Construct relationship connections
       const relationships: any[] = [];
-      fksRes.rows.forEach((row: any) => {
+      fkRows.forEach((row: any) => {
         const sourceCanonical = `opo:${suggestCanonicalName(row.source_table)}`;
         const targetCanonical = `opo:${suggestCanonicalName(row.target_table)}`;
         relationships.push({
@@ -294,7 +357,7 @@ export const discoverCommand = new Command('discover')
       const manifest = {
         opo_version: '0.1.0',
         system_identity: {
-          erp_name: options.db === 'postgres' ? 'PostgreSQL Database' : 'Discovered DB',
+          erp_name: `${dbDriver.toUpperCase()} Database`,
           version: '1.0',
           organization_name: 'Auto-Discovered Org'
         },
@@ -326,6 +389,6 @@ export const discoverCommand = new Command('discover')
       console.error(chalk.red(`\n❌ Auto-Discovery Failed: ${err.message}`));
       process.exit(1);
     } finally {
-      await client.end().catch(() => {});
+      await client.close().catch(() => {});
     }
   });

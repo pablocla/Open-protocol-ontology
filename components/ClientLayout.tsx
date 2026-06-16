@@ -49,11 +49,12 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     { labelEn: 'Home', labelEs: 'Inicio', href: '/', num: '01' },
     { labelEn: 'Entity Browser', labelEs: 'Explorador', href: '/entities/', num: '02' },
     { labelEn: 'ERP Docs', labelEs: 'Docs de ERP', href: '/docs/', num: '03' },
-    { labelEn: 'Protocol Spec', labelEs: 'Espec de Protocolo', href: '/spec/', num: '04' },
-    { labelEn: 'Alias Registry', labelEs: 'Registro de Alias', href: '/registry/', num: '05' },
-    { labelEn: 'Adopt OPO', labelEs: 'Adoptar OPO', href: '/adopt/', num: '06' },
-    { labelEn: 'Web Validator', labelEs: 'Validador Web', href: '/validator/', num: '07' },
-    { labelEn: 'OPO Studio', labelEs: 'OPO Studio', href: '/studio/', num: '08' },
+    { labelEn: 'Studio Docs', labelEs: 'Docs de Studio', href: '/docs/embedded/', num: '04' },
+    { labelEn: 'Protocol Spec', labelEs: 'Espec de Protocolo', href: '/spec/', num: '05' },
+    { labelEn: 'Alias Registry', labelEs: 'Registro de Alias', href: '/registry/', num: '06' },
+    { labelEn: 'Adopt OPO', labelEs: 'Adoptar OPO', href: '/adopt/', num: '07' },
+    { labelEn: 'Web Validator', labelEs: 'Validador Web', href: '/validator/', num: '08' },
+    { labelEn: 'OPO Studio', labelEs: 'OPO Studio', href: '/studio/', num: '09' },
   ];
 
   // If we are in the studio, render without the main layout wrapper
@@ -141,16 +142,14 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
             </Link>
           </li>
           <li>
-            <a
-              href="http://localhost:3002"
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              href="/docs/embedded/"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center justify-between px-3 py-2 text-slate-400 hover:text-white rounded hover:bg-slate-900/40 transition-colors"
             >
               <span>{lang === 'en' ? 'CLI & SDK Docs' : 'Docs CLI & SDK'}</span>
               <ArrowUpRight className="h-3 w-3 text-emerald-500" />
-            </a>
+            </Link>
           </li>
           <li>
             <Link

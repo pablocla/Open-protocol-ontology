@@ -1,47 +1,40 @@
 ---
 sidebar_position: 1
+sidebar_label: 🏠 Introducción
 ---
 
-# Tutorial Intro
+# Introducción a OPO (Open Protocol Ontology)
 
-Let's discover **Docusaurus in less than 5 minutes**.
+**Open Protocol Ontology (OPO)** es una capa semántica de código abierto y un estándar universal diseñado para que las Inteligencias Artificiales (LLMs, agentes autónomos y orquestadores) puedan interactuar directamente con sistemas de gestión empresarial (ERP, WMS, CRM).
 
-## Getting Started
+OPO actúa como un **traductor universal** entre las complejas bases de datos corporativas y los agentes cognitivos.
 
-Get started by **creating a new site**.
-
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
-
-### What you'll need
-
-- [Node.js](https://nodejs.org/en/download/) version 20.0 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
-
-## Generate a new site
-
-Generate a new Docusaurus site using the **classic template**.
-
-The classic template will automatically be added to your project after you run the command:
-
-```bash
-npm init docusaurus@latest my-website classic
+```mermaid
+graph TD
+    A[Agente IA / ChatGPT / Claude] -->|Consultas en Lenguaje Natural| B(Servidor MCP / OPO)
+    B -->|Mapeo Semántico / JSON Schema| C{Traductor SQL / API}
+    C -->|SQL / mssql / pg| D[SAP / TOTVS / NetSuite]
+    C -->|REST / TLPP| D
 ```
 
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
+## El Problema
 
-The command also installs all necessary dependencies you need to run Docusaurus.
+Los sistemas de gestión empresarial (ERPs) son notoriamente difíciles de integrar. Tienen miles de tablas con nombres oscuros o legados (como `SA1` para Clientes o `SF2` para Facturas de Venta en Protheus/TOTVS). 
 
-## Start your site
+Cuando intentas conectar un Agente de IA a un ERP:
+1. **Falta de Contexto:** El agente no sabe qué significa `sf2010`.
+2. **Consultas Complejas:** Generar queries SQL a mano es propenso a errores y alucinaciones.
+3. **Seguridad y Reglas de Negocio:** La IA podría saltearse disparadores, validaciones de stock o insertar datos inconsistentes directamente en las tablas.
 
-Run the development server:
+## La Solución: OPO
 
-```bash
-cd my-website
-npm run start
-```
+OPO resuelve esto mediante tres pilares:
+1. **Un Vocabulario Común:** Mapea la terminología de cualquier ERP a un estándar legible por máquinas (ej: `Invoice`, `Customer`, `Product`).
+2. **Auto-Descubrimiento:** Escanea los diccionarios internos de bases de datos para entender automáticamente las relaciones entre tablas (ej: usando la tabla `SX9` en Protheus).
+3. **Interfaces Seguras:** Ofrece traducción SQL inteligente en solo-lectura y rutea mutaciones a través de APIs REST validadas por el ERP.
 
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
+## OPO Studio
 
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
+Para facilitar esto a los consultores funcionales y analistas de negocio, **OPO Studio** proporciona un lienzo visual interactivo donde puedes diseñar ontologías y ensamblar **Empleados Virtuales** (agentes IA con habilidades específicas) sin escribir código.
 
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+¿Listo para empezar? Explora los [Conceptos Clave](/docs/conceptos/ontologia-empresarial) para entender cómo funciona la ontología empresarial.

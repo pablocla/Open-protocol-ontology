@@ -8,7 +8,18 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, Layers, Network, Terminal, CheckCircle2, Copy } from 'lucide-react';
+import {
+  ArrowRight,
+  BookOpen,
+  Layers,
+  Network,
+  Terminal,
+  CheckCircle2,
+  Copy,
+  Users,
+  Play,
+  Bot,
+} from 'lucide-react';
 
 export default function HomePage() {
   const [copied, setCopied] = useState(false);
@@ -91,11 +102,25 @@ export default function HomePage() {
             className="pt-6 flex flex-wrap gap-4"
           >
             <Link
-              href="/studio/"
+              href="/consultas"
               className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 px-5 py-2.5 text-xs font-mono font-bold text-black shadow-sm transition-all active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
             >
-              Launch OPO Studio
+              Consultar mi ERP
               <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+            <Link
+              href="/studio/"
+              className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-5 py-2.5 text-xs font-mono font-bold text-emerald-200 hover:bg-emerald-500/20 transition-all active:scale-95"
+            >
+              OPO Studio completo
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+            <Link
+              href="/studio/?guide=1"
+              className="inline-flex items-center gap-2 rounded-lg border border-violet-500/40 bg-violet-500/10 px-5 py-2.5 text-xs font-mono font-bold text-violet-200 hover:bg-violet-500/20 transition-all active:scale-95"
+            >
+              Flujo consultor en 3 pasos
+              <Users className="h-3.5 w-3.5" />
             </Link>
             <Link
               href="/entities/"
@@ -112,6 +137,65 @@ export default function HomePage() {
               <Terminal className="h-3.5 w-3.5 text-emerald-400" />
             </Link>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Consultor funcional — flujo hacia Studio */}
+      <section className="mx-auto max-w-4xl px-4 mt-12">
+        <div className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-6 sm:p-8 backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <Users className="h-4 w-4 text-violet-400" />
+            <h3 className="text-sm font-bold text-violet-200 uppercase tracking-wide">
+              Para consultores funcionales (sin SQL)
+            </h3>
+          </div>
+          <p className="text-sm text-slate-400 mb-6 max-w-2xl">
+            OPO Studio traduce su ERP a un mapa de negocio, contrata empleados virtuales y ejecuta consultas en lenguaje
+            natural — con Ollama local o modelos en la nube.
+          </p>
+          <ol className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            {[
+              {
+                step: '1',
+                title: 'Conectar ERP',
+                desc: 'Onboarding: Protheus, SAP u otro. Demo sin BD o datos en vivo con filial.',
+                href: '/studio/?guide=1',
+                icon: Network,
+              },
+              {
+                step: '2',
+                title: 'Contratar empleado',
+                desc: 'Elegí un rol (Auditor, Inventario…) desde el panel izquierdo.',
+                href: '/studio/?deploy=auditor-contable',
+                icon: Bot,
+              },
+              {
+                step: '3',
+                title: 'Ejecutar equipo',
+                desc: 'Mesh para consultas ERP. Mosaico IA en cada nodo para chat con Ollama.',
+                href: '/studio/?open=mesh',
+                icon: Play,
+              },
+            ].map((item) => (
+              <li key={item.step}>
+                <Link
+                  href={item.href}
+                  className="block h-full p-4 rounded-lg border border-slate-800 bg-slate-900/40 hover:border-violet-500/40 transition-colors group"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[10px] font-mono font-bold text-violet-400">{item.step}</span>
+                    <item.icon className="h-3.5 w-3.5 text-violet-400" />
+                  </div>
+                  <div className="text-sm font-semibold text-white group-hover:text-violet-200">{item.title}</div>
+                  <p className="mt-1 text-xs text-slate-500 leading-relaxed">{item.desc}</p>
+                </Link>
+              </li>
+            ))}
+          </ol>
+          <p className="text-[11px] text-slate-500 font-mono">
+            Ollama: configurá <code className="text-emerald-400">http://localhost:11434</code> en Settings → Ejecutar
+            Equipo
+          </p>
         </div>
       </section>
 

@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useStudioStore, NodeMessage } from '@/store/useStudioStore';
-import { Send, Trash2, Bot, User } from 'lucide-react';
+import { Send, Trash2, Bot, User, Terminal } from 'lucide-react';
+import { suggestsMeshDataQuery } from '@/lib/studio/meshQueryHints';
 
 interface NodeChatInterfaceProps {
   nodeId: string;
@@ -28,6 +29,7 @@ export default function NodeChatInterface({
   const messages = nodeChats[nodeId] || [];
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [meshHintQuery, setMeshHintQuery] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -49,11 +51,21 @@ export default function NodeChatInterface({
 
     addNodeMessage(nodeId, userMessage);
     setInput('');
+    if (suggestsMeshDataQuery(userMessage.content)) {
+      setMeshHintQuery(userMessage.content);
+    }
     setIsLoading(true);
 
     try {
-      // GROK FIX #1: send real apiKeys + llmConfigs + currentProvider from store so cloud providers (gemini etc) receive keys in mosaic node chats
+      // GROK FIX #1: send llmConfigs + currentProvider from store so cloud providers (gemini etc) succeed, but sanitize API keys first
       const store = useStudioStore.getState();
+
+      const sanitizedLlmConfigs = Object.keys(store.llmConfigs).reduce((acc: any, key) => {
+        const { apiKey, ...rest } = store.llmConfigs[key];
+        acc[key] = rest;
+        return acc;
+      }, {});
+
       const response = await fetch('/api/studio/node-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -64,8 +76,7 @@ export default function NodeChatInterface({
           model: llmModel,
           baseUrl: llmProvider === 'ollama' || llmProvider === 'open-code' ? baseUrl : undefined,
           llmProvider,
-          apiKeys: store.apiKeys,
-          llmConfigs: store.llmConfigs,
+          llmConfigs: sanitizedLlmConfigs,
           currentProvider: store.currentProvider,
         }),
       });
@@ -214,6 +225,27 @@ export default function NodeChatInterface({
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {meshHintQuery && (
+        <div className="mx-2 mb-1 p-2 bg-emerald-950/50 border border-emerald-700/40 rounded flex items-center justify-between gap-2 text-[10px] text-emerald-200">
+          <span className="flex items-center gap-1">
+            <Terminal className="w-3 h-3 shrink-0" />
+            Para consultar datos del ERP, usá el Mesh (Ejecutar Equipo).
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              window.dispatchEvent(
+                new CustomEvent('opo-open-mesh', { detail: { query: meshHintQuery } })
+              );
+              setMeshHintQuery(null);
+            }}
+            className="shrink-0 px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold"
+          >
+            Abrir Mesh
+          </button>
+        </div>
+      )}
 
       {/* Input */}
       <div className="p-1 border-t border-neutral-700 flex gap-1">

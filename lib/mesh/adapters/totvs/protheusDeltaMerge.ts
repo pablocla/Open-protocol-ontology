@@ -54,28 +54,56 @@ function relationKey(rel: Pick<EntityRelationship, 'sourceTable' | 'sourceField'
 }
 
 function buildBaselineFieldIndex(baseline: OpoManifestFromProtheus): Map<string, Set<string>> {
+  const companySuffix = baseline.dictionary_meta?.company_suffix || '010';
   const index = new Map<string, Set<string>>();
   for (const mapping of Object.values(baseline.custom_mappings)) {
     const attrs = (mapping.attributes as ProtheusEntityAttribute[]) || [];
     for (const attr of attrs) {
-      const table = attr.id.split('-')[1] || '';
+      let table = attr.id.split('-')[1] || '';
       if (!table) continue;
-      const set = index.get(normalizeTable(table)) ?? new Set<string>();
+      table = normalizeTable(table);
+      if (table.endsWith(companySuffix) && table.length > companySuffix.length) {
+        table = table.substring(0, table.length - companySuffix.length);
+      }
+      const set = index.get(table) ?? new Set<string>();
       set.add(attr.name);
-      index.set(normalizeTable(table), set);
+      index.set(table, set);
     }
   }
   return index;
 }
 
 function buildBaselineTableSet(baseline: OpoManifestFromProtheus): Set<string> {
+  const companySuffix = baseline.dictionary_meta?.company_suffix || '010';
   return new Set(
-    (baseline.supported_entities || []).map((e) => normalizeTable(e.native_reference.split(' ')[0]))
+    (baseline.supported_entities || []).map((e) => {
+      const native = normalizeTable(e.native_reference.split(' ')[0]);
+      if (native.endsWith(companySuffix) && native.length > companySuffix.length) {
+        return native.substring(0, native.length - companySuffix.length);
+      }
+      return native;
+    })
   );
 }
 
 function buildBaselineRelationSet(baseline: OpoManifestFromProtheus): Set<string> {
-  return new Set((baseline.relationships || []).map(relationKey));
+  const companySuffix = baseline.dictionary_meta?.company_suffix || '010';
+  return new Set((baseline.relationships || []).map(r => {
+    let src = normalizeTable(r.sourceTable);
+    let tgt = normalizeTable(r.targetTable);
+    if (src.endsWith(companySuffix) && src.length > companySuffix.length) {
+      src = src.substring(0, src.length - companySuffix.length);
+    }
+    if (tgt.endsWith(companySuffix) && tgt.length > companySuffix.length) {
+      tgt = tgt.substring(0, tgt.length - companySuffix.length);
+    }
+    return relationKey({
+      sourceTable: src,
+      sourceField: r.sourceField,
+      targetTable: tgt,
+      targetField: r.targetField
+    });
+  }));
 }
 
 /**
@@ -86,19 +114,28 @@ export function computeProtheusDelta(
   baseline?: OpoManifestFromProtheus
 ): ProtheusDeltaReport {
   const base = baseline ?? getProtheusBaselineManifest();
+  const companySuffix = base.dictionary_meta?.company_suffix || '010';
   const baselineTables = buildBaselineTableSet(base);
   const baselineFields = buildBaselineFieldIndex(base);
   const baselineRelations = buildBaselineRelationSet(base);
 
-  const newTables = liveSnapshot.tables.filter(
-    (t) => !baselineTables.has(normalizeTable(t.X2_CHAVE))
-  );
+  const newTables = liveSnapshot.tables.filter((t) => {
+    let chave = normalizeTable(t.X2_CHAVE);
+    if (chave.endsWith(companySuffix) && chave.length > companySuffix.length) {
+      chave = chave.substring(0, chave.length - companySuffix.length);
+    }
+    return !baselineTables.has(chave);
+  });
 
   const newFields: ProtheusFieldDelta[] = [];
   const liveEntities = buildDiscoveredEntities(liveSnapshot);
 
   for (const entity of liveEntities) {
-    const knownFields = baselineFields.get(normalizeTable(entity.tableName)) ?? new Set<string>();
+    let entityTable = normalizeTable(entity.tableName);
+    if (entityTable.endsWith(companySuffix) && entityTable.length > companySuffix.length) {
+      entityTable = entityTable.substring(0, entityTable.length - companySuffix.length);
+    }
+    const knownFields = baselineFields.get(entityTable) ?? new Set<string>();
     for (const attr of entity.attributes) {
       if (!knownFields.has(attr.name)) {
         newFields.push({
@@ -111,7 +148,22 @@ export function computeProtheusDelta(
   }
 
   const liveRelations = extractRelationshipsFromSx9(liveSnapshot.relationships, liveSnapshot.tables);
-  const newRelationships = liveRelations.filter((r) => !baselineRelations.has(relationKey(r)));
+  const newRelationships = liveRelations.filter((r) => {
+    let src = normalizeTable(r.sourceTable);
+    let tgt = normalizeTable(r.targetTable);
+    if (src.endsWith(companySuffix) && src.length > companySuffix.length) {
+      src = src.substring(0, src.length - companySuffix.length);
+    }
+    if (tgt.endsWith(companySuffix) && tgt.length > companySuffix.length) {
+      tgt = tgt.substring(0, tgt.length - companySuffix.length);
+    }
+    return !baselineRelations.has(relationKey({
+      sourceTable: src,
+      sourceField: r.sourceField,
+      targetTable: tgt,
+      targetField: r.targetField
+    }));
+  });
 
   return {
     baselineVersion: PROTHEUS_BASELINE_VERSION,
@@ -230,7 +282,7 @@ export function mergeProtheusBaselineWithLive(
       merged.relationships.push({
         ...rel,
         confidence: 0.95,
-        metadata: { ...rel.metadata, _opo_origin: 'delta' },
+        metadata: { ...rel.metadata, _opo_origin: 'delta' } as any,
       });
     }
   }

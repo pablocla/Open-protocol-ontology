@@ -48,7 +48,7 @@ export class SemanticRouter {
     }
 
     const recurringCatalog = formatRecurringQueriesForLLM(
-      getRecurringQueriesForContext(ontology, ontology.name)
+      getRecurringQueriesForContext(ontology, (ontology as any).name || (ontology as any).projectName || '')
     );
 
     const systemPrompt = `

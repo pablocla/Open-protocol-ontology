@@ -33,7 +33,7 @@ export function manifestToCanvasGraph(
   entities.forEach((ent, idx) => {
     const canonicalName = ent.canonical.replace(/^opo:/, '');
     const tableName = ent.native_reference.split(' ')[0].trim();
-    const mappingInfo = mappings[canonicalName] || {};
+    const mappingInfo: any = mappings[canonicalName] || {};
     const attrs = (mappingInfo.attributes as ProtheusEntityAttribute[]) || [];
 
     nodes.push({

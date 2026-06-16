@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { isConnectionAllowed } from '@/lib/studio/connectionGuard';
 
 // OPO Type mapping from SQL physical types
 const SQL_TO_OPO_TYPE: Record<string, string> = {
@@ -411,28 +412,4 @@ async function getRowCounts(driver: string, connectionString: string, filePath: 
   return counts;
 }
 
-// GROK FIX 3B + 2A helper: very lightweight allow-list for connection targets to reduce SSRF surface.
-// Production: set OPO_ALLOWED_DB_HOSTS=localhost,127.0.0.1,10.0.0.0/8,your-prod-db.internal
-function isConnectionAllowed(target: string, driver: string): boolean {
-  if (!target) return false;
-  const allowedEnv = (process.env.OPO_ALLOWED_DB_HOSTS || 'localhost,127.0.0.1,::1,host.docker.internal').toLowerCase();
-  const allowList = allowedEnv.split(',').map(s => s.trim()).filter(Boolean);
 
-  // For filePath (sqlite) allow if it looks like a local path under data/ or absolute on the server fs (still risky but better than arbitrary remote)
-  if (driver === 'sqlite' || target.includes('file:') || /^[a-zA-Z]:\\/.test(target) || target.startsWith('/')) {
-    // In dev allow; in strict prod you would further sandbox
-    return true;
-  }
-
-  try {
-    // crude host extraction for common connection string forms
-    const hostMatch = target.match(/@([^:/,?]+)|\/\/([^:/,?]+)|Server=([^;]+)|Host=([^;]+)/i);
-    const host = (hostMatch ? (hostMatch[1] || hostMatch[2] || hostMatch[3] || hostMatch[4] || '') : target).toLowerCase().trim();
-    if (!host) return true; // let the driver fail later if truly bad
-    if (allowList.includes(host) || allowList.includes('*') || host === 'localhost' || host.startsWith('127.')) return true;
-    // very loose: allow if any allowed token is substring (for internal domains)
-    return allowList.some((a: string) => host.includes(a) || a.includes(host));
-  } catch {
-    return false;
-  }
-}

@@ -6,8 +6,70 @@ export async function GET() {
   try {
     const workspaceDir = process.env.OPO_WORKSPACE_DIR || process.cwd();
     const manifestPath = path.join(workspaceDir, '.well-known', 'opo.json');
+    const workspacePath = path.join(workspaceDir, '.opo', 'workspace.json');
 
-    console.log(`[API Load] Loading manifest from: ${manifestPath}`);
+    console.log(`[API Load] Loading workspace from: ${workspacePath} and manifest: ${manifestPath}`);
+
+    let manifest: any = {};
+    if (fs.existsSync(manifestPath)) {
+      try {
+        manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      } catch (e) {
+        console.error('[API Load] Error parsing manifest:', e);
+      }
+    }
+
+    if (fs.existsSync(workspacePath)) {
+      try {
+        const wsData = JSON.parse(fs.readFileSync(workspacePath, 'utf8'));
+        const erpWorkspace = wsData.erpWorkspace || {};
+        const ai = wsData.ai || {};
+        
+        // Resolve password/API key if references are provided
+        if (erpWorkspace && erpWorkspace.connectionRef && erpWorkspace.connectionRef.startsWith('vault:')) {
+          try {
+            const { CredentialVault } = require('@/lib/engine/vault/credential-vault');
+            const vault = new CredentialVault();
+            const keyId = erpWorkspace.connectionRef.replace('vault:', '');
+            const password = vault.getKey(keyId);
+            vault.close();
+            
+            // Reconstruct full connectionString if mssqlMasked exists
+            if (erpWorkspace.mssqlMasked) {
+              const { buildMssqlConnectionString } = require('@/lib/studio/onboarding/connectionBuilder');
+              const fullMssql = { ...erpWorkspace.mssqlMasked, password };
+              erpWorkspace.connectionString = buildMssqlConnectionString(fullMssql);
+            }
+          } catch (vaultErr) {
+            console.warn('[API Load] Failed to resolve connection password from vault:', vaultErr);
+          }
+        }
+
+        if (ai && ai.cloudApiKeyRef && ai.cloudApiKeyRef.startsWith('vault:')) {
+          try {
+            const { CredentialVault } = require('@/lib/engine/vault/credential-vault');
+            const vault = new CredentialVault();
+            const keyId = ai.cloudApiKeyRef.replace('vault:', '');
+            ai.cloudApiKey = vault.getKey(keyId);
+            vault.close();
+          } catch (vaultErr) {
+            console.warn('[API Load] Failed to resolve cloud API key from vault:', vaultErr);
+          }
+        }
+
+        return NextResponse.json({
+          exists: true,
+          project: wsData.project || { name: 'OPO Project' },
+          nodes: wsData.nodes || [],
+          edges: wsData.edges || [],
+          erpWorkspace,
+          ai,
+          manifest
+        });
+      } catch (wsErr: any) {
+        console.error('[API Load] Error loading workspace.json, falling back:', wsErr);
+      }
+    }
 
     if (!fs.existsSync(manifestPath)) {
       return NextResponse.json({ 
@@ -15,9 +77,6 @@ export async function GET() {
         message: 'No OPO manifest found in workspace.' 
       });
     }
-
-    const fileContent = fs.readFileSync(manifestPath, 'utf8');
-    const manifest = JSON.parse(fileContent);
 
     // If canvas metadata exists, return it directly
     if (manifest._studio_canvas) {

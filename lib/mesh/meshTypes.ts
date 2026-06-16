@@ -52,7 +52,7 @@ export interface ToolBinding {
 }
 
 // === TOOL REGISTRY ===
-export type ToolType = 'mcp' | 'n8n_webhook' | 'rest_api' | 'sql_direct';
+export type ToolType = 'mcp' | 'n8n_webhook' | 'rest_api' | 'sql_direct' | 'opo_internal';
 
 export interface ToolDefinition {
   id: string;                    // Ej: "mcp-protheus"

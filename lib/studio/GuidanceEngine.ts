@@ -33,7 +33,7 @@ export function runGuidance(
   edges: Edge[],
   context: GuidanceContext = {}
 ): GuidanceAlert[] {
-  const alerts: GuidanceAlert[] = [];
+  const alerts: Omit<GuidanceAlert, 'timestamp' | 'dismissed'>[] = [];
   const entityNodes = nodes.filter(n => n.type === 'entityNode');
   const agentNodes = nodes.filter(n => n.type === 'agentNode');
   const triggerActionNodes = nodes.filter(n => 
@@ -237,7 +237,12 @@ export function runGuidance(
     });
   }
 
-  return alerts;
+  return alerts.map((alert, index) => ({
+    ...alert,
+    id: alert.id || `guidance-${index}-${Date.now()}`,
+    timestamp: Date.now(),
+    dismissed: false
+  }));
 }
 
 export function shouldRunGuidance(nodes: Node[], previousCount = 0): boolean {

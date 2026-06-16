@@ -40,8 +40,13 @@ export class RedisBlackboardAdapter implements BlackboardAdapter {
     return val ? JSON.parse(val) : null;
   }
 
-  async set(key: string, value: any): Promise<void> {
-    await this.client.set(`opo:bb:${key}`, JSON.stringify(value));
+  async set(key: string, value: any, ttlSeconds?: number): Promise<void> {
+    const strVal = JSON.stringify(value);
+    if (ttlSeconds !== undefined && ttlSeconds !== null) {
+      await this.client.set(`opo:bb:${key}`, strVal, 'EX', ttlSeconds);
+    } else {
+      await this.client.set(`opo:bb:${key}`, strVal);
+    }
   }
 
   async delete(key: string): Promise<void> {
@@ -97,26 +102,33 @@ export class RedisBlackboardAdapter implements BlackboardAdapter {
   }
 
   async takeSnapshot(): Promise<SwarmMemorySnapshot> {
-    // Basic snapshot of memory implementation. Redis SCAN would be better for scale.
-    const keys = await this.client.keys('opo:bb:*');
     const state: Record<string, any> = {};
-    for (const k of keys) {
-      const val = await this.client.get(k);
-      state[k.replace('opo:bb:', '')] = val ? JSON.parse(val) : null;
-    }
-
-    const lockKeys = await this.client.keys('opo:lock:*');
-    const locks: SemanticLock[] = [];
-    for (const lk of lockKeys) {
-      const val = await this.client.get(lk);
-      if (val) {
-        const parsed = JSON.parse(val);
-        locks.push({
-          entityId: lk.replace('opo:lock:', ''),
-          ...parsed
-        });
+    let cursor = '0';
+    do {
+      const [newCursor, keys] = await this.client.scan(cursor, 'MATCH', 'opo:bb:*', 'COUNT', 100);
+      cursor = newCursor;
+      for (const k of keys) {
+        const val = await this.client.get(k);
+        state[k.replace('opo:bb:', '')] = val ? JSON.parse(val) : null;
       }
-    }
+    } while (cursor !== '0');
+
+    const locks: SemanticLock[] = [];
+    let lockCursor = '0';
+    do {
+      const [newCursor, lockKeys] = await this.client.scan(lockCursor, 'MATCH', 'opo:lock:*', 'COUNT', 100);
+      lockCursor = newCursor;
+      for (const lk of lockKeys) {
+        const val = await this.client.get(lk);
+        if (val) {
+          const parsed = JSON.parse(val);
+          locks.push({
+            entityId: lk.replace('opo:lock:', ''),
+            ...parsed
+          });
+        }
+      }
+    } while (lockCursor !== '0');
 
     return {
       id: `snap_${Date.now()}`,

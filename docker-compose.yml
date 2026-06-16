@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   opo-studio:
     build:
@@ -10,61 +8,45 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-secretredispassword}@redis:6379
+      - OPO_VAULT_SECRET=${OPO_VAULT_SECRET}
+      - OPO_DB_PATH=/app/data/opo.db
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-    restart: unless-stopped
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - opo-network
-
-  opo-engine:
-    build:
-      context: ./packages/opo-engine
-      dockerfile: Dockerfile
-    container_name: opo-engine
-    ports:
-      - "5678:5678"
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgres://opo:opo@postgres:5432/opo_studio
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - opo-network
-
-  postgres:
-    image: postgres:15-alpine
-    container_name: opo-postgres
-    environment:
-      - POSTGRES_USER=opo
-      - POSTGRES_PASSWORD=opo
-      - POSTGRES_DB=opo_studio
-    ports:
-      - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - opo_data:/app/data
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     networks:
       - opo-network
-    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
     container_name: opo-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-secretredispassword}
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-secretredispassword}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - opo-network
-    restart: unless-stopped
 
 volumes:
-  postgres_data:
+  opo_data:
   redis_data:
 
 networks:

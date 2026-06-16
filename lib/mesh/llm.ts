@@ -1,4 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
+import { SwarmMemory } from '../engine/blackboard/blackboard';
 
 /**
  * Unified LLM caller for OPO Studio.
@@ -17,12 +18,6 @@ export interface LLMCallOptions {
   model?: string;
 }
 
-// Simple in-memory semantic cache for repeated agent prompts (system+user). Reduces cost + latency for similar sub-tasks.
-// GROK 4A optimization from risk analysis. Bounded + TTL. Not for streaming/highly variable responses.
-const _llmCache = new Map<string, { value: string; ts: number }>();
-const CACHE_TTL_MS = 1000 * 60 * 10; // 10 min
-const CACHE_MAX = 64;
-
 function cacheKey(provider: string, model: string | undefined, system: string | undefined, p: string): string {
   const base = `${provider}|${model || ''}|${system || ''}|${p}`;
   // cheap hash
@@ -30,15 +25,11 @@ function cacheKey(provider: string, model: string | undefined, system: string | 
   return String(h);
 }
 
-function storeCache(provider: string, model: string | undefined, system: string | undefined, p: string, value: string) {
+async function storeCache(provider: string, model: string | undefined, system: string | undefined, p: string, value: string) {
   if (provider === 'open-code') return;
-  const key = cacheKey(provider, model, system, p);
-  _llmCache.set(key, { value, ts: Date.now() });
-  if (_llmCache.size > CACHE_MAX) {
-    // evict oldest
-    const first = _llmCache.keys().next().value;
-    if (first) _llmCache.delete(first);
-  }
+  const hash = cacheKey(provider, model, system, p);
+  const key = `opo:llm:cache:${hash}`;
+  await SwarmMemory.set(key, value, 600); // 10 min TTL
 }
 
 export async function callLLM(prompt: string, opts: LLMCallOptions): Promise<string> {
@@ -47,10 +38,11 @@ export async function callLLM(prompt: string, opts: LLMCallOptions): Promise<str
   // cache check (skip for providers that are very cheap/local or when explicitly wanted non-cached)
   const shouldCache = provider !== 'open-code'; // ollama is fast+non-deterministic (skip top-level read); open-code wants fresh generations. Per-branch stores still populate for identical repeats.
   if (shouldCache) {
-    const key = cacheKey(provider, model, systemInstruction, prompt);
-    const hit = _llmCache.get(key);
-    if (hit && (Date.now() - hit.ts) < CACHE_TTL_MS) {
-      return hit.value;
+    const hash = cacheKey(provider, model, systemInstruction, prompt);
+    const key = `opo:llm:cache:${hash}`;
+    const hit = await SwarmMemory.get(key);
+    if (hit) {
+      return hit;
     }
   }
 
@@ -63,7 +55,7 @@ export async function callLLM(prompt: string, opts: LLMCallOptions): Promise<str
       config: { systemInstruction }
     });
     const geminiText = response.text || '';
-    storeCache(provider, model, systemInstruction, prompt, geminiText);
+    await storeCache(provider, model, systemInstruction, prompt, geminiText);
     return geminiText;
   }
 
@@ -86,7 +78,7 @@ export async function callLLM(prompt: string, opts: LLMCallOptions): Promise<str
     }
     const data = await res.json();
     const ollamaText = data.response || '';
-    storeCache(provider, model, systemInstruction, prompt, ollamaText);
+    await storeCache(provider, model, systemInstruction, prompt, ollamaText);
     return ollamaText;
   }
 
@@ -116,7 +108,7 @@ export async function callLLM(prompt: string, opts: LLMCallOptions): Promise<str
     if (!res.ok) throw new Error(`Open Code (Ollama) request failed. Is Ollama running with a code model?`);
     const data = await res.json();
     const codeText = data.response || '';
-    storeCache('open-code', model, codingSystem, prompt, codeText); // store under open-code key for future identical vibe-coding prompts
+    await storeCache('open-code', model, codingSystem, prompt, codeText); // store under open-code key for future identical vibe-coding prompts
     return codeText;
   }
 
@@ -140,7 +132,7 @@ export async function callLLM(prompt: string, opts: LLMCallOptions): Promise<str
     if (!res.ok) throw new Error(`${provider} API error`);
     const data = await res.json();
     const text = data.choices?.[0]?.message?.content || '';
-    storeCache(provider, model, systemInstruction, prompt, text);
+    await storeCache(provider, model, systemInstruction, prompt, text);
     return text;
   }
 
@@ -162,7 +154,7 @@ export async function callLLM(prompt: string, opts: LLMCallOptions): Promise<str
     if (!res.ok) throw new Error('Anthropic API error');
     const data = await res.json();
     const anthText = data.content?.[0]?.text || '';
-    storeCache(provider, model, systemInstruction, prompt, anthText);
+    await storeCache(provider, model, systemInstruction, prompt, anthText);
     return anthText;
   }
 

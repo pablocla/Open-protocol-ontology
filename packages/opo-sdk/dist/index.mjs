@@ -107,25 +107,129 @@ function sanitizeToolResultForLLM(result) {
   return result;
 }
 
+// src/protheusGuards.ts
+var PROTHEUS_SOFT_DELETE_FIELD = "D_E_L_E_T_";
+var PROTHEUS_ACTIVE_DELETE_MARKER = " ";
+function isProtheusTableExclusive(x2Modo) {
+  if (!x2Modo) return true;
+  const mode = x2Modo.trim().toUpperCase();
+  if (["C", "2", "S"].includes(mode)) return false;
+  if (["E", "1", "3"].includes(mode)) return true;
+  return true;
+}
+function resolvePhysicalTableName(logicalOrPhysical, companySuffix) {
+  const name = logicalOrPhysical.trim();
+  if (!companySuffix) return name;
+  const suffix = companySuffix.trim();
+  if (name.toLowerCase().endsWith(suffix.toLowerCase())) return name;
+  return `${name}${suffix}`;
+}
+function deriveFilialFieldFromColumns(fieldColumns, explicitFilialField) {
+  if (explicitFilialField?.trim()) return explicitFilialField.trim();
+  const filialCol = fieldColumns.find((c) => /_FILIAL$/i.test(c));
+  if (filialCol) return filialCol;
+  const first = fieldColumns.find((c) => c.includes("_"));
+  if (!first) return void 0;
+  const prefix = first.split("_")[0];
+  return prefix ? `${prefix}_FILIAL` : void 0;
+}
+function buildProtheusSoftDeleteCondition(tableAlias) {
+  return `${tableAlias}.${PROTHEUS_SOFT_DELETE_FIELD} = ?`;
+}
+function buildProtheusFilialCondition(tableAlias, filialField) {
+  return `${tableAlias}.${filialField} = ?`;
+}
+function buildProtheusTableGuards(tableAlias, meta, context, fieldColumns = []) {
+  const conditions = [];
+  const params = [];
+  const erp = context?.erp;
+  const isProtheus = erp === "protheus" || !!meta;
+  if (!isProtheus) {
+    return { conditions, params };
+  }
+  conditions.push(buildProtheusSoftDeleteCondition(tableAlias));
+  params.push(PROTHEUS_ACTIVE_DELETE_MARKER);
+  const x2Modo = meta?.x2Modo;
+  if (isProtheusTableExclusive(x2Modo)) {
+    const filial = context?.filial?.trim();
+    if (!filial) {
+      throw new Error(
+        `Protheus Security: filial is required for exclusive table '${tableAlias}' (X2_MODO=${x2Modo ?? "E"}). Provide context.filial in the OPO query.`
+      );
+    }
+    const filialField = meta?.filialField ?? deriveFilialFieldFromColumns(fieldColumns);
+    if (!filialField) {
+      throw new Error(
+        `Protheus Security: cannot derive filial field for table '${tableAlias}'. Set protheus.filialField in the mapping.`
+      );
+    }
+    conditions.push(buildProtheusFilialCondition(tableAlias, filialField));
+    params.push(filial);
+  }
+  return { conditions, params };
+}
+function formatPaginationClause(dialect, fetchLimit, offset) {
+  const d = dialect ?? "postgresql";
+  if (d === "mssql" && offset === 0) {
+    return `TOP ${fetchLimit}`;
+  }
+  if (d === "mssql" && offset > 0) {
+    return `OFFSET ${offset} ROWS FETCH NEXT ${fetchLimit} ROWS ONLY`;
+  }
+  const limitClause = `LIMIT ${fetchLimit}`;
+  const offsetClause = offset > 0 ? ` OFFSET ${offset}` : "";
+  return `${limitClause}${offsetClause}`;
+}
+function formatSelectPrefix(dialect, fetchLimit, offset) {
+  const d = dialect ?? "postgresql";
+  if (d === "mssql" && offset === 0) {
+    return `TOP ${fetchLimit} `;
+  }
+  return "";
+}
+
 // src/translator.ts
-function parseFilterNode(node, tableAlias, fields, params, opoEntity) {
+function getFieldColumn(fieldMeta) {
+  return typeof fieldMeta === "string" ? fieldMeta : fieldMeta.column;
+}
+function getDialect(mapping, context) {
+  return context?.dialect ?? mapping.protheus?.companySuffix ? "mssql" : "postgresql";
+}
+function resolveTableName(mapping, context) {
+  const suffix = context?.companySuffix ?? mapping.protheus?.companySuffix;
+  const base = mapping.protheus?.physicalTableName ?? mapping.tableName;
+  return resolvePhysicalTableName(base, suffix);
+}
+function collectFieldColumns(fields) {
+  return Object.values(fields).map((f) => getFieldColumn(f));
+}
+function injectGuardsForTable(tableAlias, meta, context, fieldColumns, conditions, params) {
+  const guards = buildProtheusTableGuards(tableAlias, meta, context, fieldColumns);
+  conditions.push(...guards.conditions);
+  params.push(...guards.params);
+}
+function parseFilterNode(node, tableAlias, fields, params, opoEntity, dialect) {
   let conditions = [];
   for (const [key, value] of Object.entries(node)) {
     if (key === "AND") {
-      const sub = value.map((v) => parseFilterNode(v, tableAlias, fields, params, opoEntity)).join(" AND ");
+      const sub = value.map((v) => parseFilterNode(v, tableAlias, fields, params, opoEntity, dialect)).join(" AND ");
       conditions.push(`(${sub})`);
     } else if (key === "OR") {
-      const sub = value.map((v) => parseFilterNode(v, tableAlias, fields, params, opoEntity)).join(" OR ");
+      const sub = value.map((v) => parseFilterNode(v, tableAlias, fields, params, opoEntity, dialect)).join(" OR ");
       conditions.push(`(${sub})`);
     } else if (key === "NOT") {
-      conditions.push(`NOT (${parseFilterNode(value, tableAlias, fields, params, opoEntity)})`);
+      conditions.push(
+        `NOT (${parseFilterNode(value, tableAlias, fields, params, opoEntity, dialect)})`
+      );
     } else {
       const fieldMeta = fields[key];
-      if (!fieldMeta) throw new Error(`Filter field '${key}' not mapped for entity '${opoEntity}'.`);
-      const physicalColumn = typeof fieldMeta === "string" ? fieldMeta : fieldMeta.column;
+      if (!fieldMeta) {
+        throw new Error(`Filter field '${key}' not mapped for entity '${opoEntity}'.`);
+      }
+      const physicalColumn = getFieldColumn(fieldMeta);
       const columnRef = `${tableAlias}.${physicalColumn}`;
+      const placeholder = "?";
       for (const [op, val] of Object.entries(value)) {
-        const placeholder = "?";
         switch (op) {
           case "eq":
             conditions.push(`${columnRef} = ${placeholder}`);
@@ -155,11 +259,12 @@ function parseFilterNode(node, tableAlias, fields, params, opoEntity) {
             conditions.push(`${columnRef} LIKE ${placeholder}`);
             params.push(val);
             break;
-          case "in":
+          case "in": {
             const placeholders = val.map(() => placeholder).join(", ");
             conditions.push(`${columnRef} IN (${placeholders})`);
             params.push(...val);
             break;
+          }
           default:
             throw new Error(`Unsupported operator '${op}'`);
         }
@@ -168,38 +273,74 @@ function parseFilterNode(node, tableAlias, fields, params, opoEntity) {
   }
   return conditions.join(" AND ");
 }
-function translateOpoToSql(opoQuery, dictionary) {
+function assertMutationAllowed(mapping) {
+  const policy = mapping.mutationPolicy;
+  if (policy?.readOnly) {
+    throw new Error(
+      `Mutation blocked: entity '${mapping.entity}' is read-only. Use REST/TLPP endpoints (mutationPolicy.strategy='rest').`
+    );
+  }
+  if (policy?.strategy === "rest") {
+    throw new Error(
+      `Mutation blocked: entity '${mapping.entity}' requires REST adapter (${policy.restEndpoint ?? "configure restEndpoint in manifest"}).`
+    );
+  }
+}
+function translateOpoToSql(opoQuery, dictionary, options = {}) {
   opoQuery = normalizeOpoQueryPayload(opoQuery);
   const pagination = resolvePagination(opoQuery);
   const mapping = dictionary[opoQuery.entity];
   if (!mapping) {
     throw new Error(`Entity '${opoQuery.entity}' not found in mapping dictionary.`);
   }
-  const tableName = mapping.tableName;
+  const context = {
+    erp: options.context?.erp ?? opoQuery.context?.erp,
+    filial: options.context?.filial ?? opoQuery.context?.filial,
+    companySuffix: options.context?.companySuffix ?? opoQuery.context?.companySuffix,
+    dialect: options.context?.dialect ?? opoQuery.context?.dialect
+  };
+  if (mapping.protheus && !context.erp) {
+    context.erp = "protheus";
+  }
+  const tableName = resolveTableName(mapping, context);
   const fields = mapping.fields;
   const joins = mapping.joins;
   const security = mapping.security;
+  const dialect = getDialect(mapping, context);
   let params = [];
   let selectClauses = [];
   let joinClauses = [];
+  const guardedTables = /* @__PURE__ */ new Set();
   if (opoQuery.select) {
     for (const [key, value] of Object.entries(opoQuery.select)) {
       if (typeof value === "boolean" && value) {
         const fieldMeta = fields[key];
-        if (!fieldMeta) throw new Error(`Field '${key}' not mapped for entity '${opoQuery.entity}'.`);
-        const physicalColumn = typeof fieldMeta === "string" ? fieldMeta : fieldMeta.column;
+        if (!fieldMeta) {
+          throw new Error(`Field '${key}' not mapped for entity '${opoQuery.entity}'.`);
+        }
+        const physicalColumn = getFieldColumn(fieldMeta);
         selectClauses.push(`${tableName}.${physicalColumn} AS "${key}"`);
       } else if (typeof value === "object" && value !== null) {
         if (!joins || !joins[key]) {
           throw new Error(`Join '${key}' not mapped for entity '${opoQuery.entity}'.`);
         }
         const relation = joins[key];
-        joinClauses.push(`LEFT JOIN ${relation.tableName} ON ${relation.on}`);
+        const joinTable = resolvePhysicalTableName(
+          relation.tableName,
+          context.companySuffix ?? mapping.protheus?.companySuffix
+        );
+        let onClause = relation.on;
+        if (relation.conditionSql?.trim()) {
+          onClause = `${onClause} AND (${relation.conditionSql})`;
+        }
+        joinClauses.push(`LEFT JOIN ${joinTable} ON ${onClause}`);
         const nestedSelect = value.select;
         if (nestedSelect) {
           for (const [nKey, nVal] of Object.entries(nestedSelect)) {
             if (nVal) {
-              selectClauses.push(`${relation.tableName}.${nKey.toUpperCase()} AS "${key}_${nKey}"`);
+              selectClauses.push(
+                `${joinTable}.${String(nKey).toUpperCase()} AS "${key}_${nKey}"`
+              );
             }
           }
         }
@@ -209,9 +350,11 @@ function translateOpoToSql(opoQuery, dictionary) {
   if (selectClauses.length === 0) {
     selectClauses.push(`${tableName}.*`);
   }
-  let filterConditions = [];
+  const filterConditions = [];
   if (opoQuery.filter && Object.keys(opoQuery.filter).length > 0) {
-    filterConditions.push(parseFilterNode(opoQuery.filter, tableName, fields, params, opoQuery.entity));
+    filterConditions.push(
+      parseFilterNode(opoQuery.filter, tableName, fields, params, opoQuery.entity, dialect)
+    );
   }
   if (security?.rowLevelPolicy && opoQuery.context) {
     const { field, contextKey } = security.rowLevelPolicy;
@@ -220,40 +363,115 @@ function translateOpoToSql(opoQuery, dictionary) {
       filterConditions.push(`${tableName}.${field} = ?`);
       params.push(contextValue);
     } else {
-      throw new Error(`Security Exception: Context missing required key '${contextKey}' for Row-Level Security.`);
+      throw new Error(
+        `Security Exception: Context missing required key '${contextKey}' for Row-Level Security.`
+      );
     }
   } else if (security?.rowLevelPolicy && !opoQuery.context) {
-    throw new Error(`Security Exception: RLS Policy exists but no context was provided in the query.`);
+    throw new Error(
+      `Security Exception: RLS Policy exists but no context was provided in the query.`
+    );
+  }
+  injectGuardsForTable(
+    tableName,
+    mapping.protheus,
+    context,
+    collectFieldColumns(fields),
+    filterConditions,
+    params
+  );
+  guardedTables.add(tableName);
+  if (joins) {
+    for (const relation of Object.values(joins)) {
+      const joinTable = resolvePhysicalTableName(
+        relation.tableName,
+        context.companySuffix ?? mapping.protheus?.companySuffix
+      );
+      if (guardedTables.has(joinTable)) continue;
+      injectGuardsForTable(
+        joinTable,
+        relation.protheus,
+        context,
+        [],
+        filterConditions,
+        params
+      );
+      guardedTables.add(joinTable);
+    }
   }
   let whereClause = "";
   if (filterConditions.length > 0) {
     whereClause = "WHERE " + filterConditions.join(" AND ");
   }
-  const limitClause = `LIMIT ${pagination.fetchLimit}`;
-  const offsetClause = pagination.offset > 0 ? `OFFSET ${pagination.offset}` : "";
-  const sql = `SELECT ${selectClauses.join(", ")}
+  const selectPrefix = formatSelectPrefix(dialect, pagination.fetchLimit, pagination.offset);
+  const paginationClause = formatPaginationClause(
+    dialect,
+    pagination.fetchLimit,
+    pagination.offset
+  );
+  let sql;
+  if (dialect === "mssql" && pagination.offset === 0) {
+    sql = `SELECT ${selectPrefix}${selectClauses.join(", ")}
+FROM ${tableName}
+${joinClauses.join("\n")}
+${whereClause}`.trim();
+  } else if (dialect === "mssql" && pagination.offset > 0) {
+    sql = `SELECT ${selectClauses.join(", ")}
 FROM ${tableName}
 ${joinClauses.join("\n")}
 ${whereClause}
-${limitClause}${offsetClause ? ` ${offsetClause}` : ""}`.trim();
+ORDER BY (SELECT NULL)
+${paginationClause}`.trim();
+  } else {
+    sql = `SELECT ${selectClauses.join(", ")}
+FROM ${tableName}
+${joinClauses.join("\n")}
+${whereClause}
+${paginationClause}`.trim();
+  }
   return { sql, params, pagination };
 }
-function translateOpoMutationToSql(opoMutation, dictionary) {
+function translateOpoMutationToSql(opoMutation, dictionary, options = {}) {
   const mapping = dictionary[opoMutation.entity];
   if (!mapping) {
     throw new Error(`Entity '${opoMutation.entity}' not found in mapping dictionary.`);
   }
-  const tableName = mapping.tableName;
+  assertMutationAllowed(mapping);
+  const context = {
+    erp: options.context?.erp ?? opoMutation.context?.erp,
+    filial: options.context?.filial ?? opoMutation.context?.filial,
+    companySuffix: options.context?.companySuffix ?? opoMutation.context?.companySuffix,
+    dialect: options.context?.dialect ?? opoMutation.context?.dialect
+  };
+  if (mapping.protheus && !context.erp) {
+    context.erp = "protheus";
+  }
+  const tableName = resolveTableName(mapping, context);
   const fields = mapping.fields;
+  const dialect = getDialect(mapping, context);
   let params = [];
   let sql = "";
   if (mapping.security?.rowLevelPolicy && !opoMutation.context) {
-    throw new Error(`Security Exception: RLS Policy exists but no context was provided in the mutation.`);
+    throw new Error(
+      `Security Exception: RLS Policy exists but no context was provided in the mutation.`
+    );
   }
+  const appendMutationGuards = (conditions) => {
+    injectGuardsForTable(
+      tableName,
+      mapping.protheus,
+      context,
+      collectFieldColumns(fields),
+      conditions,
+      params
+    );
+  };
   switch (opoMutation.action) {
     case "CALL": {
       if (!mapping.actions || !mapping.actions[opoMutation.procedure]) {
-        throw new Error(`RPC Action '${opoMutation.procedure}' is not defined for entity '${opoMutation.entity}'.`);
+        throw new Error(
+          `RPC Action '${opoMutation.procedure}' is not defined for entity '${opoMutation.entity}'.`
+        );
       }
       const actionDef = mapping.actions[opoMutation.procedure];
       const placeholders = [];
@@ -262,7 +480,9 @@ function translateOpoMutationToSql(opoMutation, dictionary) {
           placeholders.push("?");
           params.push(opoMutation.payload[paramName]);
         } else {
-          throw new Error(`RPC CALL missing required param '${paramName}' for procedure '${opoMutation.procedure}'`);
+          throw new Error(
+            `RPC CALL missing required param '${paramName}' for procedure '${opoMutation.procedure}'`
+          );
         }
       }
       sql = `CALL ${actionDef.procedure}(${placeholders.join(", ")})`;
@@ -276,11 +496,29 @@ function translateOpoMutationToSql(opoMutation, dictionary) {
       const placeholders = [];
       for (const [key, value] of Object.entries(opoMutation.payload)) {
         const fieldMeta = fields[key];
-        if (!fieldMeta) throw new Error(`Payload field '${key}' not mapped for entity '${opoMutation.entity}'.`);
-        const physicalColumn = typeof fieldMeta === "string" ? fieldMeta : fieldMeta.column;
+        if (!fieldMeta) {
+          throw new Error(
+            `Payload field '${key}' not mapped for entity '${opoMutation.entity}'.`
+          );
+        }
+        const physicalColumn = getFieldColumn(fieldMeta);
         columns.push(physicalColumn);
         placeholders.push("?");
         params.push(value);
+      }
+      if (context.erp === "protheus") {
+        if (!columns.includes(PROTHEUS_SOFT_DELETE_FIELD)) {
+          columns.push(PROTHEUS_SOFT_DELETE_FIELD);
+          placeholders.push("?");
+          params.push(PROTHEUS_ACTIVE_DELETE_MARKER);
+        }
+        const filialField = mapping.protheus?.filialField;
+        const filial = context.filial;
+        if (filialField && filial && !columns.includes(filialField)) {
+          columns.push(filialField);
+          placeholders.push("?");
+          params.push(filial);
+        }
       }
       sql = `INSERT INTO ${tableName} (${columns.join(", ")}) VALUES (${placeholders.join(", ")})`;
       break;
@@ -295,21 +533,50 @@ function translateOpoMutationToSql(opoMutation, dictionary) {
       const setClauses = [];
       for (const [key, value] of Object.entries(opoMutation.payload)) {
         const fieldMeta = fields[key];
-        if (!fieldMeta) throw new Error(`Payload field '${key}' not mapped for entity '${opoMutation.entity}'.`);
-        const physicalColumn = typeof fieldMeta === "string" ? fieldMeta : fieldMeta.column;
+        if (!fieldMeta) {
+          throw new Error(
+            `Payload field '${key}' not mapped for entity '${opoMutation.entity}'.`
+          );
+        }
+        const physicalColumn = getFieldColumn(fieldMeta);
         setClauses.push(`${physicalColumn} = ?`);
         params.push(value);
       }
-      const whereClause = parseFilterNode(opoMutation.filter, tableName, fields, params, opoMutation.entity);
-      sql = `UPDATE ${tableName} SET ${setClauses.join(", ")} WHERE ${whereClause}`;
+      const whereParts = [
+        parseFilterNode(
+          opoMutation.filter,
+          tableName,
+          fields,
+          params,
+          opoMutation.entity,
+          dialect
+        )
+      ];
+      appendMutationGuards(whereParts);
+      sql = `UPDATE ${tableName} SET ${setClauses.join(", ")} WHERE ${whereParts.join(" AND ")}`;
       break;
     }
     case "DELETE": {
       if (!opoMutation.filter || Object.keys(opoMutation.filter).length === 0) {
         throw new Error("DELETE mutation requires a filter to prevent mass deletes");
       }
-      const whereClause = parseFilterNode(opoMutation.filter, tableName, fields, params, opoMutation.entity);
-      sql = `DELETE FROM ${tableName} WHERE ${whereClause}`;
+      const whereParts = [
+        parseFilterNode(
+          opoMutation.filter,
+          tableName,
+          fields,
+          params,
+          opoMutation.entity,
+          dialect
+        )
+      ];
+      appendMutationGuards(whereParts);
+      if (context.erp === "protheus") {
+        sql = `UPDATE ${tableName} SET ${PROTHEUS_SOFT_DELETE_FIELD} = ? WHERE ${whereParts.join(" AND ")}`;
+        params.push("*");
+      } else {
+        sql = `DELETE FROM ${tableName} WHERE ${whereParts.join(" AND ")}`;
+      }
       break;
     }
     default:
@@ -808,11 +1075,21 @@ export {
   OpoGraphQLAdapter,
   OpoMcpServer,
   OpoOntologyBuilder,
+  PROTHEUS_ACTIVE_DELETE_MARKER,
+  PROTHEUS_SOFT_DELETE_FIELD,
   buildPaginatedResponse,
+  buildProtheusFilialCondition,
+  buildProtheusSoftDeleteCondition,
+  buildProtheusTableGuards,
   decodeCursor,
+  deriveFilialFieldFromColumns,
   encodeCursor,
+  formatPaginationClause,
+  formatSelectPrefix,
+  isProtheusTableExclusive,
   normalizeOpoQueryPayload,
   resolvePagination,
+  resolvePhysicalTableName,
   sanitizeToolResultForLLM,
   translateOpoMutationToSql,
   translateOpoToSql,

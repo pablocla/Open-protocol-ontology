@@ -39,8 +39,8 @@ export const DigitalEmployeeSchema = z.object({
   // === Public Contract (for headless consumers) ===
   inputsSchema: z.any().describe("Zod schema or JSON Schema for inputs"),
   outputsSchema: z.any().describe("Zod schema or JSON Schema for outputs"),
-  exampleInput: z.record(z.any()),
-  exampleOutput: z.record(z.any()),
+  exampleInput: z.record(z.string(), z.any()),
+  exampleOutput: z.record(z.string(), z.any()),
 
   // === Core OPO Definition (what powers the swarm) ===
   ontology: z.custom<OntologyGraph>(),
@@ -49,7 +49,7 @@ export const DigitalEmployeeSchema = z.object({
 
   // === Internal / Protected (never exposed to buyers) ===
   sourceCanvasSnapshot: z.any().optional().describe("The original Studio canvas for debugging / updates"),
-  internalPrompts: z.record(z.string()).optional(), // full master prompts if needed
+  internalPrompts: z.record(z.string(), z.string()).optional(), // full master prompts if needed
 
   // === Marketplace / SaaS Metadata ===
   isPublic: z.boolean().default(true),
@@ -58,6 +58,11 @@ export const DigitalEmployeeSchema = z.object({
 });
 
 export type DigitalEmployee = z.infer<typeof DigitalEmployeeSchema>;
+
+export const HeadlessRunRequestSchema = z.object({
+  digitalEmployeeId: z.string(),
+  input: z.any()
+});
 
 // Runtime validator
 export const validateDigitalEmployee = (data: unknown): DigitalEmployee => {

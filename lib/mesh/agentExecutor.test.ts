@@ -25,8 +25,12 @@ vi.mock('@google/genai', () => {
       models = {
         async generateContent(opts: any) {
           // Return different responses based on systemInstruction to simulate agents
-          const sys = opts.config?.systemInstruction || '';
-          if (sys.includes('data-querier')) {
+          const sys = (opts.config?.systemInstruction || '').toLowerCase();
+          if (sys.includes('querier') || sys.includes('data-querier')) {
+            const contentsStr = JSON.stringify(opts.contents || '');
+            if (contentsStr.includes('trigger tool call')) {
+              return { text: 'TOOL: execute_query {"queryId": "recent-sales-orders"}', candidates: [{ content: { parts: [] } }] };
+            }
             return { text: 'Queried sales data for last month.', candidates: [{ content: { parts: [] } }] };
           }
           if (sys.includes('reviewer')) {
@@ -56,14 +60,22 @@ vi.mock('../engine/guardrails/middleware', () => ({
   }
 }));
 
+vi.mock('../engine/hil/hil-manager', () => ({
+  HILManager: {
+    async requestApproval(agentId: string) {
+      return { approved: true, requestId: 'mock-hil-id-123' };
+    }
+  }
+}));
+
 import { agentExecutor } from './agentExecutor';
 import { MeshSession } from './meshTypes';
 
 // Minimal valid session for tests
-const makeSession = (pipeline: string[] = ['data-querier', 'reviewer']): MeshSession => ({
-  id: 'test-session-1',
+const makeSession = (pipeline: string[] = ['data-querier', 'reviewer'], suffix = Math.random().toString(36).substring(7)): MeshSession => ({
+  id: `test-session-${suffix}`,
   intent: {
-    id: 'intent-1',
+    id: `intent-${suffix}`,
     rawQuery: 'test query about sales',
     detectedEntities: ['Sales'],
     detectedCapabilities: ['query'],
@@ -131,7 +143,11 @@ describe('AgentExecutor (with mocks)', () => {
         if (count > 14) break;
       }
 
-      const hasHil = events.some(e => e.content && (e.content.includes('Human-in-the-Loop') || e.content.includes('HIL pending') || e.content.includes('approved')));
+      const hasHil = events.some(e => e.content && (
+        e.content.includes('confirmación') ||
+        e.content.includes('HIL pendiente') ||
+        e.content.includes('confirmada')
+      ));
       expect(hasHil).toBe(true);
     } finally {
       // restore
@@ -146,6 +162,45 @@ describe('AgentExecutor (with mocks)', () => {
     for await (const msg of generator) {
       const serialized = JSON.stringify(msg);
       expect(serialized).not.toContain('sk-secret-should-not-leak');
+    }
+  });
+
+  it('should intercept execute_query for data-querier and format output with serializeOpoResponse and buildConsultaSummary', async () => {
+    const { opoRuntime } = await import('./opoRuntime');
+    const originalExecute = opoRuntime.executeTool;
+    opoRuntime.executeTool = async () => ({
+      status: 'success',
+      data: {
+        data: [{ ID: '000001', EMISION: '2026-06-01', CLIENTE: '000219', TOTAL: 150000 }],
+        pagination: {
+          hasNextPage: false,
+          endCursor: null,
+          limit: 50,
+          offset: 0,
+          returnedCount: 1
+        }
+      }
+    });
+
+    try {
+      const session = makeSession(['data-querier']);
+      session.intent.rawQuery = 'trigger tool call and fetch sales data';
+      const generator = agentExecutor.executePipeline(session, { gemini: 'mock-key' });
+
+      const events: any[] = [];
+      for await (const msg of generator) {
+        events.push(msg);
+      }
+      console.log('yielded events:', JSON.stringify(events, null, 2));
+
+      // Check that data-querier's message content has both the summary and the serialized JSON response
+      const dataQuerierMsg = events.find(e => e.agentId === 'data-querier' && e.role === 'assistant');
+      expect(dataQuerierMsg).toBeDefined();
+      expect(dataQuerierMsg.content).toContain('📋 Últimos pedidos de venta:');
+      expect(dataQuerierMsg.content).toContain('000001');
+      expect(dataQuerierMsg.content).toContain('hasNextPage');
+    } finally {
+      opoRuntime.executeTool = originalExecute;
     }
   });
 });

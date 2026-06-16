@@ -11,7 +11,7 @@ export interface ParsedOpoResponse {
   sourceQuery?: Record<string, unknown>;
 }
 
-function tryParseJsonObject(text: string): Record<string, unknown> | null {
+function tryParseJsonObject(text: string): ParsedOpoResponse | null {
   let clean = text.trim();
   if (clean.startsWith('```')) {
     const lines = clean.split('\n');

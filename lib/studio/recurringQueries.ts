@@ -349,7 +349,8 @@ export function buildProtheusQueryDictionary(): Record<
     joins?: Record<string, { tableName: string; on: string }>;
   }
 > {
-  const tableByEntity: Record<string, string> = {
+  const companySuffix = '010';
+  const logicalTableByEntity: Record<string, string> = {
     Customer: 'SA1',
     Supplier: 'SA2',
     Product: 'SB1',
@@ -358,18 +359,67 @@ export function buildProtheusQueryDictionary(): Record<
     SalesInvoiceHeader: 'SF2',
     PurchaseInvoiceHeader: 'SF1',
   };
+  const tableByEntity: Record<string, string> = Object.fromEntries(
+    Object.entries(logicalTableByEntity).map(([entity, logical]) => [
+      entity,
+      `${logical}${companySuffix}`,
+    ])
+  );
 
-  const joins: Record<string, Record<string, { tableName: string; on: string }>> = {
+  const protheusMeta = (logicalTable: string, filialField: string) => ({
+    x2Modo: 'E',
+    filialField,
+    companySuffix,
+    physicalTableName: `${logicalTable}${companySuffix}`,
+  });
+
+  const joins: Record<
+    string,
+    Record<
+      string,
+      {
+        tableName: string;
+        on: string;
+        protheus?: ReturnType<typeof protheusMeta>;
+      }
+    >
+  > = {
     SalesOrderHeader: {
-      Customer: { tableName: 'SA1', on: 'SC5.C5_CLIENTE = SA1.A1_COD' },
+      Customer: {
+        tableName: `SA1${companySuffix}`,
+        on: `SC5${companySuffix}.C5_CLIENTE = SA1${companySuffix}.A1_COD AND SC5${companySuffix}.C5_LOJACLI = SA1${companySuffix}.A1_LOJA`,
+        protheus: protheusMeta('SA1', 'A1_FILIAL'),
+      },
     },
     SalesOrderItem: {
-      SalesOrderHeader: { tableName: 'SC5', on: 'SC6.C6_NUM = SC5.C5_NUM' },
-      Product: { tableName: 'SB1', on: 'SC6.C6_PRODUTO = SB1.B1_COD' },
+      SalesOrderHeader: {
+        tableName: `SC5${companySuffix}`,
+        on: `SC6${companySuffix}.C6_NUM = SC5${companySuffix}.C5_NUM`,
+        protheus: protheusMeta('SC5', 'C5_FILIAL'),
+      },
+      Product: {
+        tableName: `SB1${companySuffix}`,
+        on: `SC6${companySuffix}.C6_PRODUTO = SB1${companySuffix}.B1_COD`,
+        protheus: protheusMeta('SB1', 'B1_FILIAL'),
+      },
     },
     SalesInvoiceHeader: {
-      Customer: { tableName: 'SA1', on: 'SF2.F2_CLIENTE = SA1.A1_COD' },
+      Customer: {
+        tableName: `SA1${companySuffix}`,
+        on: `SF2${companySuffix}.F2_CLIENTE = SA1${companySuffix}.A1_COD AND SF2${companySuffix}.F2_LOJA = SA1${companySuffix}.A1_LOJA`,
+        protheus: protheusMeta('SA1', 'A1_FILIAL'),
+      },
     },
+  };
+
+  const filialByLogical: Record<string, string> = {
+    SA1: 'A1_FILIAL',
+    SA2: 'A2_FILIAL',
+    SB1: 'B1_FILIAL',
+    SC5: 'C5_FILIAL',
+    SC6: 'C6_FILIAL',
+    SF1: 'F1_FILIAL',
+    SF2: 'F2_FILIAL',
   };
 
   const dict: Record<
@@ -379,7 +429,9 @@ export function buildProtheusQueryDictionary(): Record<
       sourceType: string;
       tableName: string;
       fields: Record<string, { column: string; type: string }>;
-      joins?: Record<string, { tableName: string; on: string }>;
+      protheus?: ReturnType<typeof protheusMeta>;
+      mutationPolicy?: { readOnly: boolean; strategy: string };
+      joins?: Record<string, { tableName: string; on: string; protheus?: ReturnType<typeof protheusMeta> }>;
     }
   > = {};
 
@@ -396,11 +448,14 @@ export function buildProtheusQueryDictionary(): Record<
         physical.includes('PRC');
       fields[semantic] = { column: physical, type: isNumber ? 'number' : 'string' };
     }
+    const logicalTable = logicalTableByEntity[entity] ?? entity;
     dict[entity] = {
       entity,
       sourceType: 'SQL',
       tableName: tableByEntity[entity] || entity,
       fields,
+      protheus: protheusMeta(logicalTable, filialByLogical[logicalTable] ?? 'A1_FILIAL'),
+      mutationPolicy: { readOnly: true, strategy: 'rest' },
       ...(joins[entity] ? { joins: joins[entity] } : {}),
     };
   }

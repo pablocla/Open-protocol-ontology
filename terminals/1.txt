@@ -1,0 +1,23 @@
+---
+pid: 30672
+cwd: "C:\Users\Pablo Clavero\Desktop\opo\Open-protocol-ontology"
+command: "cd \"C:\\Users\\Pablo Clavero\\Desktop\\opo\\Open-protocol-ontology\"; npm run dev"
+started_at: 2026-06-16T20:31:53.581Z
+running_for_ms: 839997   
+---
+
+> ai-studio-applet@0.1.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use by process 4336, using available port 3001 instead.
+   ▲ Next.js 15.5.19
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.100.2:3001
+   - Environments: .env
+
+ ✓ Starting...
+ ○ Compiling /instrumentation ...
+ ✓ Compiled /instrumentation in 2.5s (1325 modules)
+[Blackboard] Using RedisBlackboardAdapter
+[Swarm Worker] Starting worker for queue: opo-swarm-execution
+ ✓ Ready in 4.5s

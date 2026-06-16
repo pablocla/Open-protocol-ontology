@@ -1,4 +1,5 @@
 import { AgentDefinition } from './meshTypes';
+import { OPO_STUDIO_QUERY_TOOL_ID } from './defaultOpoTool';
 
 export const DEFAULT_AGENTS: AgentDefinition[] = [
   {
@@ -16,8 +17,9 @@ export const DEFAULT_AGENTS: AgentDefinition[] = [
     description: 'Executes queries against entities using MCP tools or direct SQL.',
     capabilities: ['sql', 'crud', 'search'],
     domains: ['database'],
-    tools: [],
-    systemPrompt: 'You are a Data Querier. You fetch data from the underlying systems using the tools provided to you. You map natural language requests to specific tool executions.'
+    tools: [{ toolId: OPO_STUDIO_QUERY_TOOL_ID, permissions: ['read'] }],
+    systemPrompt:
+      'You are a Data Querier. You fetch data from the underlying ERP using execute_query (OPO-QL). Return structured JSON with data[] and pagination when querying business data.'
   },
   {
     id: 'data-analyst',

@@ -1,14 +1,33 @@
 import { ToolDefinition } from './meshTypes';
 import { callMCPTool } from './mcpClient';
+import { runOpoQuery, runOpoQueryById, type ErpExecutionContext } from '@/lib/studio/runOpoQuery';
+import { OPO_STUDIO_QUERY_TOOL_ID } from './defaultOpoTool';
+
+export interface OpoRuntimeContext {
+  erpExecution?: ErpExecutionContext;
+  ontology?: { entities?: Array<{ name?: string; originalTable?: string }>; name?: string };
+  projectName?: string | null;
+}
 
 export class OPORuntime {
-  
-  /**
-   * Executes a semantic tool call abstracting away the transport layer.
-   */
-  async executeTool(toolDef: ToolDefinition, operationName: string, args: Record<string, unknown>): Promise<any> {
-    
+  private context: OpoRuntimeContext = {};
+
+  setContext(ctx: OpoRuntimeContext): void {
+    this.context = ctx;
+  }
+
+  clearContext(): void {
+    this.context = {};
+  }
+
+  async executeTool(
+    toolDef: ToolDefinition,
+    operationName: string,
+    args: Record<string, unknown>
+  ): Promise<unknown> {
     switch (toolDef.type) {
+      case 'opo_internal':
+        return this.executeOpoInternal(toolDef, operationName, args);
       case 'mcp':
         return this.executeMCPTool(toolDef, operationName, args);
       case 'n8n_webhook':
@@ -22,7 +41,49 @@ export class OPORuntime {
     }
   }
 
-  private async executeMCPTool(toolDef: ToolDefinition, operationName: string, args: Record<string, unknown>): Promise<any> {
+  private async executeOpoInternal(
+    toolDef: ToolDefinition,
+    operationName: string,
+    args: Record<string, unknown>
+  ): Promise<unknown> {
+    if (toolDef.id !== OPO_STUDIO_QUERY_TOOL_ID || operationName !== 'execute_query') {
+      throw new Error(`Unknown OPO internal operation: ${operationName}`);
+    }
+
+    const erpExecution = this.context.erpExecution ?? { mode: 'mock' as const };
+    const ontology = this.context.ontology;
+    const projectName = this.context.projectName ?? this.context.ontology?.name ?? null;
+
+    if (typeof args.queryId === 'string') {
+      const result = await runOpoQueryById(
+        args.queryId,
+        (args.params as Record<string, string>) || {},
+        ontology,
+        projectName,
+        erpExecution
+      );
+      return { status: 'success', provider: 'opo_internal', data: result };
+    }
+
+    const query = args.query as Record<string, unknown> | undefined;
+    if (!query?.entity) {
+      throw new Error('execute_query requires { query: { entity, ... } } or { queryId, params }');
+    }
+
+    const result = await runOpoQuery({
+      opoQuery: query,
+      ontology,
+      projectName,
+      erpExecution,
+    });
+    return { status: 'success', provider: 'opo_internal', data: result };
+  }
+
+  private async executeMCPTool(
+    toolDef: ToolDefinition,
+    operationName: string,
+    args: Record<string, unknown>
+  ): Promise<unknown> {
     console.log(`[OPORuntime] Executing MCP Tool ${operationName} on ${toolDef.endpoint}`);
     try {
       const result = await callMCPTool(toolDef.endpoint, operationName, args);
@@ -30,60 +91,70 @@ export class OPORuntime {
         status: 'success',
         provider: 'mcp',
         operation: operationName,
-        data: result
+        data: result,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'MCP tool failed';
       return {
         status: 'error',
         provider: 'mcp',
-        message: error.message
+        message,
       };
     }
   }
 
-  private async executeN8nWebhook(toolDef: ToolDefinition, args: Record<string, unknown>): Promise<any> {
+  private async executeN8nWebhook(
+    toolDef: ToolDefinition,
+    args: Record<string, unknown>
+  ): Promise<unknown> {
     console.log(`[OPORuntime] Triggering n8n webhook on ${toolDef.endpoint}`);
     try {
       const response = await fetch(toolDef.endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(args)
+        body: JSON.stringify(args),
       });
       const data = await response.json().catch(() => ({}));
       return { status: 'success', provider: 'n8n_webhook', data };
-    } catch (error: any) {
-      return { status: 'error', provider: 'n8n_webhook', message: error.message };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'n8n webhook failed';
+      return { status: 'error', provider: 'n8n_webhook', message };
     }
   }
 
-  private async executeRestApi(toolDef: ToolDefinition, args: Record<string, unknown>): Promise<any> {
-    try {
-      // Very basic REST mapping. Real implementation would map method and path params.
-      const response = await fetch(toolDef.endpoint, {
-        method: 'POST', // Defaulting to POST for execution
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(args)
-      });
-      const data = await response.json().catch(() => ({}));
-      return { status: 'success', provider: 'rest_api', data };
-    } catch (error: any) {
-      return { status: 'error', provider: 'rest_api', message: error.message };
-    }
-  }
-
-  private async executeDirectSQL(toolDef: ToolDefinition, args: Record<string, unknown>): Promise<any> {
-    // Requires a secure backend proxy to actually execute SQL.
-    // For now, if the endpoint is provided, we send the query there.
+  private async executeRestApi(
+    toolDef: ToolDefinition,
+    args: Record<string, unknown>
+  ): Promise<unknown> {
     try {
       const response = await fetch(toolDef.endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: args.query || args })
+        body: JSON.stringify(args),
+      });
+      const data = await response.json().catch(() => ({}));
+      return { status: 'success', provider: 'rest_api', data };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'REST API failed';
+      return { status: 'error', provider: 'rest_api', message };
+    }
+  }
+
+  private async executeDirectSQL(
+    toolDef: ToolDefinition,
+    args: Record<string, unknown>
+  ): Promise<unknown> {
+    try {
+      const response = await fetch(toolDef.endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: args.query || args, erpExecution: this.context.erpExecution }),
       });
       const data = await response.json().catch(() => ({}));
       return { status: 'success', provider: 'sql_direct', data };
-    } catch (error: any) {
-      return { status: 'error', provider: 'sql_direct', message: error.message };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'SQL direct failed';
+      return { status: 'error', provider: 'sql_direct', message };
     }
   }
 }

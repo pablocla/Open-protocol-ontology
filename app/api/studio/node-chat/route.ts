@@ -37,10 +37,11 @@ export async function POST(request: Request) {
 
     if (!isLocal) {
       const { callLLM } = await import('@/lib/mesh/llm');
-      // Resolve the effective key: prefer per-provider from the sent apiKeys (plain from zustand) or from llmConfigs[provider].apiKey
+      const { resolveApiKey } = await import('@/lib/mesh/vaultResolver');
+      // Resolve the effective key: prefer server-side vault keys, then local fallback
       const effectiveProvider = llmProvider || currentProvider || 'gemini';
       const cfg = llmConfigs[effectiveProvider] || {};
-      const providerKey = apiKeys?.[effectiveProvider] || cfg.apiKey || apiKeys?.[currentProvider] || '';
+      const providerKey = resolveApiKey(effectiveProvider) || cfg.apiKey || resolveApiKey(currentProvider || 'gemini') || '';
       const fullPrompt = chatMessages.map(m => `${m.role}: ${m.content}`).join('\n\n');
       const responseText = await callLLM(fullPrompt, {
         provider: effectiveProvider as any,

@@ -9,6 +9,9 @@ import { mcpStartCommand } from './commands/mcp';
 import { inspectCommand } from './commands/inspect';
 import { studioCommand } from './commands/studio';
 import { discoverCommand } from './commands/discover';
+import { onboardCommand } from './commands/onboard';
+import { healthCommand } from './commands/health';
+import { queryCommand } from './commands/query';
 
 const program = new Command();
 
@@ -26,5 +29,8 @@ program.addCommand(mcpStartCommand);
 program.addCommand(inspectCommand);
 program.addCommand(studioCommand);
 program.addCommand(discoverCommand);
+program.addCommand(onboardCommand);
+program.addCommand(healthCommand);
+program.addCommand(queryCommand);
 
 program.parse(process.argv);

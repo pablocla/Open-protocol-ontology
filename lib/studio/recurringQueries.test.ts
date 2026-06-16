@@ -1,8 +1,10 @@
 import { describe, it, expect } from 'vitest';
+import { translateOpoToSql } from 'opo-sdk';
 import {
   applyQueryParams,
   buildMeshPromptFromQuery,
   buildOpoQueryFromTemplate,
+  buildProtheusQueryDictionary,
   formatRecurringQueriesForLLM,
   getRecurringQueriesForContext,
   isProtheusOntology,
@@ -50,5 +52,22 @@ describe('recurringQueries', () => {
     expect(text).toContain('Consultas recurrentes');
     expect(text).toContain('Pedidos por cliente');
     expect(text).toContain('SalesOrderHeader');
+  });
+
+  it('buildProtheusQueryDictionary injects D_E_L_E_T_ and filial in SQL', () => {
+    const dict = buildProtheusQueryDictionary();
+    const { sql, params } = translateOpoToSql(
+      {
+        entity: 'Customer',
+        context: { erp: 'protheus', filial: '01' },
+        filter: { legalName: { like: '%ACME%' } },
+      },
+      dict
+    );
+    expect(sql).toContain('SA1010.D_E_L_E_T_ = ?');
+    expect(sql).toContain('SA1010.A1_FILIAL = ?');
+    expect(params).toContain(' ');
+    expect(params).toContain('01');
+    expect(params).toContain('%ACME%');
   });
 });

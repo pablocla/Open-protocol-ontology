@@ -13,6 +13,13 @@ import {
   serializeOpoResponse,
   ParsedOpoResponse,
 } from '@/lib/studio/opoResponseParser';
+import {
+  matchRecurringQueryFromText,
+  shouldUseDirectQuery,
+} from '@/lib/studio/matchRecurringQuery';
+import { buildConsultaSummary } from '@/lib/studio/consultasSummary';
+import { useStudioHealth } from '@/lib/studio/useStudioHealth';
+import StatusSemaphore from '@/components/studio/StatusSemaphore';
 
 // GROK OPTIMIZATION: Import existing debugger components so Time-Travel is actually usable from a run
 import { TimelinePlayer } from '@/components/debugger/TimelinePlayer';
@@ -90,7 +97,8 @@ function DataTableView({
         <div className="flex items-center gap-2">
           {pagination && (
             <span className="text-[10px] text-neutral-500 font-mono">
-              {pagination.returnedCount} filas · offset {pagination.offset}
+              Mostrando {pagination.returnedCount}
+              {pagination.hasNextPage ? ` (página de ${pagination.limit})` : ''}
             </span>
           )}
           <button
@@ -139,7 +147,7 @@ function DataTableView({
       {pagination?.hasNextPage && onLoadMore && (
         <div className="flex items-center justify-between px-2 py-1.5 rounded border border-amber-500/30 bg-amber-500/10">
           <span className="text-[10px] text-amber-200">
-            Hay más resultados ({pagination.limit} por página). Cursor disponible.
+            Hay más resultados — {pagination.limit} filas por página.
           </span>
           <button
             type="button"
@@ -148,7 +156,7 @@ function DataTableView({
             className="flex items-center gap-1 px-2.5 py-1 text-[10px] font-semibold rounded bg-amber-600 hover:bg-amber-500 text-white disabled:opacity-50"
           >
             {loadingMore ? <Loader2 className="w-3 h-3 animate-spin" /> : <ChevronRight className="w-3 h-3" />}
-            Cargar más
+            Cargar {pagination.limit} más
           </button>
         </div>
       )}
@@ -158,12 +166,14 @@ function DataTableView({
 
 function MessageContentRenderer({
   content,
+  summary,
   messageId,
   sourceQuery,
   onLoadMore,
   loadingMore,
 }: {
   content: string;
+  summary?: string;
   messageId?: string;
   sourceQuery?: Record<string, unknown>;
   onLoadMore?: (messageId: string, cursor: string, sourceQuery?: Record<string, unknown>) => void;
@@ -175,6 +185,9 @@ function MessageContentRenderer({
   if (jsonArray && jsonArray.length > 0) {
     return (
       <div>
+        {summary && (
+          <p className="text-sm text-neutral-200 mb-2 whitespace-pre-wrap leading-relaxed">{summary}</p>
+        )}
         <DataTableView
           rows={jsonArray}
           pagination={opoResponse?.pagination}
@@ -210,14 +223,40 @@ interface MeshMessage {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
+  summary?: string;
   agentId?: string;
   hilRequestId?: string;
   sourceQuery?: Record<string, unknown>;
   recurringQueryId?: string;
 }
 
-export default function MeshPanel({ isOpen, onClose, initialQuery }: { isOpen: boolean; onClose: () => void; initialQuery?: string }) {
-  const { nodes, edges, project, apiKeys, setActiveNodeId } = useStudioStore();
+export default function MeshPanel({
+  isOpen,
+  onClose,
+  initialQuery,
+  variant = 'dock',
+  onOpenSettings,
+}: {
+  isOpen: boolean;
+  onClose?: () => void;
+  initialQuery?: string;
+  variant?: 'dock' | 'fullscreen';
+  onOpenSettings?: () => void;
+}) {
+  const {
+    nodes,
+    edges,
+    project,
+    apiKeys,
+    setActiveNodeId,
+    erpWorkspace,
+    buildQueryExecutionPayload,
+    currentProvider,
+    llmConfigs,
+  } = useStudioStore();
+  const queryMode = erpWorkspace.dataMode === 'live' && erpWorkspace.connectionString.trim() ? 'live' : 'demo';
+  const { health, refresh: refreshHealth } = useStudioHealth();
+  const queryBlocked = health !== null && !health.canQuery;
   const [query, setQuery] = useState('');
   const [messages, setMessages] = useState<MeshMessage[]>([]);
   const [isExecuting, setIsExecuting] = useState(false);
@@ -258,6 +297,7 @@ export default function MeshPanel({ isOpen, onClose, initialQuery }: { isOpen: b
     setLoadingMoreFor(messageId);
 
     try {
+      const execPayload = buildQueryExecutionPayload();
       const res = await fetch('/api/studio/execute-query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -266,7 +306,7 @@ export default function MeshPanel({ isOpen, onClose, initialQuery }: { isOpen: b
           pagination: { cursor },
           ontology: getOntology(),
           projectName: project?.name,
-          mode: 'mock',
+          ...execPayload,
         }),
       });
 
@@ -296,18 +336,25 @@ export default function MeshPanel({ isOpen, onClose, initialQuery }: { isOpen: b
     }
   };
 
-  const handleDirectReport = async (recurring: RecurringQuery, paramValues: Record<string, string>) => {
+  const handleDirectReport = async (
+    recurring: RecurringQuery,
+    paramValues: Record<string, string>,
+    options?: { skipUserMessage?: boolean }
+  ) => {
     const opoQuery = buildOpoQueryFromTemplate(recurring, paramValues);
     setIsExecuting(true);
 
-    const userMsg: MeshMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: `[Consulta recurrente] ${recurring.humanLabel}`,
-    };
-    setMessages((prev) => [...prev, userMsg]);
+    if (!options?.skipUserMessage) {
+      const userMsg: MeshMessage = {
+        id: Date.now().toString(),
+        role: 'user',
+        content: `[Consulta recurrente] ${recurring.humanLabel}`,
+      };
+      setMessages((prev) => [...prev, userMsg]);
+    }
 
     try {
+      const execPayload = buildQueryExecutionPayload();
       const res = await fetch('/api/studio/execute-query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -316,7 +363,7 @@ export default function MeshPanel({ isOpen, onClose, initialQuery }: { isOpen: b
           params: paramValues,
           ontology: getOntology(),
           projectName: project?.name,
-          mode: 'mock',
+          ...execPayload,
         }),
       });
       const payload = await res.json();
@@ -326,6 +373,7 @@ export default function MeshPanel({ isOpen, onClose, initialQuery }: { isOpen: b
         id: `report-${Date.now()}`,
         role: 'assistant',
         agentId: 'opo-report',
+        summary: buildConsultaSummary(recurring, payload.data || [], payload.pagination),
         content: serializeOpoResponse({
           data: payload.data || [],
           pagination: payload.pagination,
@@ -348,11 +396,28 @@ export default function MeshPanel({ isOpen, onClose, initialQuery }: { isOpen: b
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim() || isExecuting) return;
+    if (!query.trim() || isExecuting || queryBlocked) return;
 
-    const userMsg = { id: Date.now().toString(), role: 'user', content: query };
+    const userText = query.trim();
+    const userMsg = { id: Date.now().toString(), role: 'user' as const, content: userText };
     setMessages(prev => [...prev, userMsg]);
     setQuery('');
+
+    const ontology = getOntology();
+    const directMatch = matchRecurringQueryFromText(userText, ontology, project?.name);
+    if (shouldUseDirectQuery(directMatch)) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `sys-fast-${Date.now()}`,
+          role: 'system',
+          content: `⚡ Consulta reconocida: «${directMatch.query.humanLabel}» — respuesta rápida sin Swarm.`,
+        },
+      ]);
+      await handleDirectReport(directMatch.query, directMatch.paramValues, { skipUserMessage: true });
+      return;
+    }
+
     setIsExecuting(true);
     setPipelineSteps([]);
     setCurrentSessionId(null);
@@ -361,85 +426,130 @@ export default function MeshPanel({ isOpen, onClose, initialQuery }: { isOpen: b
     setSelectedSnapshot(null);
 
     try {
-      const ontology = getOntology();
-      
-      const response = await fetch('/api/mesh/query', {
+      const erpExecution = buildQueryExecutionPayload();
+
+      // Sanitize llmConfigs: remove API keys before sending over the wire
+      const sanitizedLlmConfigs = Object.keys(llmConfigs).reduce((acc: any, key) => {
+        const { apiKey, ...rest } = llmConfigs[key];
+        acc[key] = rest;
+        return acc;
+      }, {});
+
+      const startRes = await fetch('/api/mesh/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: userMsg.content, ontology, apiKeys })
+        body: JSON.stringify({
+          query: userMsg.content,
+          ontology,
+          llmConfig: { currentProvider, llmConfigs: sanitizedLlmConfigs },
+          erpExecution,
+        }),
       });
 
-      if (!response.body) throw new Error("No response body");
-      const reader = response.body.getReader();
+      const startPayload = await startRes.json();
+      if (!startRes.ok) throw new Error(startPayload.error || 'Mesh query failed');
+
+      const sessionId = startPayload.sessionId as string;
+      setCurrentSessionId(sessionId);
+
+      if (startPayload.intent?.agentPipeline) {
+        setPipelineSteps(
+          startPayload.intent.agentPipeline.map((id: string) => ({
+            agentId: id,
+            status: 'pending' as AgentStatus,
+          }))
+        );
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `sys-${Date.now()}`,
+            role: 'system',
+            content: `Pipeline: ${startPayload.intent.agentPipeline.join(' → ')}`,
+          },
+        ]);
+      }
+
+      const streamRes = await fetch(`/api/mesh/stream/${sessionId}`);
+      if (!streamRes.body) throw new Error('No stream body');
+
+      const reader = streamRes.body.getReader();
       const decoder = new TextDecoder();
+      let buffer = '';
+
+      const handleStreamEvent = (data: Record<string, unknown>) => {
+        if (data.type === 'session') {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `sys-${Date.now()}`,
+              role: 'system',
+              content: `Session started: ${data.sessionId}`,
+            },
+          ]);
+        } else if (data.type === 'intent' && data.intent) {
+          const intent = data.intent as { agentPipeline: string[] };
+          setPipelineSteps(
+            intent.agentPipeline.map((id) => ({
+              agentId: id,
+              status: 'pending' as AgentStatus,
+            }))
+          );
+        } else if (data.type === 'message' && data.message) {
+          const msg = data.message as MeshMessage & { hilRequestId?: string };
+          setMessages((prev) => [...prev, msg]);
+
+          if (msg.hilRequestId) {
+            setPendingHil({ requestId: msg.hilRequestId, agentId: msg.agentId || 'unknown' });
+          }
+          if (msg.content?.includes('HIL pending') && msg.hilRequestId) {
+            setPendingHil({ requestId: msg.hilRequestId, agentId: msg.agentId || 'unknown' });
+          }
+
+          if (msg.agentId && msg.role === 'system' && msg.content.includes('Handing over')) {
+            setActiveNodeId(msg.agentId);
+            setPipelineSteps((prev) =>
+              prev.map((s) => (s.agentId === msg.agentId ? { ...s, status: 'active' } : s))
+            );
+          } else if (msg.agentId && msg.role === 'assistant') {
+            setActiveNodeId(null);
+            setPipelineSteps((prev) =>
+              prev.map((s) => (s.agentId === msg.agentId ? { ...s, status: 'done' } : s))
+            );
+            setPendingHil(null);
+          } else if (
+            msg.agentId &&
+            msg.role === 'system' &&
+            (msg.content.includes('error') || msg.content.includes('rejected by Human'))
+          ) {
+            setActiveNodeId(null);
+            setPipelineSteps((prev) =>
+              prev.map((s) => (s.agentId === msg.agentId ? { ...s, status: 'error' } : s))
+            );
+            setPendingHil(null);
+          }
+        } else if (data.type === 'error') {
+          throw new Error(String(data.error || 'Stream error'));
+        }
+      };
 
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
-        
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n\n');
-        
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = JSON.parse(line.slice(6));
-            
-            if (data.type === 'session') {
-              // GROK OPTIMIZATION: Capture sessionId so Time-Travel + future features are linked to this execution
-              setCurrentSessionId(data.sessionId);
-              setMessages(prev => [...prev, {
-                id: `sys-${Date.now()}`,
-                role: 'system',
-                content: `Session started: ${data.sessionId}`
-              }]);
-            } else if (data.type === 'intent') {
-              const steps = data.intent.agentPipeline.map((id: string) => ({
-                agentId: id,
-                status: 'pending' as AgentStatus
-              }));
-              setPipelineSteps(steps);
-              setMessages(prev => [...prev, {
-                id: `sys-${Date.now()}`,
-                role: 'system',
-                content: `Pipeline: ${data.intent.agentPipeline.join(' → ')}`
-              }]);
-            } else if (data.type === 'message') {
-              const msg = data.message;
-              setMessages(prev => [...prev, msg]);
-              
-              // Capture real HIL requestId for UI buttons
-              if (msg.hilRequestId) {
-                setPendingHil({ requestId: msg.hilRequestId, agentId: msg.agentId || 'unknown' });
-              }
-              if (msg.content && msg.content.includes('HIL pending') && msg.hilRequestId) {
-                setPendingHil({ requestId: msg.hilRequestId, agentId: msg.agentId || 'unknown' });
-              }
 
-              if (msg.agentId && msg.role === 'system' && msg.content.includes('Handing over')) {
-                setActiveNodeId(msg.agentId);
-                setPipelineSteps(prev => prev.map(s => 
-                  s.agentId === msg.agentId ? { ...s, status: 'active' } : s
-                ));
-              } else if (msg.agentId && msg.role === 'assistant') {
-                setActiveNodeId(null);
-                setPipelineSteps(prev => prev.map(s => 
-                  s.agentId === msg.agentId ? { ...s, status: 'done' } : s
-                ));
-                // Clear any pending HIL when an assistant responds
-                setPendingHil(null);
-              } else if (msg.agentId && msg.role === 'system' && (msg.content.includes('error') || msg.content.includes('rejected by Human'))) {
-                setActiveNodeId(null);
-                setPipelineSteps(prev => prev.map(s => 
-                  s.agentId === msg.agentId ? { ...s, status: 'error' } : s
-                ));
-                setPendingHil(null);
-              } else if (msg.agentId && msg.role === 'system' && msg.content.includes('Tool call')) {
-                // Parse tool name out of message `🔧 Tool call: toolName({...})`
-                const toolNameMatch = msg.content.match(/🔧 Tool call: ([^(]+)/);
-                if (toolNameMatch) {
-                  // For now keep agent active; tools are executed server-side.
-                }
-              }
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop() || '';
+
+        for (const part of parts) {
+          const line = part.trim();
+          if (!line.startsWith('data: ')) continue;
+          try {
+            handleStreamEvent(JSON.parse(line.slice(6)));
+          } catch (parseErr: unknown) {
+            if (parseErr instanceof Error && parseErr.message !== 'Stream error') {
+              // ignore malformed chunks
+            } else {
+              throw parseErr;
             }
           }
         }
@@ -484,18 +594,38 @@ export default function MeshPanel({ isOpen, onClose, initialQuery }: { isOpen: b
 
   if (!isOpen) return null;
 
+  const isFullscreen = variant === 'fullscreen';
+  const shellClass = isFullscreen
+    ? 'flex-1 flex flex-col min-h-0 bg-neutral-950'
+    : 'fixed bottom-0 left-[288px] right-[350px] h-[42vh] bg-neutral-950 border-t border-neutral-800 shadow-2xl flex flex-col z-[45]';
+
   return (
-    <div className="fixed bottom-0 left-[288px] right-[350px] h-[42vh] bg-neutral-950 border-t border-neutral-800 shadow-2xl flex flex-col z-[45]"> {/* GROK: raised z to sit above inside-node mosaic chats (z-auto in flow nodes) and guidance z-30 when open */}
+    <div className={shellClass}>
       {/* Header */}
       <div className="h-10 border-b border-neutral-800 bg-neutral-900/50 flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center space-x-3 text-violet-400">
           <Terminal className="w-4 h-4" />
-          <span className="text-xs font-semibold uppercase tracking-wider">OPO Cognitive Mesh Console</span>
-          
-          {/* Show current LLM provider - useful for Ollama/local vs cloud */}
-          <span className="ml-2 text-[10px] px-2 py-0.5 rounded bg-violet-500/10 text-violet-300 border border-violet-500/30 font-mono">
-            {useStudioStore.getState().currentProvider || 'gemini'}
+          <span className="text-xs font-semibold uppercase tracking-wider">
+            {isFullscreen ? 'Consultas OPO' : 'OPO Cognitive Mesh Console'}
           </span>
+          
+          <span
+            className={`ml-2 text-[10px] px-2 py-0.5 rounded border font-semibold uppercase tracking-wide ${
+              queryMode === 'live'
+                ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/40'
+                : 'bg-amber-500/10 text-amber-300 border-amber-500/40'
+            }`}
+            title={
+              queryMode === 'live'
+                ? 'Consultas contra la base de datos conectada'
+                : 'Datos de demostración — conectá tu ERP para datos reales'
+            }
+          >
+            {queryMode === 'live' ? 'Datos en vivo' : 'Demostración'}
+          </span>
+
+          {/* Show current LLM provider - useful for Ollama/local vs cloud */}
+          <StatusSemaphore compact onOpenSettings={onOpenSettings} />
           
           {/* GROK OPTIMIZATION: Show live session + one-click access to the now-functional Time-Travel debugger */}
           {currentSessionId && (
@@ -515,9 +645,11 @@ export default function MeshPanel({ isOpen, onClose, initialQuery }: { isOpen: b
               {currentSessionId}
             </span>
           )}
-          <button onClick={onClose} className="p-1 hover:bg-neutral-800 rounded text-neutral-400">
-            <X className="w-4 h-4" />
-          </button>
+          {onClose && (
+            <button onClick={onClose} className="p-1 hover:bg-neutral-800 rounded text-neutral-400">
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -569,6 +701,7 @@ export default function MeshPanel({ isOpen, onClose, initialQuery }: { isOpen: b
             `}>
               <MessageContentRenderer
                 content={msg.content}
+                summary={msg.summary}
                 messageId={msg.id}
                 sourceQuery={msg.sourceQuery}
                 onLoadMore={handleLoadMore}
@@ -586,6 +719,22 @@ export default function MeshPanel({ isOpen, onClose, initialQuery }: { isOpen: b
         <div ref={messagesEndRef} />
       </div>
 
+      {queryBlocked && (
+        <div className="mx-4 mb-1 p-2 rounded border border-red-500/40 bg-red-950/40 text-[11px] text-red-200 flex items-center justify-between gap-2">
+          <span>
+            {health?.erp.error || 'No se puede consultar el ERP en este momento.'}
+            {queryMode === 'live' ? ' Revisá Ajustes o usá modo demostración.' : ''}
+          </span>
+          <button
+            type="button"
+            onClick={() => void refreshHealth()}
+            className="shrink-0 px-2 py-0.5 rounded bg-red-800/60 hover:bg-red-700 text-white text-[10px] font-semibold"
+          >
+            Reintentar
+          </button>
+        </div>
+      )}
+
       {/* Input */}
       <div className="p-3 bg-neutral-900 border-t border-neutral-800 shrink-0">
         <form onSubmit={handleSubmit} className="flex space-x-2">
@@ -593,13 +742,17 @@ export default function MeshPanel({ isOpen, onClose, initialQuery }: { isOpen: b
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ej: Necesito analizar las ventas y generar un resumen..."
-            disabled={isExecuting}
-            className="flex-1 bg-neutral-950 border border-neutral-800 rounded px-3 py-2 text-sm focus:outline-none focus:border-violet-500 text-neutral-200"
+            placeholder={
+              queryBlocked
+                ? 'Conexión ERP no disponible — corregí Ajustes para continuar'
+                : 'Ej: ¿Cuánto debe el cliente 000219? · Pedidos del mes · Facturas vencidas...'
+            }
+            disabled={isExecuting || queryBlocked}
+            className="flex-1 bg-neutral-950 border border-neutral-800 rounded px-3 py-2 text-sm focus:outline-none focus:border-violet-500 text-neutral-200 disabled:opacity-60"
           />
           <button 
             type="submit" 
-            disabled={isExecuting || !query.trim()}
+            disabled={isExecuting || !query.trim() || queryBlocked}
             className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white px-4 py-2 rounded flex items-center justify-center transition-colors"
           >
             <Send className="w-4 h-4" />

@@ -3,8 +3,8 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
-  title: 'Open Protocol Ontology',
-  tagline: 'Semantic Discovery for AI Agents',
+  title: 'OPO — Documentación Oficial',
+  tagline: 'La capa semántica que conecta tus sistemas con Inteligencia Artificial',
   favicon: 'img/favicon.ico',
 
   url: 'https://openontology.vercel.app',
@@ -16,9 +16,14 @@ const config: Config = {
   onBrokenLinks: 'ignore', // Changed to ignore to avoid build failures for simple doc sites
   onBrokenMarkdownLinks: 'warn',
 
+  markdown: {
+    mermaid: true,
+  },
+  themes: ['@docusaurus/theme-mermaid'],
+
   i18n: {
-    defaultLocale: 'en',
-    locales: ['en'],
+    defaultLocale: 'es',
+    locales: ['es'],
   },
 
   presets: [
@@ -48,14 +53,19 @@ const config: Config = {
       title: 'OPO Docs',
       logo: {
         alt: 'OPO Logo',
-        src: 'img/logo.svg', // We can leave the generic SVG for now or user can replace it
+        src: 'img/logo.svg',
       },
       items: [
+        {
+          href: process.env.OPO_STUDIO_URL || 'http://localhost:3000/studio',
+          label: '← Volver a OPO Studio',
+          position: 'left',
+        },
         {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: 'Documentation',
+          label: 'Documentación',
         },
         {
           href: 'https://github.com/pablocla/Open-protocol-ontology',
@@ -68,29 +78,33 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: 'Documentación',
           items: [
             {
-              label: 'Read the Manual',
+              label: 'Introducción',
               to: '/docs/intro',
             },
           ],
         },
         {
-          title: 'Project',
+          title: 'Proyecto',
           items: [
             {
-              label: 'Main Site',
+              label: 'Sitio Principal',
               href: 'https://openontology.vercel.app',
             },
             {
               label: 'GitHub',
               href: 'https://github.com/pablocla/Open-protocol-ontology',
             },
+            {
+              label: 'NPM SDK',
+              href: 'https://www.npmjs.com/package/opo-sdk',
+            },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} OPO Protocol. Built by humans, consumed by machines.`,
+      copyright: `Copyright © ${new Date().getFullYear()} OPO Protocol. Creado por humanos, consumido por máquinas.`,
     },
     prism: {
       theme: prismThemes.github,

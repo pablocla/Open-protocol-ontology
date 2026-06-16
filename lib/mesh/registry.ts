@@ -1,5 +1,6 @@
 import { AgentDefinition, ToolDefinition, OntologyGraph } from './meshTypes';
 import { DEFAULT_AGENTS } from './defaultAgents';
+import { DEFAULT_OPO_QUERY_TOOL } from './defaultOpoTool';
 
 /**
  * In-memory Registry for Agents and Tools.
@@ -13,8 +14,8 @@ class MeshRegistry {
     this.agents = new Map();
     this.tools = new Map();
 
-    // Register default agents
     DEFAULT_AGENTS.forEach(agent => this.registerAgent(agent));
+    this.registerTool(DEFAULT_OPO_QUERY_TOOL);
   }
 
   // --- AGENTS ---

@@ -5,9 +5,13 @@ import { generateAndDownloadMCP } from '@/lib/studio/mcpGenerator';
 import { saveAs } from 'file-saver';
 import { EntityNodeData } from '@/lib/studio/studioTypes';
 import { toast } from 'sonner';
+import StatusSemaphore from '@/components/studio/StatusSemaphore';
+import Link from 'next/link';
 
 export default function Topbar({ onToggleMeshPanel, onToggleIntentEditor, onToggleSettings }: { onToggleMeshPanel?: () => void, onToggleIntentEditor?: () => void, onToggleSettings?: () => void }) {
-  const { project, setProjectName, clearProject, nodes, edges } = useStudioStore();
+  const { project, setProjectName, clearProject, nodes, edges, erpWorkspace } = useStudioStore();
+  const dataMode =
+    erpWorkspace.dataMode === 'live' && erpWorkspace.connectionString.trim() ? 'live' : 'demo';
   const [name, setName] = useState(project?.name || 'Untitled Project');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -69,14 +73,14 @@ export default function Topbar({ onToggleMeshPanel, onToggleIntentEditor, onTogg
   const validateGraph = () => {
     const entityNodes = nodes.filter(n => n.type === 'entityNode');
     if (entityNodes.length === 0) {
-      toast.warning("Por favor, agrega al menos una Entidad al canvas.");
+      toast.warning('Agregá al menos un Área de Negocio al lienzo.');
       return false;
     }
 
     for (const node of entityNodes) {
       const attrs = (node.data as EntityNodeData).attributes || [];
       if (!attrs.some(a => a.isPrimaryKey)) {
-        toast.error(`La entidad "${(node.data as EntityNodeData).label}" no tiene una clave primaria (PK).`);
+        toast.error(`El área "${(node.data as EntityNodeData).label}" no tiene identificador principal (PK).`);
         return false;
       }
     }
@@ -89,7 +93,7 @@ export default function Topbar({ onToggleMeshPanel, onToggleIntentEditor, onTogg
     try {
       setIsGenerating(true);
       await generateAndDownloadMCP(nodes as any, edges as any, project?.name || 'Untitled Project');
-      toast.success('Servidor MCP generado y descargado exitosamente.');
+      toast.success('Paquete de Empleado Virtual generado y descargado.');
     } catch (error) {
       console.error('Error generating MCP:', error);
       toast.error('Error generando el servidor MCP.');
@@ -135,14 +139,15 @@ export default function Topbar({ onToggleMeshPanel, onToggleIntentEditor, onTogg
           </button>
         </div>
 
-        {/* Current LLM provider badge - makes Ollama/local visible and shows the active one */}
-        <div 
-          className="text-[10px] px-2 py-0.5 bg-neutral-800 border border-neutral-700 rounded text-neutral-400 font-mono flex items-center gap-1 cursor-pointer hover:border-emerald-600" 
-          title="Active LLM provider. Click Settings to switch. Use Ollama (local) for free/private/fast Vibe Coding iteration on automations & DigitalEmployees. Switch to cloud for complex reasoning."
-          onClick={() => onToggleSettings?.()}
+        <StatusSemaphore onOpenSettings={() => onToggleSettings?.()} />
+
+        <Link
+          href="/consultas"
+          className="text-[10px] px-2.5 py-1 rounded border border-violet-500/40 bg-violet-500/10 text-violet-300 hover:bg-violet-500/20 font-semibold transition-colors"
+          title="Modo consultas para usuario final — sin lienzo técnico"
         >
-          LLM: <span className="text-emerald-400 font-bold">{useStudioStore.getState().currentProvider || 'gemini'}</span>
-        </div>
+          Consultas
+        </Link>
 
         <button 
           onClick={handleSaveWorkspace}
@@ -150,15 +155,16 @@ export default function Topbar({ onToggleMeshPanel, onToggleIntentEditor, onTogg
           className="flex items-center space-x-1.5 text-xs font-semibold text-neutral-300 bg-neutral-900 hover:bg-neutral-800 disabled:opacity-50 px-3.5 py-1.5 rounded-md transition-colors border border-neutral-800"
         >
           {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400" /> : <Save className="w-3.5 h-3.5 text-indigo-400" />}
-          <span>Save Workspace</span>
+          <span>Guardar</span>
         </button>
 
-        <button 
+        <button
           onClick={onToggleMeshPanel}
+          title="Ejecuta el Swarm completo: varios empleados coordinados, consultas ERP y aprobaciones HIL en la consola Mesh."
           className="flex items-center space-x-2 text-xs font-semibold text-emerald-950 bg-emerald-400 hover:bg-emerald-300 px-4 py-1.5 rounded-md transition-colors shadow-[0_0_15px_rgba(52,211,153,0.3)] hover:shadow-[0_0_20px_rgba(52,211,153,0.5)]"
         >
           <Play className="w-4 h-4" />
-          <span>Execute Mesh</span>
+          <span>Ejecutar Equipo</span>
         </button>
 
         {/* UX 2B: always-visible entry point to the HIL approvals UI that already lives in MeshPanel.
@@ -167,10 +173,10 @@ export default function Topbar({ onToggleMeshPanel, onToggleIntentEditor, onTogg
         <button
           onClick={onToggleMeshPanel}
           className="flex items-center space-x-1.5 text-xs font-semibold text-amber-300 bg-neutral-900 hover:bg-amber-900/30 border border-amber-700 px-3 py-1.5 rounded-md transition-colors"
-          title="Open execution log + pending Human-in-the-Loop approvals (approve/reject agents that asked for human)"
+          title="Abre la misma consola que Ejecutar Equipo. Si hay aprobaciones pendientes (HIL), aparecen ahí para Confirmar o Rechazar."
         >
           <span>⏳</span>
-          <span>HIL</span>
+          <span>Aprobaciones</span>
         </button>
 
         <div className="relative" ref={menuRef}>
@@ -188,7 +194,7 @@ export default function Topbar({ onToggleMeshPanel, onToggleIntentEditor, onTogg
                 className="w-full text-left px-3 py-2 text-xs text-neutral-300 hover:text-white hover:bg-neutral-800 flex items-center space-x-2"
               >
                 <FileCode2 className="w-3.5 h-3.5" />
-                <span>Write Intent (YAML)</span>
+                <span>Instrucciones del equipo (YAML)</span>
               </button>
               <button 
                 onClick={() => { setIsMenuOpen(false); handleGenerateMCP(); }}
@@ -196,14 +202,14 @@ export default function Topbar({ onToggleMeshPanel, onToggleIntentEditor, onTogg
                 className="w-full text-left px-3 py-2 text-xs text-neutral-300 hover:text-white hover:bg-neutral-800 flex items-center space-x-2 disabled:opacity-50"
               >
                 {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Cpu className="w-3.5 h-3.5" />}
-                <span>Generate MCP Server</span>
+                <span>Crear Empleado Virtual (exportar)</span>
               </button>
               <button 
                 onClick={() => { setIsMenuOpen(false); handleExportJSON(); }}
                 className="w-full text-left px-3 py-2 text-xs text-neutral-300 hover:text-white hover:bg-neutral-800 flex items-center space-x-2"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Export Project (JSON)</span>
+                <span>Exportar mapa del sistema (JSON)</span>
               </button>
               <button 
                 onClick={async () => {
@@ -235,14 +241,14 @@ export default function Topbar({ onToggleMeshPanel, onToggleIntentEditor, onTogg
                 className="w-full text-left px-3 py-2 text-xs text-emerald-300 hover:text-emerald-200 hover:bg-emerald-900/30 flex items-center space-x-2"
               >
                 <span>🚀</span>
-                <span>Publish to Marketplace</span>
+                <span>Activar en Marketplace</span>
               </button>
               <button 
                 onClick={() => { setIsMenuOpen(false); onToggleSettings?.(); }}
                 className="w-full text-left px-3 py-2 text-xs text-neutral-300 hover:text-white hover:bg-neutral-800 flex items-center space-x-2"
               >
                 <Settings className="w-3.5 h-3.5" />
-                <span>Settings</span>
+                <span>Ajustes de IA</span>
               </button>
               <div className="h-px bg-neutral-800 my-1 mx-2" />
               <button 
@@ -255,7 +261,7 @@ export default function Topbar({ onToggleMeshPanel, onToggleIntentEditor, onTogg
                 className="w-full text-left px-3 py-2 text-xs text-red-400 hover:text-red-300 hover:bg-neutral-800 flex items-center space-x-2"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>Clear Canvas</span>
+                <span>Vaciar lienzo</span>
               </button>
             </div>
           )}

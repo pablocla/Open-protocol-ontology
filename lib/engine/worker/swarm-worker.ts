@@ -3,7 +3,8 @@ import { SwarmMemory } from '../blackboard/blackboard';
 import { agentExecutor } from '@/lib/mesh/agentExecutor';
 import { SWARM_QUEUE_NAME, SwarmJobData } from './swarm-queue';
 import { getTimeTravelDB } from '../timetravel/time-travel-db';
-import { sharedRedisClient } from './redis-client';
+import { getSharedRedisClient } from './redis-client';
+import { takeSessionSnapshot } from '@/lib/mesh/sessionMemory';
 
 let swarmWorker: Worker | null = null;
 const timeTravel = getTimeTravelDB();
@@ -16,7 +17,7 @@ export function startSwarmWorker() {
   swarmWorker = new Worker<SwarmJobData>(
     SWARM_QUEUE_NAME,
     async (job: Job<SwarmJobData>) => {
-      const { sessionId, session, apiKeys, llmConfig } = job.data;
+      const { sessionId, session, apiKeys, llmConfig, erpExecution } = job.data;
       
       console.log(`[Swarm Worker] Executing job ${job.id} for session ${sessionId}`);
       
@@ -30,14 +31,14 @@ export function startSwarmWorker() {
       try {
         await broadcast({ type: 'status', message: 'Worker picked up job, starting execution...' });
 
-        const generator = agentExecutor.executePipeline(session, apiKeys, llmConfig);
+        const generator = agentExecutor.executePipeline(session, apiKeys, llmConfig, erpExecution);
         
         for await (const message of generator) {
           await broadcast({ type: 'message', message });
 
-          // GROK OPTIMIZATION: Take and persist snapshot
+          // GROK OPTIMIZATION: Take and persist snapshot per session
           try {
-            const snapshot = await SwarmMemory.takeSnapshot();
+            const snapshot = await takeSessionSnapshot(sessionId);
             timeTravel.saveSnapshot(sessionId, snapshot);
           } catch (e) {
             console.warn('[Swarm Worker] Failed to persist timeline snapshot', e);
@@ -54,7 +55,7 @@ export function startSwarmWorker() {
       }
     },
     {
-      connection: sharedRedisClient,
+      connection: getSharedRedisClient() as any,
       concurrency: parseInt(process.env.OPO_SWARM_WORKER_CONCURRENCY || '5', 10)
     }
   );

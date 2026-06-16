@@ -1,148 +1,76 @@
 ---
-title: "Totvs Protheus"
+title: "TOTVS Protheus"
+sidebar_position: 1
 ---
 
-# OPO Adapter Guide: TOTVS Protheus
+# Guía del Adaptador: TOTVS Protheus
 
-**API:** REST API (AdvPL TLPP) | **Auth:** Basic Auth / TOTVS Fluig Identity Bearer Token | **Difficulty:** Medium | **Setup:** ~30 min
+**API:** REST API (AdvPL TLPP) / Conexión SQL Directa | **Dificultad:** Media | **Setup:** ~30 min
 
----
-
-The Open Protocol Ontology (OPO) adapter for TOTVS Protheus bridges standardized protocols and TOTVS's proprietary AdvPL TLPP Advanced Framework. It translates legacy relational tables (e.g., SA1, SA2, SF2) into OPO-compliant JSON schemas, including full support for Brazilian tax structures (CNPJ, CPF, NF-e).
-
-## Prerequisites
-- TOTVS Protheus v12.1.2310 or higher with an active REST endpoint configured in `appserver.ini`.
-- Developer access to configure and compile AdvPL code if custom endpoints are required.
-- Access to TOTVS Fluig Identity or Protheus connection credentials.
+El adaptador OPO para **TOTVS Protheus** actúa como un puente semántico entre los estándares de Inteligencia Artificial moderna y el framework de base de datos propietario de TOTVS (AdvPL/TLPP). Permite traducir las crípticas tablas relacionales (como `SA1`, `SA2`, `SF2`) a esquemas JSON estándar y legibles por cualquier agente cognitivo.
 
 ---
 
-## Step 1 — Enable API access
+## Particularidades de la Arquitectura Protheus
 
-TOTVS Protheus publishes standard REST APIs through the localized HTTP framework:
+Protheus es un ERP diseñado en los años 80 y 90, lo que significa que arrastra una serie de patrones de diseño específicos que OPO Studio debe resolver para garantizar la correctitud de los datos:
 
-1. Locate and open your Protheus server configuration file `appserver.ini`.
-2. Ensure the `[HTTPREST]` section is configured with an active port, paths, and matching database configurations:
-   ```ini
-   [HTTPREST]
-   Port=8000
-   IPsBind=
-   URIs=REST
-   Security=0
-   ```
-3. Restart the Protheus AppServer to initiate the endpoint services.
-
----
-
-## Step 2 — Obtain credentials
-
-OPO adapter connects to Protheus REST endpoints using Basic authentication or Bearer authorization:
-
-1. Identify an integration user in Protheus (specifically mapped within table `USR`).
-2. Verify user privileges using the Protheus Configurator module (`SIGACFG`), and confirm that the user has proper READ access to tables:
-   - `SA1` (Clientes)
-   - `SA2` (Fornecedores)
-   - `SF2` (Cabeçalho de NF de Saída)
-   - `SB1` (Descrição Genérica do Produto)
-
----
-
-## Step 3 — Configure OPO adapter
-
-Configure your Protheus environment connection variables inside `opo-adapter.config.json` folder root directory:
-
-```json
-{
-  "opoVersion": "0.1.0",
-  "erpPlatform": "Protheus",
-  "connection": {
-    "authType": "BasicAuth",
-    "host": "http://192.168.1.50:8000",
-    "user": "opo_service_user",
-    "password": "protheus_profile_secret_x9102",
-    "environment": "protheus_cop_prod",
-    "restBaseUrl": "http://192.168.1.50:8000/rest"
-  },
-  "cachingMinutes": 10,
-  "jurisdiction": "Brazil"
-}
+```mermaid
+graph TD
+    A[(Base de Datos Protheus)] -->|Escaneo de Metadatos| B{Diccionario SX}
+    B -->|Tablas| C[SX2]
+    B -->|Campos| D[SX3]
+    B -->|Relaciones| E[SX9]
+    
+    A -->|Datos del Negocio| F[Tablas Físicas ej. SA1010]
+    F -->|Filtrado Soft-Delete| G[D_E_L_E_T_ = ' ']
+    F -->|Filtrado Sucursal| H[A1_FILIAL = '01']
 ```
 
 ---
 
-## Step 4 — Expose discovery endpoint
+## 1. El Diccionario de Datos (Tablas SX)
 
-Expose supported Brazilian localized structures by maintaining standard `/.well-known/opo.json` path details:
+En lugar de delegar la estructura de la base de datos al motor SQL (como Postgres o SQL Server), Protheus gestiona su propio "Diccionario de Datos" interno a través de tablas del sistema que empiezan con `SX`. 
 
-```json
-{
-  "$schema": "https://openontology.vercel.app/ontology/schemas/opo-manifest.json",
-  "opo_version": "0.1.0",
-  "system_identifier": "TOTVS-PROTHEUS-PRD-BR",
-  "jurisdiction": "Brazil",
-  "adapter_endpoints": {
-    "base_url": "https://protheus-opo.myenterprise.com.br/api/v1",
-    "discovery": "https://protheus-opo.myenterprise.com.br/.well-known/opo.json"
-  },
-  "supported_entities": [
-    {
-      "canonical": "opo:Customer",
-      "native_reference": "SA1 (Cadastro de Clientes)",
-      "matching_confidence": 0.98
-    },
-    {
-      "canonical": "opo:Invoice",
-      "native_reference": "SF2 (Notas Fiscais de Saída)",
-      "matching_confidence": 0.96
-    },
-    {
-      "canonical": "opo:Product",
-      "native_reference": "SB1 (Cadastro de Produtos)",
-      "matching_confidence": 0.95
-    }
-  ]
-}
-```
+El autodescubrimiento de OPO consulta directamente estas tablas para armar la ontología sin requerir que la IA adivine el esquema:
+
+*   **`SX2` (Diccionario de Tablas):** Lista todas las tablas registradas en el ERP (ej: `SA1` es Clientes, `SB1` es Productos) y define si son compartidas o exclusivas por sucursal.
+*   **`SX3` (Diccionario de Campos):** Define todas las columnas físicas de cada tabla, sus tipos de datos, descripciones, y si son campos obligatorios.
+*   **`SX9` (Diccionario de Relaciones):** Guarda las conexiones lógicas entre tablas. Este archivo es vital porque **Protheus no utiliza Foreign Keys físicas a nivel de base de datos (SQL)**. Las relaciones se definen únicamente a nivel de aplicación en la tabla `SX9`.
 
 ---
 
-## Step 5 — Test
+## 2. Gestión de Borrado Lógico (`D_E_L_E_T_`)
 
-Perform authenticated cURL commands to verify that standard Protheus REST/TLPP endpoints parse correctly:
+Protheus **nunca realiza un borrado físico (`DELETE`)** en sus registros. En su lugar, aplica un borrado lógico (*soft-delete*):
 
-```bash
-# Query mapped Customer record through TOTVS Protheus OPO wrapper
-curl -X GET "https://protheus-opo.myenterprise.com.br/api/v1/entities/Customer/000219" \
-  -H "Authorization: Bearer <opo_api_key>"
-```
+- Cuando un usuario borra una factura, el sistema coloca un asterisco `*` en la columna especial `D_E_L_E_T_`.
+- Los registros activos tienen el campo `D_E_L_E_T_` vacío (`' '`).
 
----
-
-## Entity mapping reference
-
-| Canonical OPO Entity | Protheus Native DB Table | Translation / Field Mapping | Confidence |
-| :--- | :--- | :--- | :--- |
-| `opo:Party` | `SA1` / `SA2` | Maps `A1_COD` to `id`, `A1_NOME` to `legalName`, `A1_CGC` (CNPJ/CPF) to `taxId`. | 0.94 |
-| `opo:Customer` | `SA1` (Cadastro de Clientes) | Maps `A1_COD` to `id`, `A1_SALDUP` to `outstandingBalance`, `A1_LC` to `creditLimit`. | 0.98 |
-| `opo:Supplier` | `SA2` (Cadastro de Fornecedores)| Maps `A2_COD` to `id`, `A2_SALDUP` to `purchaseBalance`. | 0.98 |
-| `opo:Invoice` | `SF2` (NF Saída) / `SF1` (Entrada) | Maps `F2_DOC` to `id` / `number`, `F2_EMISSÃO` to `issueDate`, `F2_VALBRUT` to `grandTotal`. | 0.96 |
-| `opo:Order` | `SC5` (Venda) / `SC7` (Compra) | Maps `C5_NUM` to `id` / `number`, `C5_TOTAL` to `totalAmount`. | 0.95 |
+> [!CAUTION]
+> **Bug de Consulta Crítico:**
+> Si escribes consultas SQL directas o dejas que una IA consulte la base de datos sin considerar esto, se retornarán facturas y clientes eliminados. 
+> El motor `sqlTranslator.ts` de OPO inyecta de forma automática la regla `WHERE D_E_L_E_T_ = ' '` en cada consulta de lectura.
 
 ---
 
-## Known limitations
-- Standard Protheus REST endpoints might require specific compilation patches to customize custom field outputs.
-- Query performance correlates with active database indexes over SA1, SA2, and SF2 tables.
+## 3. Gestión de Sucursales (Filiales) e `X2_MODO`
+
+Protheus está diseñado para ser multi-empresa y multi-sucursal.
+- Cada tabla física lleva el código de sucursal en el nombre (ej: `SA1010` para la empresa 01, sucursal 0).
+- Cada registro contiene una columna de filial (ej: `A1_FILIAL`).
+- El campo `X2_MODO` de la tabla `SX2` indica si la tabla es **Compartida** (`C`, todos los registros son visibles para todas las sucursales) o **Exclusiva** (`E`, cada sucursal solo lee sus propios registros).
+
+El traductor de OPO valida `X2_MODO` y auto-inyecta el filtro de `FILIAL = <sucursal_actual>` para garantizar que la IA no mezcle datos de diferentes sucursales físicas.
 
 ---
 
-## Troubleshooting
+## Mapeo de Entidades Comunes
 
-### Error: `OPO-ERR-003: Protheus REST Master User Authentication Failed`
-- **Cause**: Outdated password, or integration user profile lacks active REST privileges under TOTVS Fluig.
-- **Fix**: Open TOTVS Configurator (`SIGACFG`), navigate to User Settings, verify Basic credentials, and unlock connection port access.
-
-### Error: `TOTVS AppServer Error: Connection Refused (8000)`
-- **Cause**: The HTTPREST service section has not been configured or isn't active under Protheus `appserver.ini`.
-- **Fix**: Open configuration files on the host computer, double-check port bindings, and restart AppServer.
-
+| Entidad OPO | Tabla Protheus | Mapeo de Campos |
+| :--- | :--- | :--- |
+| `Customer` (Cliente) | `SA1` | `A1_COD` → `id`<br/>`A1_NOME` → `name`<br/>`A1_SALDUP` → `outstandingBalance` |
+| `Supplier` (Proveedor) | `SA2` | `A2_COD` → `id`<br/>`A2_NOME` → `name` |
+| `Product` (Producto) | `SB1` | `B1_COD` → `id`<br/>`B1_DESC` → `description` |
+| `Invoice` (Factura Venta) | `SF2` | `F2_DOC` → `id` / `number`<br/>`F2_EMISSAO` → `issueDate`<br/>`F2_VALBRUT` → `grandTotal` |

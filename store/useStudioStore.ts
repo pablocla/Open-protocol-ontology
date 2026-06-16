@@ -12,7 +12,42 @@ import {
   EdgeChange,
 } from '@xyflow/react';
 import { MOCK_PROTHEUS_NODES, MOCK_PROTHEUS_EDGES } from '@/lib/studio/mockProtheus';
+import { buildAgentTemplateGraph } from '@/lib/studio/deployAgentTemplate';
 import { EntityAttribute, EntityNodeData, RelationEdgeData } from '@/lib/studio/studioTypes';
+
+export type StudioDataMode = 'demo' | 'live';
+export type ErpId = 'protheus' | 'sap' | 'odoo' | 'netsuite' | 'otro';
+
+export interface ErpWorkspace {
+  erpId: ErpId | null;
+  connectionString: string;
+  filial: string;
+  companySuffix: string;
+  dataMode: StudioDataMode;
+  dialect: 'mssql' | 'postgresql' | 'oracle';
+}
+
+export interface QueryExecutionPayload {
+  mode: 'mock' | 'live';
+  connectionString?: string;
+  filial?: string;
+  companySuffix?: string;
+  context?: {
+    erp?: string;
+    filial?: string;
+    companySuffix?: string;
+    dialect?: string;
+  };
+}
+
+const DEFAULT_ERP_WORKSPACE: ErpWorkspace = {
+  erpId: null,
+  connectionString: '',
+  filial: '',
+  companySuffix: '010',
+  dataMode: 'demo',
+  dialect: 'mssql',
+};
 
 interface StudioState {
   project: { name: string } | null;
@@ -58,6 +93,12 @@ interface StudioState {
   addNodeMessage: (nodeId: string, message: NodeMessage) => void;
   clearNodeChat: (nodeId: string) => void;
   toggleMosaicWindow: (nodeId: string) => void;
+  deployAgentTemplate: (templateId: string) => string | null;
+
+  erpWorkspace: ErpWorkspace;
+  setErpWorkspace: (partial: Partial<ErpWorkspace>) => void;
+  resolveQueryMode: () => 'mock' | 'live';
+  buildQueryExecutionPayload: () => QueryExecutionPayload;
 }
 
 export interface NodeMessage {
@@ -87,9 +128,11 @@ export const useStudioStore = create<StudioState>()(
         selectedNode: null,
         selectedEdge: null,
         apiKeys: {},
-        currentProvider: 'gemini',
+        currentProvider: 'ollama',
         setCurrentProvider: (provider) => set({ currentProvider: provider }),
-        llmConfigs: {},
+        llmConfigs: {
+          ollama: { baseUrl: 'http://localhost:11434', model: 'llama3.1' },
+        },
         setLLMConfig: (provider, config) => set((state) => ({
           llmConfigs: {
             ...state.llmConfigs,
@@ -263,9 +306,58 @@ export const useStudioStore = create<StudioState>()(
           openMosaicWindows: state.openMosaicWindows.includes(nodeId)
             ? state.openMosaicWindows.filter(id => id !== nodeId)
             : [...state.openMosaicWindows, nodeId]
-        }))
+        })),
+        deployAgentTemplate: (templateId) => {
+          const state = get();
+          const result = buildAgentTemplateGraph(templateId, state.nodes, state.edges);
+          if (!result) return null;
+          set({
+            nodes: result.nodes,
+            edges: result.edges,
+            project: state.project ?? { name: 'Mi Equipo de Empleados Virtuales' },
+          });
+          return result.templateTitle;
+        },
+
+        erpWorkspace: { ...DEFAULT_ERP_WORKSPACE },
+        setErpWorkspace: (partial) =>
+          set((state) => ({
+            erpWorkspace: { ...state.erpWorkspace, ...partial },
+          })),
+        resolveQueryMode: () => {
+          const ws = get().erpWorkspace;
+          if (ws.dataMode === 'live' && ws.connectionString.trim()) return 'live';
+          return 'mock';
+        },
+        buildQueryExecutionPayload: () => {
+          const ws = get().erpWorkspace;
+          const mode = get().resolveQueryMode();
+          const filial = ws.filial.trim() || undefined;
+          const companySuffix = ws.companySuffix || '010';
+          return {
+            mode,
+            connectionString: mode === 'live' ? ws.connectionString.trim() : undefined,
+            filial,
+            companySuffix,
+            context: {
+              erp: ws.erpId === 'protheus' ? 'protheus' : undefined,
+              filial,
+              companySuffix,
+              dialect: ws.dialect,
+            },
+          };
+        },
       }),
-      { partialize: (state) => ({ nodes: state.nodes, edges: state.edges, apiKeys: state.apiKeys, currentProvider: state.currentProvider, llmConfigs: state.llmConfigs }) }
+      {
+        partialize: (state) => ({
+          nodes: state.nodes,
+          edges: state.edges,
+          apiKeys: state.apiKeys,
+          currentProvider: state.currentProvider,
+          llmConfigs: state.llmConfigs,
+          erpWorkspace: state.erpWorkspace,
+        }),
+      }
     ),
     { name: 'opo-studio-storage' }
   )

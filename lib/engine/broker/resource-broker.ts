@@ -1,7 +1,7 @@
 import { Queue, Worker, Job } from 'bullmq';
 import { CredentialKey, ConsumptionReport } from '../types/credentials';
 import { CredentialVault } from '../vault/credential-vault';
-import { sharedRedisClient } from '../worker/redis-client';
+import { getSharedRedisClient } from '../worker/redis-client';
 
 class ResourceBrokerImpl {
   private vault: CredentialVault;
@@ -33,7 +33,7 @@ class ResourceBrokerImpl {
     // GROK OPTIMIZATION: Standardized job retention + exponential backoff to prevent Redis bloat (FASE 2)
     // Jobs are auto-removed after completion or limited failures. Backoff helps with transient rate limits / LLM hiccups.
     const queue = new Queue(key.id, { 
-      connection: sharedRedisClient as any,   // GROK OPTIMIZATION: tolerate BullMQ/ioredis internal type skew common in this stack
+      connection: getSharedRedisClient() as any,   // GROK OPTIMIZATION: tolerate BullMQ/ioredis internal type skew common in this stack
       defaultJobOptions: {
         removeOnComplete: true,
         removeOnFail: 50,
@@ -65,7 +65,7 @@ class ResourceBrokerImpl {
         }
       });
     }, { 
-      connection: sharedRedisClient as any, 
+      connection: getSharedRedisClient() as any,
       concurrency: maxConcurrent,
       // Optional BullMQ rate limiting can go here if using BullMQ Pro or manual limiter
     });

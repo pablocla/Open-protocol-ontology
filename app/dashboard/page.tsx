@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import ClientLayout from '@/components/ClientLayout';
 import Topbar from '@/components/studio/Topbar';
-import { Key, Users, TrendingUp, Copy } from 'lucide-react';
+import { Key, Users, TrendingUp, Copy, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { ConsumptionCharts } from '@/components/dashboard/ConsumptionCharts';
 
 export default function VibeCodingDashboard() {
   const [keys, setKeys] = useState<any[]>([]);

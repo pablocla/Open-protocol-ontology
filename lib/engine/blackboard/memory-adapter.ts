@@ -9,8 +9,16 @@ export class MemoryBlackboardAdapter implements BlackboardAdapter {
     return this.state.get(key);
   }
 
-  async set(key: string, value: any): Promise<void> {
+  async set(key: string, value: any, ttlSeconds?: number): Promise<void> {
     this.state.set(key, value);
+    if (ttlSeconds !== undefined && ttlSeconds !== null) {
+      setTimeout(() => {
+        // Only delete if the value has not been overwritten since
+        if (this.state.get(key) === value) {
+          this.state.delete(key);
+        }
+      }, ttlSeconds * 1000);
+    }
   }
 
   async delete(key: string): Promise<void> {

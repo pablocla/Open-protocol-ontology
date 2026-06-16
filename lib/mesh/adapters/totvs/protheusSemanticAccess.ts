@@ -65,9 +65,9 @@ export function buildProtheusSemanticAccessPlan(
     },
     mcp: {
       serverCommand: 'opo mcp-start --mapping-dir registry/totvs-protheus',
-      tools: ['opo_query', 'opo_mutate', 'opo_describe_entity'],
+      tools: ['opo_query', 'opo_describe_entity'],
       example:
-        'Agente MCP: tools/call opo_query con { entity: "Customer", filter: { legalName: { like: "%Sol%" } } }',
+        'Agente MCP (read-only): opo_query con { entity: "Customer", context: { erp: "protheus", filial: "01" }, filter: { legalName: { like: "%Sol%" } } }',
     },
   };
 }
@@ -78,11 +78,31 @@ export function buildProtheusSemanticAccessPlan(
  */
 export function manifestToSdkMappings(manifest: OpoManifestFromProtheus): Record<string, unknown>[] {
   const mappings: Record<string, unknown>[] = [];
+  const adapterConfig = manifest.adapter_configuration as {
+    company_suffix?: string;
+    readOnly?: boolean;
+    mutationStrategy?: string;
+  };
+  const companySuffix =
+    adapterConfig?.company_suffix ?? manifest.dictionary_meta?.company_suffix ?? '010';
+
+  const physicalByLogical = new Map<string, string>();
+  for (const ent of manifest.supported_entities || []) {
+    const physical = ent.native_reference.split(' ')[0];
+    const logical = physical.replace(new RegExp(`${companySuffix}$`, 'i'), '');
+    physicalByLogical.set(logical.toUpperCase(), physical);
+  }
 
   for (const entity of manifest.supported_entities || []) {
     const canonical = entity.canonical.replace(/^opo:/, '');
     const mapping = manifest.custom_mappings[canonical];
     if (!mapping) continue;
+
+    const protheusMeta = (mapping.protheus_meta || {}) as Record<string, unknown>;
+    const mutationPolicy = (mapping.mutation_policy || {
+      readOnly: adapterConfig?.readOnly ?? true,
+      strategy: adapterConfig?.mutationStrategy ?? 'rest',
+    }) as Record<string, unknown>;
 
     const fieldsKey = Object.keys(mapping).find((k) => k.endsWith('_fields'));
     const semanticKey = '_semantic';
@@ -98,23 +118,44 @@ export function manifestToSdkMappings(manifest: OpoManifestFromProtheus): Record
       };
     }
 
-    const joins: Record<string, { tableName: string; on: string }> = {};
+    const sourcePhysical = entity.native_reference.split(' ')[0];
+    const joins: Record<string, { tableName: string; on: string; conditionSql?: string; protheus?: Record<string, unknown> }> = {};
     for (const rel of manifest.relationships || []) {
       if (rel.sourceCanonical !== entity.canonical) continue;
       const targetName = rel.targetCanonical.replace(/^opo:/, '');
+      const targetPhysical =
+        physicalByLogical.get(rel.targetTable.toUpperCase()) ??
+        `${rel.targetTable}${companySuffix}`;
+      const targetMapping = manifest.custom_mappings[targetName];
+      const targetMeta = (targetMapping?.protheus_meta || {}) as Record<string, unknown>;
+
       joins[targetName] = {
-        tableName: rel.targetTable,
-        on: `${entity.native_reference.split(' ')[0]}.${rel.sourceField} = ${rel.targetTable}.${rel.targetField}`,
+        tableName: targetPhysical,
+        on: `${sourcePhysical}.${rel.sourceField} = ${targetPhysical}.${rel.targetField}`,
+        ...(rel.conditionSql ? { conditionSql: rel.conditionSql } : {}),
+        protheus: {
+          x2Modo: targetMeta.x2Modo,
+          filialField: targetMeta.filialField,
+          companySuffix,
+          physicalTableName: targetPhysical,
+        },
       };
     }
 
     mappings.push({
       $schema: 'https://openontology.vercel.app/schema/v1/mapping-schema.json',
       entity: canonical,
-      sourceType: manifest.adapter_configuration?.protocol_interface === 'REST' ? 'REST' : 'SQL',
-      tableName: entity.native_reference.split(' ')[0],
+      sourceType: 'SQL',
+      tableName: sourcePhysical,
       description: entity.limitations,
       fields: sdkFields,
+      protheus: {
+        x2Modo: protheusMeta.x2Modo,
+        filialField: protheusMeta.filialField,
+        companySuffix,
+        physicalTableName: protheusMeta.physicalTableName ?? sourcePhysical,
+      },
+      mutationPolicy,
       ...(Object.keys(joins).length > 0 ? { joins } : {}),
     });
   }
