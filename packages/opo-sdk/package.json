@@ -1,6 +1,6 @@
 {
   "name": "opo-sdk",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "description": "The official SDK for the Open Protocol Ontology (OPO)",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

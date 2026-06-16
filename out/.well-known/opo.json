@@ -3,11 +3,7 @@
   "system_identity": {
     "erp_name": "Multi-System Adapter (SAP & Odoo)",
     "version": "1.0.0",
-    "jurisdictions": [
-      "US",
-      "BR",
-      "AR"
-    ]
+    "jurisdictions": ["US", "BR", "AR"]
   },
   "discovery": {
     "context_url": "https://openontology.vercel.app/ontology/opo-context.jsonld",
@@ -16,39 +12,29 @@
   "endpoints": {
     "opo:Customer": {
       "path": "/customers",
-      "methods": [
-        "GET"
-      ],
+      "methods": ["GET"],
       "schema": "https://openontology.vercel.app/ontology/schemas/Customer.json"
     },
     "opo:Supplier": {
       "path": "/suppliers",
-      "methods": [
-        "GET"
-      ],
+      "methods": ["GET"],
       "schema": "https://openontology.vercel.app/ontology/schemas/Supplier.json"
     },
     "opo:Invoice": {
       "path": "/invoices",
-      "methods": [
-        "GET",
-        "POST"
-      ],
+      "methods": ["GET", "POST"],
       "schema": "https://openontology.vercel.app/ontology/schemas/Invoice.json"
     },
     "opo:Product": {
       "path": "/products",
-      "methods": [
-        "GET"
-      ],
+      "methods": ["GET"],
       "schema": "https://openontology.vercel.app/ontology/schemas/Product.json"
     },
     "opo:PriceList": {
       "path": "/pricelists",
-      "methods": [
-        "GET"
-      ],
+      "methods": ["GET"],
       "schema": "https://openontology.vercel.app/ontology/schemas/PriceList.json"
     }
   }
 }
+

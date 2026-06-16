@@ -1,0 +1,1346 @@
+{
+  "opo_version": "0.1.0",
+  "system_identity": {
+    "erp_name": "TOTVS Protheus",
+    "version": "12.1.2310",
+    "jurisdictions": [
+      "BR",
+      "AR",
+      "MX"
+    ],
+    "organization_name": "OPO Baseline Registry"
+  },
+  "adapter_configuration": {
+    "base_url": "",
+    "protocol_interface": "REST",
+    "dictionary_source": "SX2/SX3/SX9",
+    "access_modes": [
+      "REST",
+      "SQL",
+      "MCP"
+    ],
+    "discovery_strategy": "baseline_plus_delta"
+  },
+  "supported_entities": [
+    {
+      "canonical": "opo:Customer",
+      "native_reference": "SA1",
+      "confidence": 1,
+      "limitations": "Auto-discovered from Protheus dictionary (SX2): Cadastro de Clientes"
+    },
+    {
+      "canonical": "opo:Supplier",
+      "native_reference": "SA2",
+      "confidence": 1,
+      "limitations": "Auto-discovered from Protheus dictionary (SX2): Cadastro de Fornecedores"
+    },
+    {
+      "canonical": "opo:Product",
+      "native_reference": "SB1",
+      "confidence": 1,
+      "limitations": "Auto-discovered from Protheus dictionary (SX2): Cadastro de Produtos"
+    },
+    {
+      "canonical": "opo:SalesOrderHeader",
+      "native_reference": "SC5",
+      "confidence": 1,
+      "limitations": "Auto-discovered from Protheus dictionary (SX2): Pedidos de Venda"
+    },
+    {
+      "canonical": "opo:SalesOrderItem",
+      "native_reference": "SC6",
+      "confidence": 1,
+      "limitations": "Auto-discovered from Protheus dictionary (SX2): Itens dos Pedidos de Venda"
+    },
+    {
+      "canonical": "opo:PurchaseOrderHeader",
+      "native_reference": "SC7",
+      "confidence": 1,
+      "limitations": "Auto-discovered from Protheus dictionary (SX2): Pedidos de Compra"
+    },
+    {
+      "canonical": "opo:SalesOrderReleases",
+      "native_reference": "SC9",
+      "confidence": 1,
+      "limitations": "Auto-discovered from Protheus dictionary (SX2): Liberacoes de Pedidos de Venda"
+    },
+    {
+      "canonical": "opo:PurchaseInvoiceHeader",
+      "native_reference": "SF1",
+      "confidence": 1,
+      "limitations": "Auto-discovered from Protheus dictionary (SX2): Notas Fiscais de Entrada"
+    },
+    {
+      "canonical": "opo:SalesInvoiceHeader",
+      "native_reference": "SF2",
+      "confidence": 1,
+      "limitations": "Auto-discovered from Protheus dictionary (SX2): Notas Fiscais de Saida"
+    },
+    {
+      "canonical": "opo:Sf3",
+      "native_reference": "SF3",
+      "confidence": 1,
+      "limitations": "Auto-discovered from Protheus dictionary (SX2): Livros Fiscais"
+    },
+    {
+      "canonical": "opo:Sd1",
+      "native_reference": "SD1",
+      "confidence": 1,
+      "limitations": "Auto-discovered from Protheus dictionary (SX2): Itens NF Entrada"
+    },
+    {
+      "canonical": "opo:Sd2",
+      "native_reference": "SD2",
+      "confidence": 1,
+      "limitations": "Auto-discovered from Protheus dictionary (SX2): Itens NF Saida"
+    },
+    {
+      "canonical": "opo:Se1",
+      "native_reference": "SE1",
+      "confidence": 1,
+      "limitations": "Auto-discovered from Protheus dictionary (SX2): Titulos a Receber"
+    },
+    {
+      "canonical": "opo:Se2",
+      "native_reference": "SE2",
+      "confidence": 1,
+      "limitations": "Auto-discovered from Protheus dictionary (SX2): Titulos a Pagar"
+    }
+  ],
+  "custom_mappings": {
+    "Customer": {
+      "SA1_fields": {
+        "a1Cod": "A1_COD",
+        "a1Loja": "A1_LOJA",
+        "a1Nome": "A1_NOME",
+        "a1Nreduz": "A1_NREDUZ",
+        "a1Cgc": "A1_CGC",
+        "a1Saldup": "A1_SALDUP",
+        "a1Lc": "A1_LC",
+        "a1Msblql": "A1_MSBLQL",
+        "id": "A1_COD + A1_LOJA",
+        "partyId": "A1_CGC",
+        "tradeName": "A1_NREDUZ",
+        "legalName": "A1_NOME",
+        "outstandingBalance": "A1_SALDUP",
+        "creditLimit": "A1_LC",
+        "active": "A1_MSBLQL != '1'"
+      },
+      "attributes": [
+        {
+          "id": "attr-SA1-A1_COD",
+          "name": "A1_COD",
+          "type": "String",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "isUnique": true,
+          "length": 6,
+          "comment": "Codigo do Cliente"
+        },
+        {
+          "id": "attr-SA1-A1_LOJA",
+          "name": "A1_LOJA",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 2,
+          "comment": "Loja do Cliente"
+        },
+        {
+          "id": "attr-SA1-A1_NOME",
+          "name": "A1_NOME",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 40,
+          "comment": "Nome do Cliente"
+        },
+        {
+          "id": "attr-SA1-A1_NREDUZ",
+          "name": "A1_NREDUZ",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 20,
+          "comment": "Nome Reduzido"
+        },
+        {
+          "id": "attr-SA1-A1_CGC",
+          "name": "A1_CGC",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 14,
+          "comment": "CNPJ/CPF"
+        },
+        {
+          "id": "attr-SA1-A1_SALDUP",
+          "name": "A1_SALDUP",
+          "type": "Float",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 14,
+          "scale": 2,
+          "comment": "Saldo Devedor"
+        },
+        {
+          "id": "attr-SA1-A1_LC",
+          "name": "A1_LC",
+          "type": "Float",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 14,
+          "scale": 2,
+          "comment": "Limite de Credito"
+        },
+        {
+          "id": "attr-SA1-A1_MSBLQL",
+          "name": "A1_MSBLQL",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 1,
+          "comment": "Bloqueado"
+        }
+      ],
+      "protheus_meta": {
+        "alias": "SA1",
+        "description": "Cadastro de Clientes",
+        "outgoing_relations": [],
+        "incoming_relations": [
+          "rel-sx9-SC5-C5_CLIENTE-SA1-A1_COD",
+          "rel-sx9-SC5-C5_LOJACLI-SA1-A1_LOJA",
+          "rel-sx9-SF2-F2_CLIENTE-SA1-A1_COD",
+          "rel-sx9-SF2-F2_LOJA-SA1-A1_LOJA",
+          "rel-sx9-SE1-E1_CLIENTE-SA1-A1_COD"
+        ]
+      },
+      "_semantic": {
+        "id": "A1_COD + A1_LOJA",
+        "partyId": "A1_CGC",
+        "tradeName": "A1_NREDUZ",
+        "legalName": "A1_NOME",
+        "outstandingBalance": "A1_SALDUP",
+        "creditLimit": "A1_LC",
+        "active": "A1_MSBLQL != '1'"
+      }
+    },
+    "Supplier": {
+      "SA2_fields": {
+        "a2Cod": "A2_COD",
+        "a2Loja": "A2_LOJA",
+        "a2Nome": "A2_NOME",
+        "a2Cgc": "A2_CGC",
+        "a2Saldup": "A2_SALDUP",
+        "id": "A2_COD + A2_LOJA",
+        "partyId": "A2_CGC",
+        "legalName": "A2_NOME",
+        "outstandingBalance": "A2_SALDUP"
+      },
+      "attributes": [
+        {
+          "id": "attr-SA2-A2_COD",
+          "name": "A2_COD",
+          "type": "String",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "isUnique": true,
+          "length": 6,
+          "comment": "Codigo do Fornecedor"
+        },
+        {
+          "id": "attr-SA2-A2_LOJA",
+          "name": "A2_LOJA",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 2,
+          "comment": "Loja do Fornecedor"
+        },
+        {
+          "id": "attr-SA2-A2_NOME",
+          "name": "A2_NOME",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 40,
+          "comment": "Nome do Fornecedor"
+        },
+        {
+          "id": "attr-SA2-A2_CGC",
+          "name": "A2_CGC",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 14,
+          "comment": "CNPJ/CPF"
+        },
+        {
+          "id": "attr-SA2-A2_SALDUP",
+          "name": "A2_SALDUP",
+          "type": "Float",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 14,
+          "scale": 2,
+          "comment": "Saldo Devedor"
+        }
+      ],
+      "protheus_meta": {
+        "alias": "SA2",
+        "description": "Cadastro de Fornecedores",
+        "outgoing_relations": [],
+        "incoming_relations": [
+          "rel-sx9-SC7-C7_FORNECE-SA2-A2_COD",
+          "rel-sx9-SC7-C7_LOJA-SA2-A2_LOJA",
+          "rel-sx9-SF1-F1_FORNECE-SA2-A2_COD",
+          "rel-sx9-SE2-E2_FORNECE-SA2-A2_COD"
+        ]
+      },
+      "_semantic": {
+        "id": "A2_COD + A2_LOJA",
+        "partyId": "A2_CGC",
+        "legalName": "A2_NOME",
+        "outstandingBalance": "A2_SALDUP"
+      }
+    },
+    "Product": {
+      "SB1_fields": {
+        "b1Cod": "B1_COD",
+        "b1Desc": "B1_DESC",
+        "b1Tipo": "B1_TIPO",
+        "b1Um": "B1_UM",
+        "id": "B1_COD",
+        "description": "B1_DESC",
+        "productType": "B1_TIPO",
+        "unitOfMeasure": "B1_UM"
+      },
+      "attributes": [
+        {
+          "id": "attr-SB1-B1_COD",
+          "name": "B1_COD",
+          "type": "String",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "isUnique": true,
+          "length": 15,
+          "comment": "Codigo do Produto"
+        },
+        {
+          "id": "attr-SB1-B1_DESC",
+          "name": "B1_DESC",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 60,
+          "comment": "Descricao do Produto"
+        },
+        {
+          "id": "attr-SB1-B1_TIPO",
+          "name": "B1_TIPO",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 2,
+          "comment": "Tipo do Produto"
+        },
+        {
+          "id": "attr-SB1-B1_UM",
+          "name": "B1_UM",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 2,
+          "comment": "Unidade de Medida"
+        }
+      ],
+      "protheus_meta": {
+        "alias": "SB1",
+        "description": "Cadastro de Produtos",
+        "outgoing_relations": [],
+        "incoming_relations": [
+          "rel-sx9-SC6-C6_PRODUTO-SB1-B1_COD",
+          "rel-sx9-SD1-D1_COD-SB1-B1_COD",
+          "rel-sx9-SD2-D2_COD-SB1-B1_COD"
+        ]
+      },
+      "_semantic": {
+        "id": "B1_COD",
+        "description": "B1_DESC",
+        "productType": "B1_TIPO",
+        "unitOfMeasure": "B1_UM"
+      }
+    },
+    "SalesOrderHeader": {
+      "SC5_fields": {
+        "c5Num": "C5_NUM",
+        "c5Cliente": "C5_CLIENTE",
+        "c5Lojacli": "C5_LOJACLI",
+        "c5Emissao": "C5_EMISSAO",
+        "c5Total": "C5_TOTAL",
+        "c5Condpag": "C5_CONDPAG",
+        "id": "C5_NUM",
+        "customerId": "C5_CLIENTE",
+        "customerBranch": "C5_LOJACLI",
+        "issueDate": "C5_EMISSAO",
+        "totalAmount": "C5_TOTAL",
+        "paymentTerms": "C5_CONDPAG"
+      },
+      "attributes": [
+        {
+          "id": "attr-SC5-C5_NUM",
+          "name": "C5_NUM",
+          "type": "String",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "isUnique": true,
+          "length": 6,
+          "comment": "Numero do Pedido"
+        },
+        {
+          "id": "attr-SC5-C5_CLIENTE",
+          "name": "C5_CLIENTE",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 6,
+          "comment": "Codigo do Cliente"
+        },
+        {
+          "id": "attr-SC5-C5_LOJACLI",
+          "name": "C5_LOJACLI",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 2,
+          "comment": "Loja do Cliente"
+        },
+        {
+          "id": "attr-SC5-C5_EMISSAO",
+          "name": "C5_EMISSAO",
+          "type": "DateTime",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "comment": "Data de Emissao"
+        },
+        {
+          "id": "attr-SC5-C5_TOTAL",
+          "name": "C5_TOTAL",
+          "type": "Float",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 14,
+          "scale": 2,
+          "comment": "Valor Total"
+        },
+        {
+          "id": "attr-SC5-C5_CONDPAG",
+          "name": "C5_CONDPAG",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 3,
+          "comment": "Condicao de Pagamento"
+        }
+      ],
+      "protheus_meta": {
+        "alias": "SC5",
+        "description": "Pedidos de Venda",
+        "outgoing_relations": [
+          "rel-sx9-SC5-C5_CLIENTE-SA1-A1_COD",
+          "rel-sx9-SC5-C5_LOJACLI-SA1-A1_LOJA"
+        ],
+        "incoming_relations": [
+          "rel-sx9-SC6-C6_NUM-SC5-C5_NUM",
+          "rel-sx9-SC9-C9_PEDIDO-SC5-C5_NUM"
+        ]
+      },
+      "_semantic": {
+        "id": "C5_NUM",
+        "customerId": "C5_CLIENTE",
+        "customerBranch": "C5_LOJACLI",
+        "issueDate": "C5_EMISSAO",
+        "totalAmount": "C5_TOTAL",
+        "paymentTerms": "C5_CONDPAG"
+      }
+    },
+    "SalesOrderItem": {
+      "SC6_fields": {
+        "c6Num": "C6_NUM",
+        "c6Item": "C6_ITEM",
+        "c6Produto": "C6_PRODUTO",
+        "c6Qtdven": "C6_QTDVEN",
+        "c6Prcven": "C6_PRCVEN",
+        "orderId": "C6_NUM",
+        "lineNumber": "C6_ITEM",
+        "productId": "C6_PRODUTO",
+        "quantity": "C6_QTDVEN",
+        "unitPrice": "C6_PRCVEN"
+      },
+      "attributes": [
+        {
+          "id": "attr-SC6-C6_NUM",
+          "name": "C6_NUM",
+          "type": "String",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "isUnique": true,
+          "length": 6,
+          "comment": "Numero do Pedido"
+        },
+        {
+          "id": "attr-SC6-C6_ITEM",
+          "name": "C6_ITEM",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 2,
+          "comment": "Item do Pedido"
+        },
+        {
+          "id": "attr-SC6-C6_PRODUTO",
+          "name": "C6_PRODUTO",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 15,
+          "comment": "Codigo do Produto"
+        },
+        {
+          "id": "attr-SC6-C6_QTDVEN",
+          "name": "C6_QTDVEN",
+          "type": "Float",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 12,
+          "scale": 2,
+          "comment": "Quantidade Vendida"
+        },
+        {
+          "id": "attr-SC6-C6_PRCVEN",
+          "name": "C6_PRCVEN",
+          "type": "Float",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 14,
+          "scale": 2,
+          "comment": "Preco de Venda"
+        }
+      ],
+      "protheus_meta": {
+        "alias": "SC6",
+        "description": "Itens dos Pedidos de Venda",
+        "outgoing_relations": [
+          "rel-sx9-SC6-C6_NUM-SC5-C5_NUM",
+          "rel-sx9-SC6-C6_PRODUTO-SB1-B1_COD"
+        ],
+        "incoming_relations": []
+      },
+      "_semantic": {
+        "orderId": "C6_NUM",
+        "lineNumber": "C6_ITEM",
+        "productId": "C6_PRODUTO",
+        "quantity": "C6_QTDVEN",
+        "unitPrice": "C6_PRCVEN"
+      }
+    },
+    "PurchaseOrderHeader": {
+      "SC7_fields": {
+        "c7Num": "C7_NUM",
+        "c7Fornece": "C7_FORNECE",
+        "c7Loja": "C7_LOJA"
+      },
+      "attributes": [
+        {
+          "id": "attr-SC7-C7_NUM",
+          "name": "C7_NUM",
+          "type": "String",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "isUnique": true,
+          "length": 6,
+          "comment": "Numero do Pedido Compra"
+        },
+        {
+          "id": "attr-SC7-C7_FORNECE",
+          "name": "C7_FORNECE",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 6,
+          "comment": "Codigo do Fornecedor"
+        },
+        {
+          "id": "attr-SC7-C7_LOJA",
+          "name": "C7_LOJA",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 2,
+          "comment": "Loja do Fornecedor"
+        }
+      ],
+      "protheus_meta": {
+        "alias": "SC7",
+        "description": "Pedidos de Compra",
+        "outgoing_relations": [
+          "rel-sx9-SC7-C7_FORNECE-SA2-A2_COD",
+          "rel-sx9-SC7-C7_LOJA-SA2-A2_LOJA"
+        ],
+        "incoming_relations": []
+      }
+    },
+    "SalesOrderReleases": {
+      "SC9_fields": {
+        "c9Pedido": "C9_PEDIDO",
+        "c9Item": "C9_ITEM",
+        "c9Qtdlib": "C9_QTDLIB"
+      },
+      "attributes": [
+        {
+          "id": "attr-SC9-C9_PEDIDO",
+          "name": "C9_PEDIDO",
+          "type": "String",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "isUnique": true,
+          "length": 6,
+          "comment": "Numero do Pedido"
+        },
+        {
+          "id": "attr-SC9-C9_ITEM",
+          "name": "C9_ITEM",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 2,
+          "comment": "Item do Pedido"
+        },
+        {
+          "id": "attr-SC9-C9_QTDLIB",
+          "name": "C9_QTDLIB",
+          "type": "Float",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 12,
+          "scale": 2,
+          "comment": "Quantidade Liberada"
+        }
+      ],
+      "protheus_meta": {
+        "alias": "SC9",
+        "description": "Liberacoes de Pedidos de Venda",
+        "outgoing_relations": [
+          "rel-sx9-SC9-C9_PEDIDO-SC5-C5_NUM"
+        ],
+        "incoming_relations": []
+      }
+    },
+    "PurchaseInvoiceHeader": {
+      "SF1_fields": {
+        "f1Doc": "F1_DOC",
+        "f1Fornece": "F1_FORNECE",
+        "f1Valbrut": "F1_VALBRUT",
+        "id": "F1_DOC",
+        "supplierId": "F1_FORNECE",
+        "grandTotal": "F1_VALBRUT"
+      },
+      "attributes": [
+        {
+          "id": "attr-SF1-F1_DOC",
+          "name": "F1_DOC",
+          "type": "String",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "isUnique": true,
+          "length": 9,
+          "comment": "Numero da NF Entrada"
+        },
+        {
+          "id": "attr-SF1-F1_FORNECE",
+          "name": "F1_FORNECE",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 6,
+          "comment": "Codigo do Fornecedor"
+        },
+        {
+          "id": "attr-SF1-F1_VALBRUT",
+          "name": "F1_VALBRUT",
+          "type": "Float",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 14,
+          "scale": 2,
+          "comment": "Valor Bruto"
+        }
+      ],
+      "protheus_meta": {
+        "alias": "SF1",
+        "description": "Notas Fiscais de Entrada",
+        "outgoing_relations": [
+          "rel-sx9-SF1-F1_FORNECE-SA2-A2_COD"
+        ],
+        "incoming_relations": [
+          "rel-sx9-SD1-D1_DOC-SF1-F1_DOC"
+        ]
+      },
+      "_semantic": {
+        "id": "F1_DOC",
+        "supplierId": "F1_FORNECE",
+        "grandTotal": "F1_VALBRUT"
+      }
+    },
+    "SalesInvoiceHeader": {
+      "SF2_fields": {
+        "f2Doc": "F2_DOC",
+        "f2Serie": "F2_SERIE",
+        "f2Cliente": "F2_CLIENTE",
+        "f2Loja": "F2_LOJA",
+        "f2Emissao": "F2_EMISSAO",
+        "f2Valbrut": "F2_VALBRUT",
+        "id": "F2_DOC + F2_SERIE",
+        "number": "F2_DOC",
+        "customerId": "F2_CLIENTE",
+        "issueDate": "F2_EMISSAO",
+        "grandTotal": "F2_VALBRUT"
+      },
+      "attributes": [
+        {
+          "id": "attr-SF2-F2_DOC",
+          "name": "F2_DOC",
+          "type": "String",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "isUnique": true,
+          "length": 9,
+          "comment": "Numero da NF"
+        },
+        {
+          "id": "attr-SF2-F2_SERIE",
+          "name": "F2_SERIE",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 3,
+          "comment": "Serie da NF"
+        },
+        {
+          "id": "attr-SF2-F2_CLIENTE",
+          "name": "F2_CLIENTE",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 6,
+          "comment": "Codigo do Cliente"
+        },
+        {
+          "id": "attr-SF2-F2_LOJA",
+          "name": "F2_LOJA",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 2,
+          "comment": "Loja do Cliente"
+        },
+        {
+          "id": "attr-SF2-F2_EMISSAO",
+          "name": "F2_EMISSAO",
+          "type": "DateTime",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "comment": "Data de Emissao"
+        },
+        {
+          "id": "attr-SF2-F2_VALBRUT",
+          "name": "F2_VALBRUT",
+          "type": "Float",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 14,
+          "scale": 2,
+          "comment": "Valor Bruto"
+        }
+      ],
+      "protheus_meta": {
+        "alias": "SF2",
+        "description": "Notas Fiscais de Saida",
+        "outgoing_relations": [
+          "rel-sx9-SF2-F2_CLIENTE-SA1-A1_COD",
+          "rel-sx9-SF2-F2_LOJA-SA1-A1_LOJA"
+        ],
+        "incoming_relations": [
+          "rel-sx9-SD2-D2_DOC-SF2-F2_DOC"
+        ]
+      },
+      "_semantic": {
+        "id": "F2_DOC + F2_SERIE",
+        "number": "F2_DOC",
+        "customerId": "F2_CLIENTE",
+        "issueDate": "F2_EMISSAO",
+        "grandTotal": "F2_VALBRUT"
+      }
+    },
+    "Sf3": {
+      "SF3_fields": {
+        "f3Nfiscal": "F3_NFISCAL",
+        "f3Serie": "F3_SERIE",
+        "f3Cliefor": "F3_CLIEFOR"
+      },
+      "attributes": [
+        {
+          "id": "attr-SF3-F3_NFISCAL",
+          "name": "F3_NFISCAL",
+          "type": "String",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "isUnique": true,
+          "length": 9,
+          "comment": "Numero NF Fiscal"
+        },
+        {
+          "id": "attr-SF3-F3_SERIE",
+          "name": "F3_SERIE",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 3,
+          "comment": "Serie NF"
+        },
+        {
+          "id": "attr-SF3-F3_CLIEFOR",
+          "name": "F3_CLIEFOR",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 6,
+          "comment": "Cliente/Fornecedor"
+        }
+      ],
+      "protheus_meta": {
+        "alias": "SF3",
+        "description": "Livros Fiscais",
+        "outgoing_relations": [],
+        "incoming_relations": []
+      }
+    },
+    "Sd1": {
+      "SD1_fields": {
+        "d1Doc": "D1_DOC",
+        "d1Item": "D1_ITEM",
+        "d1Cod": "D1_COD"
+      },
+      "attributes": [
+        {
+          "id": "attr-SD1-D1_DOC",
+          "name": "D1_DOC",
+          "type": "String",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "isUnique": true,
+          "length": 9,
+          "comment": "Documento NF Entrada"
+        },
+        {
+          "id": "attr-SD1-D1_ITEM",
+          "name": "D1_ITEM",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 4,
+          "comment": "Item NF Entrada"
+        },
+        {
+          "id": "attr-SD1-D1_COD",
+          "name": "D1_COD",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 15,
+          "comment": "Codigo Produto"
+        }
+      ],
+      "protheus_meta": {
+        "alias": "SD1",
+        "description": "Itens NF Entrada",
+        "outgoing_relations": [
+          "rel-sx9-SD1-D1_DOC-SF1-F1_DOC",
+          "rel-sx9-SD1-D1_COD-SB1-B1_COD"
+        ],
+        "incoming_relations": []
+      }
+    },
+    "Sd2": {
+      "SD2_fields": {
+        "d2Doc": "D2_DOC",
+        "d2Item": "D2_ITEM",
+        "d2Cod": "D2_COD"
+      },
+      "attributes": [
+        {
+          "id": "attr-SD2-D2_DOC",
+          "name": "D2_DOC",
+          "type": "String",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "isUnique": true,
+          "length": 9,
+          "comment": "Documento NF Saida"
+        },
+        {
+          "id": "attr-SD2-D2_ITEM",
+          "name": "D2_ITEM",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 2,
+          "comment": "Item NF Saida"
+        },
+        {
+          "id": "attr-SD2-D2_COD",
+          "name": "D2_COD",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 15,
+          "comment": "Codigo Produto"
+        }
+      ],
+      "protheus_meta": {
+        "alias": "SD2",
+        "description": "Itens NF Saida",
+        "outgoing_relations": [
+          "rel-sx9-SD2-D2_DOC-SF2-F2_DOC",
+          "rel-sx9-SD2-D2_COD-SB1-B1_COD"
+        ],
+        "incoming_relations": []
+      }
+    },
+    "Se1": {
+      "SE1_fields": {
+        "e1Prefixo": "E1_PREFIXO",
+        "e1Num": "E1_NUM",
+        "e1Cliente": "E1_CLIENTE",
+        "e1Valor": "E1_VALOR"
+      },
+      "attributes": [
+        {
+          "id": "attr-SE1-E1_PREFIXO",
+          "name": "E1_PREFIXO",
+          "type": "String",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "isUnique": true,
+          "length": 3,
+          "comment": "Prefixo Titulo"
+        },
+        {
+          "id": "attr-SE1-E1_NUM",
+          "name": "E1_NUM",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 8,
+          "comment": "Numero Titulo"
+        },
+        {
+          "id": "attr-SE1-E1_CLIENTE",
+          "name": "E1_CLIENTE",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 6,
+          "comment": "Codigo Cliente"
+        },
+        {
+          "id": "attr-SE1-E1_VALOR",
+          "name": "E1_VALOR",
+          "type": "Float",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 14,
+          "scale": 2,
+          "comment": "Valor Titulo"
+        }
+      ],
+      "protheus_meta": {
+        "alias": "SE1",
+        "description": "Titulos a Receber",
+        "outgoing_relations": [
+          "rel-sx9-SE1-E1_CLIENTE-SA1-A1_COD"
+        ],
+        "incoming_relations": []
+      }
+    },
+    "Se2": {
+      "SE2_fields": {
+        "e2Prefixo": "E2_PREFIXO",
+        "e2Num": "E2_NUM",
+        "e2Fornece": "E2_FORNECE",
+        "e2Valor": "E2_VALOR"
+      },
+      "attributes": [
+        {
+          "id": "attr-SE2-E2_PREFIXO",
+          "name": "E2_PREFIXO",
+          "type": "String",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "isUnique": true,
+          "length": 3,
+          "comment": "Prefixo Titulo"
+        },
+        {
+          "id": "attr-SE2-E2_NUM",
+          "name": "E2_NUM",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 8,
+          "comment": "Numero Titulo"
+        },
+        {
+          "id": "attr-SE2-E2_FORNECE",
+          "name": "E2_FORNECE",
+          "type": "String",
+          "isPrimaryKey": false,
+          "isRequired": true,
+          "isUnique": false,
+          "length": 6,
+          "comment": "Codigo Fornecedor"
+        },
+        {
+          "id": "attr-SE2-E2_VALOR",
+          "name": "E2_VALOR",
+          "type": "Float",
+          "isPrimaryKey": false,
+          "isRequired": false,
+          "isUnique": false,
+          "length": 14,
+          "scale": 2,
+          "comment": "Valor Titulo"
+        }
+      ],
+      "protheus_meta": {
+        "alias": "SE2",
+        "description": "Titulos a Pagar",
+        "outgoing_relations": [
+          "rel-sx9-SE2-E2_FORNECE-SA2-A2_COD"
+        ],
+        "incoming_relations": []
+      }
+    }
+  },
+  "relationships": [
+    {
+      "id": "rel-sx9-SC5-C5_CLIENTE-SA1-A1_COD",
+      "sourceTable": "SC5",
+      "targetTable": "SA1",
+      "sourceCanonical": "opo:SalesOrderHeader",
+      "targetCanonical": "opo:Customer",
+      "sourceField": "C5_CLIENTE",
+      "targetField": "A1_COD",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "001",
+        "description": "SC5.C5_CLIENTE → SA1.A1_COD (Cadastro de Clientes)"
+      }
+    },
+    {
+      "id": "rel-sx9-SC5-C5_LOJACLI-SA1-A1_LOJA",
+      "sourceTable": "SC5",
+      "targetTable": "SA1",
+      "sourceCanonical": "opo:SalesOrderHeader",
+      "targetCanonical": "opo:Customer",
+      "sourceField": "C5_LOJACLI",
+      "targetField": "A1_LOJA",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "002",
+        "description": "SC5.C5_LOJACLI → SA1.A1_LOJA (Cadastro de Clientes)"
+      }
+    },
+    {
+      "id": "rel-sx9-SC6-C6_NUM-SC5-C5_NUM",
+      "sourceTable": "SC6",
+      "targetTable": "SC5",
+      "sourceCanonical": "opo:SalesOrderItem",
+      "targetCanonical": "opo:SalesOrderHeader",
+      "sourceField": "C6_NUM",
+      "targetField": "C5_NUM",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "001",
+        "description": "SC6.C6_NUM → SC5.C5_NUM (Pedidos de Venda)"
+      }
+    },
+    {
+      "id": "rel-sx9-SC6-C6_PRODUTO-SB1-B1_COD",
+      "sourceTable": "SC6",
+      "targetTable": "SB1",
+      "sourceCanonical": "opo:SalesOrderItem",
+      "targetCanonical": "opo:Product",
+      "sourceField": "C6_PRODUTO",
+      "targetField": "B1_COD",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "002",
+        "description": "SC6.C6_PRODUTO → SB1.B1_COD (Cadastro de Produtos)"
+      }
+    },
+    {
+      "id": "rel-sx9-SC7-C7_FORNECE-SA2-A2_COD",
+      "sourceTable": "SC7",
+      "targetTable": "SA2",
+      "sourceCanonical": "opo:PurchaseOrderHeader",
+      "targetCanonical": "opo:Supplier",
+      "sourceField": "C7_FORNECE",
+      "targetField": "A2_COD",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "001",
+        "description": "SC7.C7_FORNECE → SA2.A2_COD (Cadastro de Fornecedores)"
+      }
+    },
+    {
+      "id": "rel-sx9-SC7-C7_LOJA-SA2-A2_LOJA",
+      "sourceTable": "SC7",
+      "targetTable": "SA2",
+      "sourceCanonical": "opo:PurchaseOrderHeader",
+      "targetCanonical": "opo:Supplier",
+      "sourceField": "C7_LOJA",
+      "targetField": "A2_LOJA",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "002",
+        "description": "SC7.C7_LOJA → SA2.A2_LOJA (Cadastro de Fornecedores)"
+      }
+    },
+    {
+      "id": "rel-sx9-SC9-C9_PEDIDO-SC5-C5_NUM",
+      "sourceTable": "SC9",
+      "targetTable": "SC5",
+      "sourceCanonical": "opo:SalesOrderReleases",
+      "targetCanonical": "opo:SalesOrderHeader",
+      "sourceField": "C9_PEDIDO",
+      "targetField": "C5_NUM",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "001",
+        "description": "SC9.C9_PEDIDO → SC5.C5_NUM (Pedidos de Venda)"
+      }
+    },
+    {
+      "id": "rel-sx9-SF1-F1_FORNECE-SA2-A2_COD",
+      "sourceTable": "SF1",
+      "targetTable": "SA2",
+      "sourceCanonical": "opo:PurchaseInvoiceHeader",
+      "targetCanonical": "opo:Supplier",
+      "sourceField": "F1_FORNECE",
+      "targetField": "A2_COD",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "001",
+        "description": "SF1.F1_FORNECE → SA2.A2_COD (Cadastro de Fornecedores)"
+      }
+    },
+    {
+      "id": "rel-sx9-SF2-F2_CLIENTE-SA1-A1_COD",
+      "sourceTable": "SF2",
+      "targetTable": "SA1",
+      "sourceCanonical": "opo:SalesInvoiceHeader",
+      "targetCanonical": "opo:Customer",
+      "sourceField": "F2_CLIENTE",
+      "targetField": "A1_COD",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "001",
+        "description": "SF2.F2_CLIENTE → SA1.A1_COD (Cadastro de Clientes)"
+      }
+    },
+    {
+      "id": "rel-sx9-SF2-F2_LOJA-SA1-A1_LOJA",
+      "sourceTable": "SF2",
+      "targetTable": "SA1",
+      "sourceCanonical": "opo:SalesInvoiceHeader",
+      "targetCanonical": "opo:Customer",
+      "sourceField": "F2_LOJA",
+      "targetField": "A1_LOJA",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "002",
+        "description": "SF2.F2_LOJA → SA1.A1_LOJA (Cadastro de Clientes)"
+      }
+    },
+    {
+      "id": "rel-sx9-SD1-D1_DOC-SF1-F1_DOC",
+      "sourceTable": "SD1",
+      "targetTable": "SF1",
+      "sourceCanonical": "opo:Sd1",
+      "targetCanonical": "opo:PurchaseInvoiceHeader",
+      "sourceField": "D1_DOC",
+      "targetField": "F1_DOC",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "001",
+        "description": "SD1.D1_DOC → SF1.F1_DOC (Notas Fiscais de Entrada)"
+      }
+    },
+    {
+      "id": "rel-sx9-SD1-D1_COD-SB1-B1_COD",
+      "sourceTable": "SD1",
+      "targetTable": "SB1",
+      "sourceCanonical": "opo:Sd1",
+      "targetCanonical": "opo:Product",
+      "sourceField": "D1_COD",
+      "targetField": "B1_COD",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "002",
+        "description": "SD1.D1_COD → SB1.B1_COD (Cadastro de Produtos)"
+      }
+    },
+    {
+      "id": "rel-sx9-SD2-D2_DOC-SF2-F2_DOC",
+      "sourceTable": "SD2",
+      "targetTable": "SF2",
+      "sourceCanonical": "opo:Sd2",
+      "targetCanonical": "opo:SalesInvoiceHeader",
+      "sourceField": "D2_DOC",
+      "targetField": "F2_DOC",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "001",
+        "description": "SD2.D2_DOC → SF2.F2_DOC (Notas Fiscais de Saida)"
+      }
+    },
+    {
+      "id": "rel-sx9-SD2-D2_COD-SB1-B1_COD",
+      "sourceTable": "SD2",
+      "targetTable": "SB1",
+      "sourceCanonical": "opo:Sd2",
+      "targetCanonical": "opo:Product",
+      "sourceField": "D2_COD",
+      "targetField": "B1_COD",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "002",
+        "description": "SD2.D2_COD → SB1.B1_COD (Cadastro de Produtos)"
+      }
+    },
+    {
+      "id": "rel-sx9-SE1-E1_CLIENTE-SA1-A1_COD",
+      "sourceTable": "SE1",
+      "targetTable": "SA1",
+      "sourceCanonical": "opo:Se1",
+      "targetCanonical": "opo:Customer",
+      "sourceField": "E1_CLIENTE",
+      "targetField": "A1_COD",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "001",
+        "description": "SE1.E1_CLIENTE → SA1.A1_COD (Cadastro de Clientes)"
+      }
+    },
+    {
+      "id": "rel-sx9-SE2-E2_FORNECE-SA2-A2_COD",
+      "sourceTable": "SE2",
+      "targetTable": "SA2",
+      "sourceCanonical": "opo:Se2",
+      "targetCanonical": "opo:Supplier",
+      "sourceField": "E2_FORNECE",
+      "targetField": "A2_COD",
+      "cardinality": "ONE_TO_MANY",
+      "source": "sx9",
+      "confidence": 1,
+      "metadata": {
+        "sx9Ident": "001",
+        "description": "SE2.E2_FORNECE → SA2.A2_COD (Cadastro de Fornecedores)"
+      }
+    }
+  ],
+  "discoveredAt": "2026-01-01T00:00:00.000Z",
+  "dictionary_meta": {
+    "source": "mock",
+    "tables_count": 14,
+    "fields_count": 60,
+    "relationships_count": 16,
+    "baseline_version": "1.0.0",
+    "is_baseline": true
+  }
+}

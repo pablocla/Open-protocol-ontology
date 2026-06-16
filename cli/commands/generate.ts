@@ -14,7 +14,7 @@ export const generateCommand = new Command('generate')
       process.exit(1);
     }
 
-    const schemaDir = path.join(__dirname, '../public/schemas');
+    const schemaDir = path.join(__dirname, '../../public/schemas');
     const outPath = path.resolve(process.cwd(), options.out);
 
     if (!fs.existsSync(schemaDir)) {

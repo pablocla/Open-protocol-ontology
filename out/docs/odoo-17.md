@@ -131,3 +131,4 @@ curl -X GET "https://odoo-opo.myenterprise.com/api/v1/entities/Invoice/452" \
 ### Error: `Odoo ORM Error: AccessError (Document restriction)`
 - **Cause**: The API key User profile lacks sufficient READ/WRITE permissions for some requested tables (e.g., `account.move`).
 - **Fix**: Assign user to correct User groups (Invoicing > Accountant or Sales > Manager) in Settings > Users & Companies.
+

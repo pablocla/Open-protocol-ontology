@@ -1,1 +1,27 @@
 @import "tailwindcss";
+
+@theme {
+  --color-brand-cyan: #06b6d4;
+  --color-brand-magenta: #d946ef;
+  --color-brand-violet: #8b5cf6;
+}
+
+@utility glass {
+  background: rgba(10, 10, 10, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@utility glass-panel {
+  background: linear-gradient(135deg, rgba(20, 20, 20, 0.6) 0%, rgba(10, 10, 10, 0.8) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+body {
+  background-color: #050505;
+  color: #ededed;
+}

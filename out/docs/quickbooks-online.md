@@ -132,3 +132,4 @@ curl -X GET "https://qb-opo.myenterprise.com/api/v1/entities/Customer/12" \
 ### Error: `Intuit API Error: 401 Unauthorized`
 - **Cause**: Inaccurate authorization headers or mismatched Company ID (Realm ID).
 - **Fix**: Verify your Realm ID configuration matches the credentials set in `opo-adapter.config.json` exactly.
+

@@ -216,6 +216,94 @@ export interface Money {
 }
 
 /**
+ * Standardized OPO Mutation Language for deterministically writing data to ERPs
+ */
+export interface OpoMutation {
+  mutation: {
+    /**
+     * The target OPO entity type, e.g. 'Customer', 'Invoice'
+     */
+    entity: string;
+    /**
+     * The CRUD action to perform on the entity
+     */
+    action: 'CREATE' | 'UPDATE' | 'DELETE';
+    filter?: FilterNode;
+    /**
+     * The data to be inserted (CREATE) or modified (UPDATE). Required for CREATE and UPDATE.
+     */
+    payload?: {
+      [k: string]: unknown;
+    };
+  };
+}
+/**
+ * Filter to select which records to UPDATE or DELETE. Required for UPDATE and DELETE.
+ */
+export interface FilterNode {
+  AND?: FilterNode1[];
+  OR?: FilterNode1[];
+  NOT?: FilterNode1;
+  /**
+   * This interface was referenced by `FilterNode1`'s JSON-Schema definition
+   * via the `patternProperty` "^(?!(AND|OR|NOT)$)[a-zA-Z0-9_]+$".
+   *
+   * This interface was referenced by `FilterNode`'s JSON-Schema definition
+   * via the `patternProperty` "^(?!(AND|OR|NOT)$)[a-zA-Z0-9_]+$".
+   */
+  [k: string]: {
+    eq?: unknown;
+    neq?: unknown;
+    gt?: unknown;
+    gte?: unknown;
+    lt?: unknown;
+    lte?: unknown;
+    like?: string;
+    in?: unknown[];
+  };
+}
+export interface FilterNode1 {
+  AND?: FilterNode1[];
+  OR?: FilterNode1[];
+  NOT?: FilterNode1;
+  /**
+   * This interface was referenced by `FilterNode1`'s JSON-Schema definition
+   * via the `patternProperty` "^(?!(AND|OR|NOT)$)[a-zA-Z0-9_]+$".
+   *
+   * This interface was referenced by `FilterNode`'s JSON-Schema definition
+   * via the `patternProperty` "^(?!(AND|OR|NOT)$)[a-zA-Z0-9_]+$".
+   */
+  [k: string]: {
+    eq?: unknown;
+    neq?: unknown;
+    gt?: unknown;
+    gte?: unknown;
+    lt?: unknown;
+    lte?: unknown;
+    like?: string;
+    in?: unknown[];
+  };
+}
+
+/**
+ * Standardized response for an OPO Mutation
+ */
+export interface OpoMutationResponse {
+  /**
+   * Whether the mutation was successful
+   */
+  success: boolean;
+  /**
+   * Number of rows affected by the mutation
+   */
+  affectedRows?: number;
+  /**
+   * Error message if the mutation failed
+   */
+  error?: string;
+}
+
+/**
  * Standardized OPO Query Language (OPO-QL) for deterministic AI fetching with strict boundaries
  */
 export interface OpoQuery {

@@ -7,16 +7,7 @@
   "x-opo-tier": 2,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "TaxDocument",
-    "Documento Fiscal",
-    "Certificado Retencion",
-    "Retencion",
-    "WITH_ITEM",
-    "account.tax",
-    "SF3",
-    "Comprobante Retención",
-    "Certificado",
-    "Aliquota"
+    "TaxDocument", "Documento Fiscal", "Certificado Retencion", "Retencion", "WITH_ITEM", "account.tax", "SF3", "Comprobante Retención", "Certificado", "Aliquota"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "WITH_ITEM (Withholding Tax Table per FI Document)",
@@ -40,62 +31,25 @@
   ],
   "type": "object",
   "properties": {
-    "id": {
-      "type": "string"
-    },
-    "relatedInvoiceId": {
-      "type": "string"
-    },
-    "documentType": {
-      "type": "string",
-      "enum": [
-        "WITHHOLDING_CERTIFICATE",
-        "VAT_DECLARATION",
-        "CUSTOMS_ENTRY",
-        "REGULATORY_STATEMENT"
-      ]
-    },
-    "fiscalIdentifier": {
-      "type": "string"
-    },
-    "taxAuthorityName": {
-      "type": "string"
-    },
-    "withholdingAmount": {
-      "$ref": "#/$defs/Money"
-    },
-    "taxRateApplied": {
-      "type": "number"
-    },
-    "issueDate": {
-      "type": "string",
-      "format": "date"
-    }
+    "id": { "type": "string" },
+    "relatedInvoiceId": { "type": "string" },
+    "documentType": { "type": "string", "enum": ["WITHHOLDING_CERTIFICATE", "VAT_DECLARATION", "CUSTOMS_ENTRY", "REGULATORY_STATEMENT"] },
+    "fiscalIdentifier": { "type": "string" },
+    "taxAuthorityName": { "type": "string" },
+    "withholdingAmount": { "$ref": "#/$defs/Money" },
+    "taxRateApplied": { "type": "number" },
+    "issueDate": { "type": "string", "format": "date" }
   },
-  "required": [
-    "id",
-    "documentType",
-    "fiscalIdentifier",
-    "withholdingAmount",
-    "issueDate"
-  ],
+  "required": ["id", "documentType", "fiscalIdentifier", "withholdingAmount", "issueDate"],
   "$defs": {
     "Money": {
       "type": "object",
       "properties": {
-        "amount": {
-          "type": "number"
-        },
-        "currency": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 3
-        }
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
       },
-      "required": [
-        "amount",
-        "currency"
-      ]
+      "required": ["amount", "currency"]
     }
   }
 }
+

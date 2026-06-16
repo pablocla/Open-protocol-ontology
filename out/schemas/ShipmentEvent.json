@@ -7,17 +7,7 @@
   "x-opo-tier": 2,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "ShipmentEvent",
-    "Evento de Embarque",
-    "Evento de Envio",
-    "Despacho",
-    "VTTK",
-    "stock.picking",
-    "GW1",
-    "Tracking",
-    "Entrega",
-    "Remito",
-    "Minuta"
+    "ShipmentEvent", "Evento de Embarque", "Evento de Envio", "Despacho", "VTTK", "stock.picking", "GW1", "Tracking", "Entrega", "Remito", "Minuta"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "VTTK (Shipment Header) / VTTP (Shipment Item), LIKP (SD Document Delivery)",
@@ -37,49 +27,19 @@
     "Find shipment load information in GW1."
   ],
   "x-opo-distinguishable-from": [
-    "Order",
-    "Warehouse"
+    "Order", "Warehouse"
   ],
   "type": "object",
   "properties": {
-    "id": {
-      "type": "string"
-    },
-    "orderId": {
-      "type": "string"
-    },
-    "trackingNumber": {
-      "type": "string"
-    },
-    "carrierName": {
-      "type": "string"
-    },
-    "currentLocation": {
-      "type": "string"
-    },
-    "status": {
-      "type": "string",
-      "enum": [
-        "DISPATCHED",
-        "IN_TRANSIT",
-        "OUT_FOR_DELIVERY",
-        "DELIVERED",
-        "DELAYED"
-      ]
-    },
-    "eventTimestamp": {
-      "type": "string",
-      "format": "date-time"
-    },
-    "estimatedDelivery": {
-      "type": "string",
-      "format": "date"
-    }
+    "id": { "type": "string" },
+    "orderId": { "type": "string" },
+    "trackingNumber": { "type": "string" },
+    "carrierName": { "type": "string" },
+    "currentLocation": { "type": "string" },
+    "status": { "type": "string", "enum": ["DISPATCHED", "IN_TRANSIT", "OUT_FOR_DELIVERY", "DELIVERED", "DELAYED"] },
+    "eventTimestamp": { "type": "string", "format": "date-time" },
+    "estimatedDelivery": { "type": "string", "format": "date" }
   },
-  "required": [
-    "id",
-    "orderId",
-    "status",
-    "eventTimestamp"
-  ]
+  "required": ["id", "orderId", "status", "eventTimestamp"]
 }
+

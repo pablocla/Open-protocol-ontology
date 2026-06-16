@@ -124,3 +124,4 @@ curl -X GET "https://infor-opo.myenterprise.com/api/v1/entities/Customer/C000109
 ### Error: `Infor OS Error: Routing path or endpoint target unreachable`
 - **Cause**: Underlying business ERP endpoint lacks proper subscription in ION OS.
 - **Fix**: Open ION routing dashboard, go to Connection Points, and verify target application subscription status.
+

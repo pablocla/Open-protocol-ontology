@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openontology.vercel.app/schemas/OpoMutationResponse.json",
+  "title": "OpoMutationResponse",
+  "description": "Standardized response for an OPO Mutation",
+  "type": "object",
+  "properties": {
+    "success": {
+      "type": "boolean",
+      "description": "Whether the mutation was successful"
+    },
+    "affectedRows": {
+      "type": "integer",
+      "description": "Number of rows affected by the mutation"
+    },
+    "error": {
+      "type": "string",
+      "description": "Error message if the mutation failed"
+    }
+  },
+  "required": ["success"],
+  "additionalProperties": false
+}

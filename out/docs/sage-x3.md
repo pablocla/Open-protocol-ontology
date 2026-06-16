@@ -132,3 +132,4 @@ curl -X GET "https://sage-opo.myenterprise.com/api/v1/entities/Customer/CUST0001
 ### Error: `Sage WebService Error: Web Service not published (404)`
 - **Cause**: The web service resource has been created but not published for the target endpoint namespace.
 - **Fix**: Go to Authoring > Web Services, query program, and click the **Publish** button to activate the routing paths.
+

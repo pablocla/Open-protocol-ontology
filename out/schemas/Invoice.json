@@ -7,17 +7,7 @@
   "x-opo-tier": 1,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "Invoice",
-    "Factura",
-    "Nota Fiscal",
-    "NF-e",
-    "VBRK",
-    "account.move",
-    "SF2",
-    "SF1",
-    "Billing Document",
-    "Fatura",
-    "Comprobante"
+    "Invoice", "Factura", "Nota Fiscal", "NF-e", "VBRK", "account.move", "SF2", "SF1", "Billing Document", "Fatura", "Comprobante"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "VBRK (Billing Document Header) / VBRP (Items), BKPF (Financial Header) / BSEG (Items)",
@@ -37,113 +27,47 @@
     "Verify tax values for this NF-e."
   ],
   "x-opo-distinguishable-from": [
-    "Order",
-    "TaxDocument"
+    "Order", "TaxDocument"
   ],
   "type": "object",
   "properties": {
-    "id": {
-      "type": "string"
-    },
-    "number": {
-      "type": "string"
-    },
-    "issueDate": {
-      "type": "string",
-      "format": "date"
-    },
-    "dueDate": {
-      "type": "string",
-      "format": "date"
-    },
-    "partyId": {
-      "type": "string"
-    },
-    "status": {
-      "type": "string",
-      "enum": [
-        "DRAFT",
-        "ISSUED",
-        "PAID",
-        "OVERDUE",
-        "CANCELLED"
-      ]
-    },
+    "id": { "type": "string" },
+    "number": { "type": "string" },
+    "issueDate": { "type": "string", "format": "date" },
+    "dueDate": { "type": "string", "format": "date" },
+    "partyId": { "type": "string" },
+    "status": { "type": "string", "enum": ["DRAFT", "ISSUED", "PAID", "OVERDUE", "CANCELLED"] },
     "lineItems": {
       "type": "array",
-      "items": {
-        "$ref": "#/$defs/InvoiceItem"
-      }
+      "items": { "$ref": "#/$defs/InvoiceItem" }
     },
-    "subTotal": {
-      "$ref": "#/$defs/Money"
-    },
-    "taxTotal": {
-      "$ref": "#/$defs/Money"
-    },
-    "grandTotal": {
-      "$ref": "#/$defs/Money"
-    }
+    "subTotal": { "$ref": "#/$defs/Money" },
+    "taxTotal": { "$ref": "#/$defs/Money" },
+    "grandTotal": { "$ref": "#/$defs/Money" }
   },
-  "required": [
-    "id",
-    "number",
-    "issueDate",
-    "dueDate",
-    "partyId",
-    "status",
-    "lineItems",
-    "grandTotal"
-  ],
+  "required": ["id", "number", "issueDate", "dueDate", "partyId", "status", "lineItems", "grandTotal"],
   "$defs": {
     "Money": {
       "type": "object",
       "properties": {
-        "amount": {
-          "type": "number"
-        },
-        "currency": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 3
-        }
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
       },
-      "required": [
-        "amount",
-        "currency"
-      ]
+      "required": ["amount", "currency"]
     },
     "InvoiceItem": {
       "type": "object",
       "properties": {
-        "productId": {
-          "type": "string"
-        },
-        "serviceId": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "quantity": {
-          "type": "number"
-        },
-        "unitPrice": {
-          "$ref": "#/$defs/Money"
-        },
-        "taxRate": {
-          "type": "number"
-        },
-        "lineTotal": {
-          "$ref": "#/$defs/Money"
-        }
+        "productId": { "type": "string" },
+        "serviceId": { "type": "string" },
+        "description": { "type": "string" },
+        "quantity": { "type": "number" },
+        "unitPrice": { "$ref": "#/$defs/Money" },
+        "taxRate": { "type": "number" },
+        "lineTotal": { "$ref": "#/$defs/Money" }
       },
-      "required": [
-        "description",
-        "quantity",
-        "unitPrice",
-        "lineTotal"
-      ]
+      "required": ["description", "quantity", "unitPrice", "lineTotal"]
     }
   }
 }
+

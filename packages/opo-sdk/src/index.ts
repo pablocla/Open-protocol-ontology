@@ -9,7 +9,18 @@ export interface OpoMapping {
   sourceType: string;
   tableName: string;
   description?: string;
+  security?: {
+    rowLevelPolicy?: {
+      field: string;
+      contextKey: string;
+    };
+  };
   fields: Record<string, OpoField>;
+  actions?: Record<string, {
+    procedure: string;
+    description?: string;
+    params: string[];
+  }>;
 }
 
 export interface OpoClientOptions {
@@ -48,3 +59,7 @@ export class OpoClient {
 }
 
 export * from './builder';
+export * from './translator';
+export * from './pagination';
+export * from './mcp';
+export * from './adapters/graphql';

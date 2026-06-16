@@ -144,3 +144,4 @@ curl -X GET "https://opo-adapter.myenterprise.com/api/v1/entities/Party/10002" \
 ### Error: `OPO-ERR-005: Destination SAP System Unreachable`
 - **Cause**: S/4 instance on-premise firewall blocking BTP cloud connector.
 - **Fix**: Open SAP Cloud Connector management interface, verify connection tunnel status, and confirm resource accessibility rules.
+

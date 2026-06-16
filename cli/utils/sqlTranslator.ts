@@ -1,3 +1,28 @@
+const DEFAULT_QUERY_LIMIT = 50;
+const MAX_QUERY_LIMIT = 100;
+
+function decodeCursor(cursor?: string | null): number {
+  if (!cursor || typeof cursor !== 'string') return 0;
+  try {
+    const json = Buffer.from(cursor, 'base64url').toString('utf8');
+    const parsed = JSON.parse(json) as { o?: number; offset?: number };
+    const o = Number(parsed?.o ?? parsed?.offset ?? 0);
+    return Number.isFinite(o) && o >= 0 ? Math.floor(o) : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function resolvePagination(opoQuery: any) {
+  const rawLimit = opoQuery?.limit ?? opoQuery?.pagination?.limit;
+  const appliedDefault = rawLimit === undefined || rawLimit === null;
+  let limit = appliedDefault ? DEFAULT_QUERY_LIMIT : Number(rawLimit);
+  if (!Number.isFinite(limit) || limit < 1) limit = DEFAULT_QUERY_LIMIT;
+  limit = Math.min(Math.floor(limit), MAX_QUERY_LIMIT);
+  const offset = decodeCursor(opoQuery?.pagination?.cursor);
+  return { limit, offset, fetchLimit: limit + 1, appliedDefault };
+}
+
 export interface Dictionary {
   [entityName: string]: {
     tableName: string;
@@ -11,7 +36,53 @@ export interface Dictionary {
   };
 }
 
+function parseFilterNode(node: any, tableAlias: string, fields: { [semanticField: string]: string }, params: any[], opoEntity: string): string {
+  let conditions: string[] = [];
+
+  for (const [key, value] of Object.entries(node)) {
+    if (key === 'AND') {
+      const sub = (value as any[]).map(v => parseFilterNode(v, tableAlias, fields, params, opoEntity)).join(' AND ');
+      conditions.push(`(${sub})`);
+    } else if (key === 'OR') {
+      const sub = (value as any[]).map(v => parseFilterNode(v, tableAlias, fields, params, opoEntity)).join(' OR ');
+      conditions.push(`(${sub})`);
+    } else if (key === 'NOT') {
+      conditions.push(`NOT (${parseFilterNode(value, tableAlias, fields, params, opoEntity)})`);
+    } else {
+      // It's a field condition
+      const physicalColumn = fields[key];
+      if (!physicalColumn) throw new Error(`Filter field '${key}' not mapped for entity '${opoEntity}'.`);
+      
+      const columnRef = `${tableAlias}.${physicalColumn}`;
+      
+      for (const [op, val] of Object.entries(value as any)) {
+        switch(op) {
+          case 'eq': conditions.push(`${columnRef} = ?`); params.push(val); break;
+          case 'neq': conditions.push(`${columnRef} != ?`); params.push(val); break;
+          case 'gt': conditions.push(`${columnRef} > ?`); params.push(val); break;
+          case 'gte': conditions.push(`${columnRef} >= ?`); params.push(val); break;
+          case 'lt': conditions.push(`${columnRef} < ?`); params.push(val); break;
+          case 'lte': conditions.push(`${columnRef} <= ?`); params.push(val); break;
+          case 'like': conditions.push(`${columnRef} LIKE ?`); params.push(val); break;
+          case 'in': 
+            const placeholders = (val as any[]).map(() => '?').join(', ');
+            conditions.push(`${columnRef} IN (${placeholders})`);
+            params.push(...(val as any[]));
+            break;
+          default: throw new Error(`Unsupported operator '${op}'`);
+        }
+      }
+    }
+  }
+  return conditions.join(' AND ');
+}
+
 export function translateOpoToSql(opoQuery: any, dictionary: Dictionary) {
+  if (opoQuery?.query && typeof opoQuery.query === 'object') {
+    opoQuery = opoQuery.query;
+  }
+  const pagination = resolvePagination(opoQuery);
+
   const entityDict = dictionary[opoQuery.entity];
   if (!entityDict) {
     throw new Error(`Entity '${opoQuery.entity}' not found in mapping dictionary.`);
@@ -38,20 +109,10 @@ export function translateOpoToSql(opoQuery: any, dictionary: Dictionary) {
         const relation = joins[key];
         joinClauses.push(`LEFT JOIN ${relation.tableName} ON ${relation.on}`);
         
-        // This is a simplified 1-level deep join for the SDK example
-        // A production SDK would support infinite recursion.
         const nestedSelect = (value as any).select;
         if (nestedSelect) {
-          // Assume the relation is another entity in the dictionary?
-          // Or just allow direct physical mapping in a flat dictionary for this prototype
-          // To keep it simple, we assume fields are fully qualified in dictionary if they are related
-          // OR we could require the mapping to declare the target entity.
-          // For now, we will just alias the JSON result or flat map it.
-          // In a real scenario, nested objects are constructed via JSON_AGG or similar.
-          // For this MVP SDK translator, we'll prefix fields to show capabilities:
           for (const [nKey, nVal] of Object.entries(nestedSelect)) {
              if (nVal) {
-               // We fake a column lookup for the prototype
                selectClauses.push(`${relation.tableName}.${nKey.toUpperCase()} AS "${key}_${nKey}"`);
              }
           }
@@ -64,61 +125,83 @@ export function translateOpoToSql(opoQuery: any, dictionary: Dictionary) {
     selectClauses.push(`${tableName}.*`);
   }
 
-  // 2. Process Filters
-  const parseFilterNode = (node: any, tableAlias: string): string => {
-    let conditions: string[] = [];
-
-    for (const [key, value] of Object.entries(node)) {
-      if (key === 'AND') {
-        const sub = (value as any[]).map(v => parseFilterNode(v, tableAlias)).join(' AND ');
-        conditions.push(`(${sub})`);
-      } else if (key === 'OR') {
-        const sub = (value as any[]).map(v => parseFilterNode(v, tableAlias)).join(' OR ');
-        conditions.push(`(${sub})`);
-      } else if (key === 'NOT') {
-        conditions.push(`NOT (${parseFilterNode(value, tableAlias)})`);
-      } else {
-        // It's a field condition
-        const physicalColumn = fields[key];
-        if (!physicalColumn) throw new Error(`Filter field '${key}' not mapped for entity '${opoQuery.entity}'.`);
-        
-        const columnRef = `${tableAlias}.${physicalColumn}`;
-        
-        for (const [op, val] of Object.entries(value as any)) {
-          switch(op) {
-            case 'eq': conditions.push(`${columnRef} = ?`); params.push(val); break;
-            case 'neq': conditions.push(`${columnRef} != ?`); params.push(val); break;
-            case 'gt': conditions.push(`${columnRef} > ?`); params.push(val); break;
-            case 'gte': conditions.push(`${columnRef} >= ?`); params.push(val); break;
-            case 'lt': conditions.push(`${columnRef} < ?`); params.push(val); break;
-            case 'lte': conditions.push(`${columnRef} <= ?`); params.push(val); break;
-            case 'like': conditions.push(`${columnRef} LIKE ?`); params.push(val); break;
-            case 'in': 
-              const placeholders = (val as any[]).map(() => '?').join(', ');
-              conditions.push(`${columnRef} IN (${placeholders})`);
-              params.push(...(val as any[]));
-              break;
-            default: throw new Error(`Unsupported operator '${op}'`);
-          }
-        }
-      }
-    }
-    return conditions.join(' AND ');
-  };
-
   let whereClause = '';
   if (opoQuery.filter && Object.keys(opoQuery.filter).length > 0) {
-    whereClause = 'WHERE ' + parseFilterNode(opoQuery.filter, tableName);
+    whereClause = 'WHERE ' + parseFilterNode(opoQuery.filter, tableName, fields, params, opoQuery.entity);
   }
 
-  // 3. Process Pagination
-  let limitClause = '';
-  if (opoQuery.pagination?.limit) {
-    limitClause = `LIMIT ${opoQuery.pagination.limit}`;
+  const limitClause = `LIMIT ${pagination.fetchLimit}`;
+  const offsetClause = pagination.offset > 0 ? `OFFSET ${pagination.offset}` : '';
+
+  const sql = `SELECT ${selectClauses.join(', ')}\nFROM ${tableName}\n${joinClauses.join('\n')}\n${whereClause}\n${limitClause}${offsetClause ? ` ${offsetClause}` : ''}`.trim();
+
+  return { sql, params, pagination };
+}
+
+export function translateOpoMutationToSql(opoMutation: any, dictionary: Dictionary) {
+  const entityDict = dictionary[opoMutation.entity];
+  if (!entityDict) {
+    throw new Error(`Entity '${opoMutation.entity}' not found in mapping dictionary.`);
   }
 
-  // Compile final SQL
-  const sql = `SELECT ${selectClauses.join(', ')}\nFROM ${tableName}\n${joinClauses.join('\n')}\n${whereClause}\n${limitClause}`.trim();
+  const { tableName, fields } = entityDict;
+  let params: any[] = [];
+  let sql = '';
+
+  switch (opoMutation.action) {
+    case 'CREATE': {
+      if (!opoMutation.payload || Object.keys(opoMutation.payload).length === 0) {
+        throw new Error('CREATE mutation requires a payload');
+      }
+      
+      const columns: string[] = [];
+      const placeholders: string[] = [];
+
+      for (const [key, value] of Object.entries(opoMutation.payload)) {
+        const physicalColumn = fields[key];
+        if (!physicalColumn) throw new Error(`Payload field '${key}' not mapped for entity '${opoMutation.entity}'.`);
+        
+        columns.push(physicalColumn);
+        placeholders.push('?');
+        params.push(value);
+      }
+
+      sql = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders.join(', ')})`;
+      break;
+    }
+    case 'UPDATE': {
+      if (!opoMutation.payload || Object.keys(opoMutation.payload).length === 0) {
+        throw new Error('UPDATE mutation requires a payload');
+      }
+      if (!opoMutation.filter || Object.keys(opoMutation.filter).length === 0) {
+        throw new Error('UPDATE mutation requires a filter to prevent mass updates');
+      }
+
+      const setClauses: string[] = [];
+      for (const [key, value] of Object.entries(opoMutation.payload)) {
+        const physicalColumn = fields[key];
+        if (!physicalColumn) throw new Error(`Payload field '${key}' not mapped for entity '${opoMutation.entity}'.`);
+        
+        setClauses.push(`${physicalColumn} = ?`);
+        params.push(value);
+      }
+
+      const whereClause = parseFilterNode(opoMutation.filter, tableName, fields, params, opoMutation.entity);
+      sql = `UPDATE ${tableName} SET ${setClauses.join(', ')} WHERE ${whereClause}`;
+      break;
+    }
+    case 'DELETE': {
+      if (!opoMutation.filter || Object.keys(opoMutation.filter).length === 0) {
+        throw new Error('DELETE mutation requires a filter to prevent mass deletes');
+      }
+
+      const whereClause = parseFilterNode(opoMutation.filter, tableName, fields, params, opoMutation.entity);
+      sql = `DELETE FROM ${tableName} WHERE ${whereClause}`;
+      break;
+    }
+    default:
+      throw new Error(`Unsupported mutation action '${opoMutation.action}'`);
+  }
 
   return { sql, params };
 }

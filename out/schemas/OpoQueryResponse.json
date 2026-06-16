@@ -7,36 +7,26 @@
   "properties": {
     "data": {
       "type": "array",
-      "items": {
-        "type": "object"
-      },
+      "items": { "type": "object" },
       "description": "Array of returned entities mapped to OPO JSON-LD format"
     },
     "pagination": {
       "type": "object",
       "properties": {
-        "hasNextPage": {
+        "hasNextPage": { 
           "type": "boolean",
           "description": "Indicates if there are more records beyond the current page."
         },
-        "endCursor": {
-          "type": [
-            "string",
-            "null"
-          ],
+        "endCursor": { 
+          "type": ["string", "null"],
           "description": "Opaque base64 cursor to be used in the next request's pagination.cursor field."
         }
       },
-      "required": [
-        "hasNextPage",
-        "endCursor"
-      ],
+      "required": ["hasNextPage", "endCursor"],
       "additionalProperties": false
     }
   },
-  "required": [
-    "data",
-    "pagination"
-  ],
+  "required": ["data", "pagination"],
   "additionalProperties": false
 }
+

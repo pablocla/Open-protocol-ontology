@@ -140,3 +140,4 @@ curl -X GET "https://d365-opo.myenterprise.com/api/v1/entities/Customer/A59102" 
 ### Error: `Dynamics Access Denied: User not authorized for database lookup`
 - **Cause**: Azure AD principal assigned in Dynamics Admin console has missing Dataverse environment system roles.
 - **Fix**: Open Power Platform Admin setting tools, go to Application Users, select `OPO-Adapter-D365`, and confirm it has active Business Lead roles.
+

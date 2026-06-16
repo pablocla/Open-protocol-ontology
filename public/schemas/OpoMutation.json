@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openontology.vercel.app/schemas/OpoMutation.json",
+  "title": "OpoMutation",
+  "description": "Standardized OPO Mutation Language for deterministically writing data to ERPs",
+  "type": "object",
+  "properties": {
+    "mutation": {
+      "type": "object",
+      "properties": {
+        "entity": { 
+          "type": "string",
+          "description": "The target OPO entity type, e.g. 'Customer', 'Invoice'"
+        },
+        "action": {
+          "type": "string",
+          "enum": ["CREATE", "UPDATE", "DELETE"],
+          "description": "The CRUD action to perform on the entity"
+        },
+        "filter": {
+          "$ref": "OpoQuery.json#/$defs/filterNode",
+          "description": "Filter to select which records to UPDATE or DELETE. Required for UPDATE and DELETE."
+        },
+        "payload": {
+          "type": "object",
+          "description": "The data to be inserted (CREATE) or modified (UPDATE). Required for CREATE and UPDATE.",
+          "additionalProperties": true
+        }
+      },
+      "required": ["entity", "action"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["mutation"],
+  "additionalProperties": false
+}

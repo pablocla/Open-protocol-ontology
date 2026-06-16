@@ -1,0 +1,13 @@
+{
+  "mutation": {
+    "entity": "Invoice",
+    "action": "UPDATE",
+    "filter": {
+      "id": { "eq": "INV-2026-001" }
+    },
+    "payload": {
+      "status": "PAID",
+      "grandTotal": 0
+    }
+  }
+}

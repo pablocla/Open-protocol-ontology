@@ -91,15 +91,22 @@ export default function HomePage() {
             className="pt-6 flex flex-wrap gap-4"
           >
             <Link
-              href="/entities/"
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-650 hover:bg-emerald-500 px-5 py-2.5 text-xs font-mono font-bold text-black shadow-sm transition-all active:scale-95"
+              href="/studio/"
+              className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 px-5 py-2.5 text-xs font-mono font-bold text-black shadow-sm transition-all active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
             >
-              Browse Entity Schemas
+              Launch OPO Studio
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <Link
+              href="/entities/"
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/40 px-5 py-2.5 text-xs font-mono font-bold text-slate-300 hover:text-white hover:border-slate-700 transition-all active:scale-95"
+            >
+              Browse Entity Schemas
+              <Layers className="h-3.5 w-3.5 text-emerald-400" />
+            </Link>
+            <Link
               href="/spec/"
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/40 px-5 py-2.5 text-xs font-mono font-bold text-slate-300 hover:text-white hover:border-slate-700 transition-all"
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/40 px-5 py-2.5 text-xs font-mono font-bold text-slate-300 hover:text-white hover:border-slate-700 transition-all active:scale-95"
             >
               Learn Protocol Specification
               <Terminal className="h-3.5 w-3.5 text-emerald-400" />

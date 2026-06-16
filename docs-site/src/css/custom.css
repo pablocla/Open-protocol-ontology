@@ -4,27 +4,59 @@
  * work well for content-centric websites.
  */
 
-/* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
-  --ifm-code-font-size: 95%;
+  /* Default light mode overrides (we force dark mode anyway, but good to have) */
+  --ifm-color-primary: #10b981;
+  --ifm-color-primary-dark: #059669;
+  --ifm-color-primary-darker: #047857;
+  --ifm-color-primary-darkest: #064e3b;
+  --ifm-color-primary-light: #34d399;
+  --ifm-color-primary-lighter: #6ee7b7;
+  --ifm-color-primary-lightest: #a7f3d0;
+  --ifm-code-font-size: 90%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  
+  /* Font override to match OPO */
+  --ifm-font-family-base: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --ifm-font-family-monospace: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
+/* OPO Dark Mode Branding */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  /* Emerald 500 Primary */
+  --ifm-color-primary: #10b981;
+  --ifm-color-primary-dark: #059669;
+  --ifm-color-primary-darker: #047857;
+  --ifm-color-primary-darkest: #064e3b;
+  --ifm-color-primary-light: #34d399;
+  --ifm-color-primary-lighter: #6ee7b7;
+  --ifm-color-primary-lightest: #a7f3d0;
+  --docusaurus-highlighted-code-line-bg: rgba(16, 185, 129, 0.1);
+  
+  /* Background #0a0a0a to match OPO Next.js layout */
+  --ifm-background-color: #0a0a0a;
+  --ifm-background-surface-color: #0f0f0f;
+  
+  /* Navbar and Footer backgrounds */
+  --ifm-navbar-background-color: rgba(10, 10, 10, 0.95);
+  --ifm-footer-background-color: #070707;
+  
+  /* Text Colors */
+  --ifm-font-color-base: #cbd5e1; /* Slate 300 */
+}
+
+/* Subtle border lines to match slate-800 from Next.js */
+[data-theme='dark'] .navbar {
+  border-bottom: 1px solid #1e293b;
+  backdrop-filter: blur(8px);
+}
+[data-theme='dark'] .footer {
+  border-top: 1px solid #1e293b;
+}
+[data-theme='dark'] .menu__link {
+  color: #94a3b8; /* Slate 400 */
+}
+[data-theme='dark'] .menu__link:hover,
+[data-theme='dark'] .menu__link--active {
+  color: #f8fafc; /* Slate 50 */
 }

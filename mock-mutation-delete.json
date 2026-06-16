@@ -1,0 +1,9 @@
+{
+  "mutation": {
+    "entity": "Invoice",
+    "action": "DELETE",
+    "filter": {
+      "id": { "eq": "INV-2026-001" }
+    }
+  }
+}

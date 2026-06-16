@@ -34,6 +34,23 @@ Make your system OPO-compliant to allow immediate discovery and interaction by A
 
 ---
 
+## OPO Studio (Enterprise AI Control Plane)
+
+OPO includes a visual **Cognitive Mesh** builder called OPO Studio. It allows you to design your business ontology, configure specialized AI Agents, and expose your systems as MCP (Model Context Protocol) servers.
+
+To launch OPO Studio locally:
+
+```bash
+# If using the CLI globally:
+opo studio
+
+# If running from the repository root:
+npx opo studio
+```
+This will start the visual interface at `http://localhost:3000`. You can map your databases, write Declarative Intents (YAML), and execute AI multi-agent workflows locally without exposing your data.
+
+---
+
 ## Quickstart for AI Agents
 
 To consume and act upon OPO-compliant systems:

@@ -141,3 +141,4 @@ curl -X GET "https://protheus-opo.myenterprise.com.br/api/v1/entities/Customer/0
 ### Error: `TOTVS AppServer Error: Connection Refused (8000)`
 - **Cause**: The HTTPREST service section has not been configured or isn't active under Protheus `appserver.ini`.
 - **Fix**: Open configuration files on the host computer, double-check port bindings, and restart AppServer.
+

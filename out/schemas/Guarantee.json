@@ -7,18 +7,7 @@
   "x-opo-tier": 2,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "Guarantee",
-    "Garantia",
-    "Fianza",
-    "Aval",
-    "Warrant",
-    "Collateral",
-    "BSEG (Guarantees)",
-    "account.guarantee",
-    "SE1 (Avals)",
-    "Fiel",
-    "Caucion",
-    "Duplicata"
+    "Guarantee", "Garantia", "Fianza", "Aval", "Warrant", "Collateral", "BSEG (Guarantees)", "account.guarantee", "SE1 (Avals)", "Fiel", "Caucion", "Duplicata"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "BKPF / BSEG (with special G/L indicators for guarantees)",
@@ -42,65 +31,24 @@
   ],
   "type": "object",
   "properties": {
-    "id": {
-      "type": "string"
-    },
-    "partyId": {
-      "type": "string"
-    },
-    "contractId": {
-      "type": "string"
-    },
-    "value": {
-      "$ref": "#/$defs/Money"
-    },
-    "guaranteeType": {
-      "type": "string",
-      "enum": [
-        "BANK_GUARANTEE",
-        "SURETY_BOND",
-        "COLLATERAL",
-        "PERSONAL"
-      ]
-    },
-    "expiryDate": {
-      "type": "string",
-      "format": "date"
-    },
-    "status": {
-      "type": "string",
-      "enum": [
-        "PENDING",
-        "ACTIVE",
-        "EXPIRED",
-        "RELEASED"
-      ]
-    }
+    "id": { "type": "string" },
+    "partyId": { "type": "string" },
+    "contractId": { "type": "string" },
+    "value": { "$ref": "#/$defs/Money" },
+    "guaranteeType": { "type": "string", "enum": ["BANK_GUARANTEE", "SURETY_BOND", "COLLATERAL", "PERSONAL"] },
+    "expiryDate": { "type": "string", "format": "date" },
+    "status": { "type": "string", "enum": ["PENDING", "ACTIVE", "EXPIRED", "RELEASED"] }
   },
-  "required": [
-    "id",
-    "partyId",
-    "value",
-    "guaranteeType",
-    "status"
-  ],
+  "required": ["id", "partyId", "value", "guaranteeType", "status"],
   "$defs": {
     "Money": {
       "type": "object",
       "properties": {
-        "amount": {
-          "type": "number"
-        },
-        "currency": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 3
-        }
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
       },
-      "required": [
-        "amount",
-        "currency"
-      ]
+      "required": ["amount", "currency"]
     }
   }
 }
+

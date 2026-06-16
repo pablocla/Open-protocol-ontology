@@ -7,16 +7,7 @@
   "x-opo-tier": 2,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "FinancialExposure",
-    "Exposicion Financiera",
-    "Exposicao Financeira",
-    "Exposure",
-    "UKM_TOTALS",
-    "res.partner exposure",
-    "SE1/SE2 totals",
-    "Riesgo comercial",
-    "Outstanding Credit",
-    "Risco"
+    "FinancialExposure", "Exposicion Financiera", "Exposicao Financeira", "Exposure", "UKM_TOTALS", "res.partner exposure", "SE1/SE2 totals", "Riesgo comercial", "Outstanding Credit", "Risco"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "UKM_SGM (Credit Management exposure sum)",
@@ -36,56 +27,27 @@
     "Find commercial exposure from UKM_TOTALS."
   ],
   "x-opo-distinguishable-from": [
-    "CreditAccount",
-    "DebtObligation"
+    "CreditAccount", "DebtObligation"
   ],
   "type": "object",
   "properties": {
-    "id": {
-      "type": "string"
-    },
-    "partyId": {
-      "type": "string"
-    },
-    "outstandingReceivables": {
-      "$ref": "#/$defs/Money"
-    },
-    "openOrdersAmount": {
-      "$ref": "#/$defs/Money"
-    },
-    "totalExposure": {
-      "$ref": "#/$defs/Money"
-    },
-    "updatedDate": {
-      "type": "string",
-      "format": "date"
-    }
+    "id": { "type": "string" },
+    "partyId": { "type": "string" },
+    "outstandingReceivables": { "$ref": "#/$defs/Money" },
+    "openOrdersAmount": { "$ref": "#/$defs/Money" },
+    "totalExposure": { "$ref": "#/$defs/Money" },
+    "updatedDate": { "type": "string", "format": "date" }
   },
-  "required": [
-    "id",
-    "partyId",
-    "outstandingReceivables",
-    "openOrdersAmount",
-    "totalExposure",
-    "updatedDate"
-  ],
+  "required": ["id", "partyId", "outstandingReceivables", "openOrdersAmount", "totalExposure", "updatedDate"],
   "$defs": {
     "Money": {
       "type": "object",
       "properties": {
-        "amount": {
-          "type": "number"
-        },
-        "currency": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 3
-        }
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
       },
-      "required": [
-        "amount",
-        "currency"
-      ]
+      "required": ["amount", "currency"]
     }
   }
 }
+

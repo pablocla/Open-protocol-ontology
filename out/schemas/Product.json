@@ -7,16 +7,7 @@
   "x-opo-tier": 1,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "Product",
-    "Producto",
-    "Produto",
-    "SKU",
-    "MARA",
-    "product.template",
-    "SB1",
-    "Item",
-    "Mercaderia",
-    "Peca"
+    "Product", "Producto", "Produto", "SKU", "MARA", "product.template", "SB1", "Item", "Mercaderia", "Peca"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "MARA (General Material Data) / MAKT (Material Description)",
@@ -40,35 +31,15 @@
   ],
   "type": "object",
   "properties": {
-    "id": {
-      "type": "string"
-    },
-    "sku": {
-      "type": "string"
-    },
-    "name": {
-      "type": "string"
-    },
-    "description": {
-      "type": "string"
-    },
-    "category": {
-      "type": "string"
-    },
-    "barcode": {
-      "type": "string"
-    },
-    "unitOfMeasure": {
-      "type": "string"
-    },
-    "weight": {
-      "type": "number"
-    }
+    "id": { "type": "string" },
+    "sku": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "category": { "type": "string" },
+    "barcode": { "type": "string" },
+    "unitOfMeasure": { "type": "string" },
+    "weight": { "type": "number" }
   },
-  "required": [
-    "id",
-    "sku",
-    "name",
-    "unitOfMeasure"
-  ]
+  "required": ["id", "sku", "name", "unitOfMeasure"]
 }
+

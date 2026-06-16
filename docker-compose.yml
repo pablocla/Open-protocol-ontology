@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  opo-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: opo-studio
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - opo-network
+
+  opo-engine:
+    build:
+      context: ./packages/opo-engine
+      dockerfile: Dockerfile
+    container_name: opo-engine
+    ports:
+      - "5678:5678"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgres://opo:opo@postgres:5432/opo_studio
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - opo-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: opo-postgres
+    environment:
+      - POSTGRES_USER=opo
+      - POSTGRES_PASSWORD=opo
+      - POSTGRES_DB=opo_studio
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - opo-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: opo-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - opo-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  opo-network:
+    driver: bridge

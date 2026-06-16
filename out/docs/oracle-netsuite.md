@@ -137,3 +137,4 @@ curl -X GET "https://netsuite-opo.myenterprise.com/api/v1/entities/Customer/9482
 ### Error: `NetSuite Access Denied: Insufficient permissions for API endpoint`
 - **Cause**: The user role associated with your TBA token lacks the required WEB SERVICES integration permissions.
 - **Fix**: Go to Users/Roles > Manage Roles, select your API service role, click Permissions > Setup, and add `REST Web Services` privilege.
+

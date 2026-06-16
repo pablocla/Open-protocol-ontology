@@ -7,16 +7,7 @@
   "x-opo-tier": 1,
   "x-opo-license": "Apache-2.0",
   "x-opo-aliases": [
-    "PriceList",
-    "Lista de Precios",
-    "Lista de Precos",
-    "Price Book",
-    "A018",
-    "product.pricelist",
-    "DA0",
-    "Preciario",
-    "Price Matrix",
-    "Tarifario"
+    "PriceList", "Lista de Precios", "Lista de Precos", "Price Book", "A018", "product.pricelist", "DA0", "Preciario", "Price Matrix", "Tarifario"
   ],
   "x-opo-erp-mappings": {
     "SAP_S4": "A018 (Material Price Records) / KONP (Pricing Conditions)",
@@ -40,73 +31,35 @@
   ],
   "type": "object",
   "properties": {
-    "id": {
-      "type": "string"
-    },
-    "name": {
-      "type": "string"
-    },
-    "currency": {
-      "type": "string",
-      "minLength": 3,
-      "maxLength": 3
-    },
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "currency": { "type": "string", "minLength": 3, "maxLength": 3 },
     "items": {
       "type": "array",
-      "items": {
-        "$ref": "#/$defs/PriceListItem"
-      }
+      "items": { "$ref": "#/$defs/PriceListItem" }
     },
-    "startDate": {
-      "type": "string",
-      "format": "date"
-    },
-    "endDate": {
-      "type": "string",
-      "format": "date"
-    }
+    "startDate": { "type": "string", "format": "date" },
+    "endDate": { "type": "string", "format": "date" }
   },
-  "required": [
-    "id",
-    "name",
-    "currency",
-    "items"
-  ],
+  "required": ["id", "name", "currency", "items"],
   "$defs": {
     "Money": {
       "type": "object",
       "properties": {
-        "amount": {
-          "type": "number"
-        },
-        "currency": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 3
-        }
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "minLength": 3, "maxLength": 3 }
       },
-      "required": [
-        "amount",
-        "currency"
-      ]
+      "required": ["amount", "currency"]
     },
     "PriceListItem": {
       "type": "object",
       "properties": {
-        "productId": {
-          "type": "string"
-        },
-        "price": {
-          "$ref": "#/$defs/Money"
-        },
-        "minimumQuantity": {
-          "type": "number"
-        }
+        "productId": { "type": "string" },
+        "price": { "$ref": "#/$defs/Money" },
+        "minimumQuantity": { "type": "number" }
       },
-      "required": [
-        "productId",
-        "price"
-      ]
+      "required": ["productId", "price"]
     }
   }
 }
+

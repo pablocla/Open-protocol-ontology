@@ -1,0 +1,11 @@
+{
+  "mutation": {
+    "entity": "Invoice",
+    "action": "CREATE",
+    "payload": {
+      "id": "INV-2026-001",
+      "status": "DRAFT",
+      "grandTotal": 1500.50
+    }
+  }
+}
